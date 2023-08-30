@@ -1,0 +1,18 @@
+.opacityBox {
+  display: block;
+  opacity: 0;
+  transition: 0.6s 0.1s;
+  height: 100%;
+  width: 100%;
+}
+
+.visible {
+  opacity: 1;
+  transition: 0.3s 0.1s;
+}
+
+.hidden {
+  opacity: 0;
+  transition: 0.2s 0.1s;
+  cursor: none;
+}
