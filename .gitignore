@@ -36,3 +36,4 @@ yarn-error.log*
 next-env.d.ts
  
 src/components/Settings/settingsDefaults.js
+src/lib/promptsDefaults.js
