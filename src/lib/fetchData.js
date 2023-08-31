@@ -49,3 +49,39 @@ export const getData = async () => {
 
     return await makeRequest(URL, options);
 }
+
+export const requestAssistant = async (endPoint, messagesArray, tokens = 1500) => {
+
+    //will be moved to functions later
+
+    const API_KEY = process.env.NEXT_PUBLIC_ASSISTANT_KEY
+    const options = {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${API_KEY}`,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            model: 'gpt-3.5-turbo',
+            messages: messagesArray,
+            max_tokens: tokens,
+            temperature: 1.2
+        })
+    }
+    const URL = `${process.env.NEXT_PUBLIC_ASSISTANT_URL}`;
+
+    const resp = await makeRequest(URL, options);
+
+
+    if (resp.status === 'success' && resp.data.choices.length > 0) {
+        // resp.status(200).send(JSON.stringify({ content: data.choices[0].message.content }));
+        //console.log('reply::: ', JSON.stringify({ content: resp.data.choices[0].message.content }))
+        // return JSON.stringify({ content: resp.data.choices[0].message.content })
+        return { content: resp.data.choices[0].message.content }
+    } else {
+        // resp.status(200).send(JSON.stringify({ content: 'Unexpected error.' }));
+        console.log('Error:: ', resp)
+        return JSON.stringify({ content: 'Unexpected error.' })
+    }
+
+}
