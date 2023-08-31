@@ -30,7 +30,7 @@ export const promptsAPI = {
         //     content: `You are helpful assistant. Reply in a funny manner.`
         // })
 
-        return promptsTemplates.main(activeButton)
+        return promptsTemplates.main(activeButton, length)
     }
 
 }
