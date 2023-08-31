@@ -13,8 +13,10 @@ const ContextProvider = ({ children }) => {
         {
             length: '',
             context: '',
-            tone: 'Tone_2',  //example. default tone 
-            role: 'Role_1',  //example. default role 
+            //tone: 'Tone_2',  //example. default tone 
+            //role: 'Role_1',  //example. default role 
+            tone: 'Professional',
+            role: '',
             theme: 'Purple',
         }
     )

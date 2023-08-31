@@ -62,12 +62,12 @@ const ChatItem = ({ data, themeColor }) => {
         <Box w={'90%'}>
             <Card bg={data.role === 'assistant' ? `${'gray.50'}` : `${themeColor}.100`}>
                 <CardBody>
-                    <HStack>
-                        <Box px={2}>
+                    <HStack alignItems={'flex-start'}>
+                        <Box px={1}>
                             {
                                 data.role === 'assistant'
-                                    ? <FaRobot size={'36px'} />
-                                    : <RxAvatar size={'36px'} />
+                                    ? <FaRobot size={'28px'} />
+                                    : <RxAvatar size={'28px'} />
                             }
                         </Box>
                         <Text fontSize={['xs', 'lg']}>{data.content}</Text>
@@ -120,7 +120,7 @@ const CopyToClipboardButton = ({ data }) => {
             position={'absolute'}
             color={'gray.400'}
             border={'0px solid red'}
-            top={'2'}
+            top={'4'}
             right={'3'}
 
         >

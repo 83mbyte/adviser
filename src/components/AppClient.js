@@ -9,7 +9,8 @@ import SettingsContainer from './Settings/SettingsContainer';
 import HistoryContainer from './Settings/HistoryContainer';
 import Footer from './Footer/Footer';
 
-import { deleteData, putData } from '@/src/lib/fetchData';
+import { deleteData, putData, requestAssistant } from '@/src/lib/fetchData';
+import { promptsAPI } from '../lib/promptsAPI';
 
 
 const AppClient = ({ chatHistoryObj }) => {
@@ -50,51 +51,78 @@ const AppClient = ({ chatHistoryObj }) => {
     const onClickBtnHandler = async (inputRef) => {
         setIsBtnLoading(true);
 
-        let chatQuestionAndReplyItem =
-            [
-                { role: 'user', content: inputRef.current.value },
-                { role: 'assistant', content: 'Assistant reply at AppClient.js' }
-            ]
-        if (chatHistory && chatHistory[chatId]) {
+        const systemMessage = (activeButton) => {
+            let res = promptsAPI.createSystemMessage(activeButton);
+            console.log('res::', res)
+            return res
+        }
 
-            setChatHistory({
-                ...chatHistory,
-                [chatId]: [
+        const discussionContext = (arrayHistory) => {
+
+            return arrayHistory[arrayHistory.length - 1][1]
+        }
+        const getUserInput = (value) => {
+            return { role: 'user', content: value }
+        }
+
+        let messagesArray = [systemMessage(activeButton), getUserInput(inputRef.current.value)];
+        if (chatHistory[chatId] && chatHistory[chatId].length > 0) {
+            messagesArray = [systemMessage(activeButton), discussionContext(chatHistory[chatId]), getUserInput(inputRef.current.value)]
+        }
+        let data = await requestAssistant('/testEndpoint', messagesArray, 1200);
+
+        if (data) {
+            // TODO
+            // TODO chcek code below
+            // TODO
+
+            //
+            // dev mode template array of user ask and assist reply..
+            //
+
+            let chatQuestionAndReplyItem =
+                [
+                    { role: 'user', content: inputRef.current.value },
+                    { role: 'assistant', content: data.content }
+                ]
+
+            if (chatHistory && chatHistory[chatId]) {
+
+                setChatHistory({
+                    ...chatHistory,
+                    [chatId]: [
+                        ...chatHistory[chatId],
+                        chatQuestionAndReplyItem
+                    ]
+                });
+                dataToUpload = [
                     ...chatHistory[chatId],
                     chatQuestionAndReplyItem
                 ]
-            })
-        } else {
 
-            setChatHistory({
-                ...chatHistory,
-                [chatId]: [chatQuestionAndReplyItem]
-            })
-        }
+            } else {
+
+                setChatHistory({
+                    ...chatHistory,
+                    [chatId]: [chatQuestionAndReplyItem]
+                });
+                dataToUpload = [
+                    chatQuestionAndReplyItem
+                ]
+            }
 
 
-        if (chatHistory && chatHistory[chatId]) {
+            try {
+                await putData(chatId, dataToUpload);
 
-            dataToUpload = [
-                ...chatHistory[chatId],
-                chatQuestionAndReplyItem
-            ]
-        } else {
 
-            dataToUpload = [
-                chatQuestionAndReplyItem
-            ]
-        }
-
-        try {
-            await putData(chatId, dataToUpload);
-
-        } catch (error) {
-            console.error(error);
-        }
-        finally {
-            inputRef.current.value = '';
-            setIsBtnLoading(false);
+            } catch (error) {
+                console.error(error);
+            }
+            finally {
+                inputRef.current.value = '';
+                setIsBtnLoading(false);
+            }
         }
     }
 

@@ -41,7 +41,7 @@ const HistoryContainer = ({ isOpen, toggleHistoryView, chatHistory, chooseHistor
                     {
                         Object.keys(chatHistory).map((chatName, index) => {
                             return (
-                                <ChatHistoryItem key={index} themeColor={themeColor} chatHistory={chatHistory} chatName={chatName} chooseHistory={chooseHistory} />
+                                <ChatHistoryItem key={index} themeColor={themeColor} chatHistory={chatHistory} chatName={chatName} chooseHistory={chooseHistory} clearChatFromHistory={clearChatFromHistory} />
                             )
                         })
                     }
@@ -53,7 +53,7 @@ const HistoryContainer = ({ isOpen, toggleHistoryView, chatHistory, chooseHistor
 
 export default HistoryContainer;
 
-const ChatHistoryItem = ({ themeColor, chatHistory, chatName, chooseHistory }) => {
+const ChatHistoryItem = ({ themeColor, chatHistory, chatName, chooseHistory, clearChatFromHistory }) => {
 
     const [isLoading, setIsLoading] = React.useState(false);
 
