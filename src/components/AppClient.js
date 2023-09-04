@@ -1,5 +1,5 @@
 'use client'
-import { useStateContext } from '@/src/utilities/ContextProvider';
+
 import { Box, VStack, Portal } from '@chakra-ui/react';
 import React from 'react';
 
@@ -9,19 +9,28 @@ import SettingsContainer from './Settings/SettingsContainer';
 import HistoryContainer from './Settings/HistoryContainer';
 import Footer from './Footer/Footer';
 
-import { deleteData, putData, requestAssistant } from '@/src/lib/fetchData';
+import { requestAssistant } from '@/src/lib/fetchData';
 import { promptsAPI } from '../lib/promptsAPI';
+import { dbAPI } from '../lib/dbAPI';
+
+import { useAuthContext } from '../context/AuthContextProvider';
+import { useHistoryContext } from '../context/HistoryContextProvider';
+import { useSettingsContext } from '../context/SettingsContextProvider';
 
 
-const AppClient = ({ chatHistoryObj }) => {
+const AppClient = () => {
 
+    const settingsContext = useSettingsContext();
+    const historyContext = useHistoryContext();
 
-    const appContext = useStateContext();
-    const { chatHistory, setChatHistory } = { ...appContext.chatHistory };
-    const { activeButton, setActiveButton } = { ...appContext.activeButton };
-    const { isVisibleMenu, setIsVisibleMenu } = { ...appContext.isVisibleMenu };
-    const { isVisibleHistory, setIsVisibleHistory } = { ...appContext.isVisibleHistory };
-    const { isVisibleChatArea, setIsVisibleChatArea } = { ...appContext.isVisibleChatArea };
+    const [chatHistory, setChatHistory] = React.useState({});
+
+    const { activeButton, setActiveButton } = { ...settingsContext.activeButton };
+    const { isVisibleMenu, setIsVisibleMenu } = { ...settingsContext.isVisibleMenu };
+    const { isVisibleHistory, setIsVisibleHistory } = { ...settingsContext.isVisibleHistory };
+    const { isVisibleChatArea, setIsVisibleChatArea } = { ...settingsContext.isVisibleChatArea };
+
+    const user = useAuthContext();
 
     let themeColor = (activeButton.theme).toLowerCase();
 
@@ -47,47 +56,41 @@ const AppClient = ({ chatHistoryObj }) => {
     }
 
 
-
     const onClickBtnHandler = async (inputRef) => {
         setIsBtnLoading(true);
 
         const systemMessage = (activeButton) => {
             let res = promptsAPI.createSystemMessage(activeButton);
-            console.log('res::', res)
+
             return res
         }
 
         const discussionContext = (arrayHistory) => {
 
-            return arrayHistory[arrayHistory.length - 1][1]
+            return { role: 'assistant', content: arrayHistory[arrayHistory.length - 1].assistant.content }
         }
         const getUserInput = (value) => {
             return { role: 'user', content: value }
         }
 
-        let messagesArray = [systemMessage(activeButton), getUserInput(inputRef.current.value)];
+        let messagesArray;
         if (chatHistory[chatId] && chatHistory[chatId].length > 0) {
             messagesArray = [systemMessage(activeButton), discussionContext(chatHistory[chatId]), getUserInput(inputRef.current.value)]
+        } else {
+            messagesArray = [systemMessage(activeButton), getUserInput(inputRef.current.value)];
         }
+
         let data = await requestAssistant('/testEndpoint', messagesArray, 1200);
 
         if (data) {
-            // TODO
-            // TODO chcek code below
-            // TODO
-
-            //
-            // dev mode template array of user ask and assist reply..
-            //
 
             let chatQuestionAndReplyItem =
-                [
-                    { role: 'user', content: inputRef.current.value },
-                    { role: 'assistant', content: data.content }
-                ]
+            {
+                user: { content: inputRef.current.value },
+                assistant: { content: data.content }
+            }
 
             if (chatHistory && chatHistory[chatId]) {
-
                 setChatHistory({
                     ...chatHistory,
                     [chatId]: [
@@ -106,6 +109,7 @@ const AppClient = ({ chatHistoryObj }) => {
                     ...chatHistory,
                     [chatId]: [chatQuestionAndReplyItem]
                 });
+
                 dataToUpload = [
                     chatQuestionAndReplyItem
                 ]
@@ -113,8 +117,7 @@ const AppClient = ({ chatHistoryObj }) => {
 
 
             try {
-                await putData(chatId, dataToUpload);
-
+                await dbAPI.updateData(user.uid, chatId, dataToUpload);
 
             } catch (error) {
                 console.error(error);
@@ -130,11 +133,12 @@ const AppClient = ({ chatHistoryObj }) => {
         setChatId(data);
     }
 
-    const clearChatFromHistory = async (postId) => {
-        let resp = await deleteData(postId);
-        if (resp) {
-            const { [postId]: removedData, ...newChatHistory } = chatHistory;
-            setChatHistory(newChatHistory);
+    const clearChatFromHistory = async (chatId) => {
+        let res = await dbAPI.deleteChat(user.uid, chatId)
+
+        if (res) {
+            const { [chatId]: removedData, ...restHistory } = chatHistory;
+            setChatHistory(restHistory);
         }
         return 'done'
     }
@@ -145,94 +149,101 @@ const AppClient = ({ chatHistoryObj }) => {
     }, []);
 
     React.useEffect(() => {
-        if (chatHistoryObj) {
-            setChatHistory(chatHistoryObj)
+        if (historyContext) {
+            setChatHistory(historyContext)
         }
-    }, [chatHistoryObj]);
-
+    }, [historyContext]);
 
     return (
 
         <>
-            <VStack
-                bg=''
-                justifyContent={'space-between'}
-                minHeight={'10vh'}
-                height={'100vh'}
-                maxHeight={'100vh'}
-                spacing={'0'}
-                w={'full'}
-            >
-                {/* Header */}
-                <Box bg='gray.50' w='full' as={'header'}>
-                    <Header
-                        openNewChat={openNewChat}
-                        toggleMenuView={toggleMenuView}
-                        toggleHistoryView={toggleHistoryView}
-                        isChatHistoryExists={Object.keys(chatHistory).length > 0}
-                        themeColor={themeColor}
-                    />
-                </Box>
+            {
+                !user ? 'Access Denied'
+                    : <>
+                        <VStack
+                            bg='red'
+                            justifyContent={'space-between'}
+                            minHeight={'10vh'}
+                            height={'100vh'}
+                            maxHeight={'100vh'}
+                            spacing={'0'}
+                            w={'full'}
+                        >
+                            {/* Header */}
+                            <Box bg='gray.50' w='full' as={'header'} h={['45px', '55px']}>
+
+                                <Header
+                                    openNewChat={openNewChat}
+                                    toggleMenuView={toggleMenuView}
+                                    toggleHistoryView={toggleHistoryView}
+                                    isChatHistoryExists={Object.keys(chatHistory).length > 0}
+                                    themeColor={themeColor}
+                                />
+                            </Box>
 
 
-                {/* Chat Area  */}
-                <Box
-                    as={'main'}
-                    bg={'gray.300'}
-                    // bg='#F7FAFC'
-                    display={'flex'}
-                    flexDirection={'column'}
-                    height={'100%'}
-                    maxHeight={'100%'}
-                    w={'full'}
-                    flex={1}
-                    alignItems={'center'}
-                    justifyContent={'center'}
-                    p={2}
-                    overflow={'auto'}
-                >
-                    {
-                        chatId &&
-                        <ChatArea
-                            isBtnLoading={isBtnLoading}
-                            isVisibleChatArea={isVisibleChatArea}
-                            setChatHistory={setChatHistory}
-                            currentChat={chatHistory[chatId] ? chatHistory[chatId] : []}
-                            onClickBtn={(data) => onClickBtnHandler(data)}
-                            themeColor={themeColor}
-                        />
-                    }
-                </Box>
+                            {/* Chat Area  */}
+                            <Box
+                                as={'main'}
+                                bg={'gray.300'}
+                                // bg='#F7FAFC'
+                                display={'flex'}
+                                flexDirection={'column'}
+                                height={'100%'}
+                                maxHeight={'100%'}
+                                w={'full'}
+                                flex={1}
+                                alignItems={'center'}
+                                justifyContent={'center'}
+                                p={2}
+                                overflow={'auto'}
+                            >
+                                {
+                                    chatId &&
+                                    <ChatArea
+                                        isBtnLoading={isBtnLoading}
+                                        isVisibleChatArea={isVisibleChatArea}
+                                        setChatHistory={setChatHistory}
+                                        // currentChat={newHistory[chatId] ? newHistory[chatId] : []}
+                                        currentChat={chatHistory[chatId] ? chatHistory[chatId] : []}
+                                        onClickBtn={(data) => onClickBtnHandler(data)}
+                                        themeColor={themeColor}
+                                    />
+                                }
+                            </Box>
 
 
-                {/* Footer */}
+                            {/* Footer */}
 
-                <Box bg='gray.100' w='full' as={'footer'}>
-                    <Footer themeColor={themeColor} />
-                </Box>
+                            <Box bg='gray.100' w='full' as={'footer'}>
+                                <Footer themeColor={themeColor} />
+                            </Box>
 
-            </VStack>
+                        </VStack>
 
-            <Portal>
-                {
-                    isVisibleMenu &&
-                    <SettingsContainer isOpen={isVisibleMenu} toggleMenuView={toggleMenuView} activeButton={activeButton} setActiveButton={setActiveButton} themeColor={themeColor} />
-                }
-            </Portal>
-            <Portal>
-                {
-                    isVisibleHistory &&
-                    <HistoryContainer
-                        themeColor={themeColor}
-                        isOpen={isVisibleHistory}
-                        toggleHistoryView={toggleHistoryView}
-                        chatHistory={chatHistory}
-                        setChatHistory={setChatHistory}
-                        chooseHistory={chooseHistory}
-                        clearChatFromHistory={clearChatFromHistory}
-                    />
-                }
-            </Portal>
+                        <Portal>
+                            {
+                                isVisibleMenu &&
+                                <SettingsContainer isOpen={isVisibleMenu} toggleMenuView={toggleMenuView} activeButton={activeButton} setActiveButton={setActiveButton} themeColor={themeColor} />
+                            }
+                        </Portal>
+                        <Portal>
+                            {
+                                isVisibleHistory &&
+                                <HistoryContainer
+                                    themeColor={themeColor}
+                                    isOpen={isVisibleHistory}
+                                    toggleHistoryView={toggleHistoryView}
+                                    chatHistory={chatHistory}
+                                    setChatHistory={setChatHistory}
+                                    chooseHistory={chooseHistory}
+                                    clearChatFromHistory={clearChatFromHistory}
+                                />
+                            }
+                        </Portal>
+                    </>
+
+            }
         </>
     );
 };
