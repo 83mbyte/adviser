@@ -1,5 +1,5 @@
-import { Providers } from "../src/utilities/providers"
 
+import './globals.css';
 export const metadata = {
   title: 'Adviser AI App',
   description: 'Your personal AI-based consultant.',
@@ -8,10 +8,11 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
+
       <body>
-        <Providers>
-          {children}
-        </Providers>
+
+        {children}
+
       </body>
     </html>
   )
