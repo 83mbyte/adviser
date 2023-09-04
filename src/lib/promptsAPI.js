@@ -13,13 +13,13 @@ export const promptsAPI = {
                 length = '100 words';
                 break;
             case 'Long':
-                length = '200 words';
+                length = '300 words';
                 break;
             case 'eXtraLong':
                 length = '500 words';
                 break;
             default:
-                length = '30 words';
+                length = '100 words';
                 break;
         }
 
