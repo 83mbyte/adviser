@@ -16,6 +16,7 @@ const Header = ({ toggleMenuView, toggleHistoryView, isChatHistoryExists, openNe
             bg={useColorModeValue('white', 'gray.800')}
             color={useColorModeValue('gray.600', 'white')}
             minH={['45px', '55px']}
+            h={['45px', '55px']}
             borderBottom={1}
             borderStyle={'solid'}
             borderColor={useColorModeValue('gray.200', 'gray.900')}
@@ -42,6 +43,7 @@ const Header = ({ toggleMenuView, toggleHistoryView, isChatHistoryExists, openNe
                         ml={{ base: -2 }}
                         display={{ base: 'flex', md: 'flex' }}
                         columnGap={'3'}
+                        alignItems={'center'}
                     >
                         {
                             <OpacityBox isVisible={isChatHistoryExists}>
@@ -55,8 +57,15 @@ const Header = ({ toggleMenuView, toggleHistoryView, isChatHistoryExists, openNe
                                         display={isChatHistoryExists ? 'flex' : 'none'}
                                     />
                                 </Tooltip>
+
                             </OpacityBox>}
 
+                        {
+                            isChatHistoryExists &&
+                            <Box w={'1px'} bg={`${themeColor}.300`} h={'20px'}>
+                                &nbsp;
+                            </Box>
+                        }
                         <Tooltip label='New Chat' hasArrow bg={`${themeColor}.500`} aria-label='A tooltip NewChat'>
                             <IconButton
                                 onClick={openNewChat}
@@ -67,6 +76,11 @@ const Header = ({ toggleMenuView, toggleHistoryView, isChatHistoryExists, openNe
 
                             />
                         </Tooltip>
+
+                        <Box w={'1px'} bg={`${themeColor}.300`} h={'20px'}>
+                            &nbsp;
+                        </Box>
+
 
                         <Tooltip label="Settings" aria-label='A tooltip Setting' hasArrow bg={`${themeColor}.500`}>
                             <IconButton
