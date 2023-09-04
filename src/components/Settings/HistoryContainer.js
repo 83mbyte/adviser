@@ -12,13 +12,12 @@ import {
     Box,
     IconButton, Icon,
 } from '@chakra-ui/react';
-import { MdArrowBack } from 'react-icons/md';
+import { MdArrowBackIosNew } from 'react-icons/md';
 
 import { RiChatHistoryLine, RiDeleteBin7Line } from "react-icons/ri";
 
 
 const HistoryContainer = ({ isOpen, toggleHistoryView, chatHistory, chooseHistory, themeColor, clearChatFromHistory }) => {
-
 
     return (
         <Drawer size={{ sm: 'full', md: 'sm' }} isOpen={isOpen} placement={'left'} onOverlayClick={toggleHistoryView} >
@@ -28,7 +27,7 @@ const HistoryContainer = ({ isOpen, toggleHistoryView, chatHistory, chooseHistor
                 <DrawerHeader borderBottomWidth='1px' py={[2, 4]}>
                     <HStack>
                         <Box bg=''   >
-                            <IconButton icon={<MdArrowBack />} colorScheme={themeColor} variant={'ghost'} onClick={toggleHistoryView} />
+                            <IconButton icon={<MdArrowBackIosNew size={'22px'} />} colorScheme={themeColor} variant={'ghost'} onClick={toggleHistoryView} />
                         </Box>
                         <Box w='full' >
                             <Text textAlign={'center'}>{`Chats' History`}</Text>
@@ -37,11 +36,14 @@ const HistoryContainer = ({ isOpen, toggleHistoryView, chatHistory, chooseHistor
                 </DrawerHeader>
 
                 <DrawerBody>
-                    <Text pb={2}>Section is still under construction..</Text>
+
                     {
                         Object.keys(chatHistory).map((chatName, index) => {
+
                             return (
-                                <ChatHistoryItem key={index} themeColor={themeColor} chatHistory={chatHistory} chatName={chatName} chooseHistory={chooseHistory} clearChatFromHistory={clearChatFromHistory} />
+                                <ChatHistoryItem key={index} themeColor={themeColor} chatName={chatName} chooseHistory={chooseHistory} clearChatFromHistory={clearChatFromHistory}
+                                    title={chatHistory[chatName][0].user.content}
+                                />
                             )
                         })
                     }
@@ -53,14 +55,13 @@ const HistoryContainer = ({ isOpen, toggleHistoryView, chatHistory, chooseHistor
 
 export default HistoryContainer;
 
-const ChatHistoryItem = ({ themeColor, chatHistory, chatName, chooseHistory, clearChatFromHistory }) => {
+const ChatHistoryItem = ({ themeColor, chatName, chooseHistory, clearChatFromHistory, title }) => {
 
     const [isLoading, setIsLoading] = React.useState(false);
 
-    const onClickHandler = async () => {
+    const onClickDeleteHandler = async () => {
         setIsLoading(true);
         let res = await clearChatFromHistory(`${chatName}`);
-        console.log('res::', res)
         setIsLoading(false);
     }
     return (
@@ -73,7 +74,7 @@ const ChatHistoryItem = ({ themeColor, chatHistory, chatName, chooseHistory, cle
                     _hover={{ cursor: 'pointer' }}
                     onClick={() => chooseHistory(`${chatName}`)}
                 >
-                    {`${chatHistory[chatName][0][0].content.slice(0, 30)}..`}
+                    {`${title.slice(0, 30)}..`}
                 </Box>
             </HStack>
             <IconButton
@@ -82,7 +83,7 @@ const ChatHistoryItem = ({ themeColor, chatHistory, chatName, chooseHistory, cle
                 colorScheme={themeColor}
                 _hover={{ color: 'red' }}
                 variant={'link'}
-                onClick={onClickHandler}
+                onClick={onClickDeleteHandler}
             />
 
         </HStack>
