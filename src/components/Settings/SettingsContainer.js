@@ -10,12 +10,14 @@ import {
     Text,
     HStack,
     Box,
-    IconButton
+    IconButton,
+    Button
 } from '@chakra-ui/react'
 import SettingsMenuItem from './SettingsMenuItem';
-import { MdArrowBack } from 'react-icons/md';
+import { MdArrowBack, MdLogout, MdArrowBackIosNew } from 'react-icons/md';
 
 import { MENU_ITEMS } from './settingsDefaults';   // see the example of MENU_ITEMS below.
+import { authAPI } from '@/src/lib/authAPI';
 
 
 // example of MENU_ITEMS array:
@@ -75,7 +77,10 @@ const SettingsContainer = ({ isOpen, toggleMenuView, activeButton, setActiveButt
                 [data.type]: data.button
             })
         }
-
+    }
+    const signOutHandler = () => {
+        console.log('sign out');
+        authAPI.signOut()
     }
     return (
         <Drawer size={{ sm: 'full', md: 'md', lg: 'lg', xl: 'xl' }} isOpen={isOpen} placement={'left'} onOverlayClick={toggleMenuView} >
@@ -85,10 +90,21 @@ const SettingsContainer = ({ isOpen, toggleMenuView, activeButton, setActiveButt
                 <DrawerHeader borderBottomWidth='1px' py={[2, 4]}>
                     <HStack>
                         <Box>
-                            <IconButton icon={<MdArrowBack />} colorScheme={themeColor} variant={'ghost'} onClick={toggleMenuView} />
+                            <IconButton icon={<MdArrowBackIosNew size={'22px'} />} colorScheme={themeColor} variant={'ghost'} onClick={toggleMenuView} />
                         </Box>
                         <Box w='full' >
                             <Text textAlign={'center'}>Settings</Text>
+                        </Box>
+                        <Box>
+                            <Button
+                                variant={'outline'}
+                                colorScheme={'red'}
+                                leftIcon={<MdLogout />}
+                                size={['xs', 'sm']}
+                                onClick={signOutHandler}
+                            >
+                                SignOut
+                            </Button>
                         </Box>
                     </HStack>
                 </DrawerHeader>
