@@ -1,5 +1,5 @@
 'use client'
-import { Box, CardBody, Text, Card, HStack, IconButton, useToast } from '@chakra-ui/react';
+import { Box, CardBody, Text, Card, HStack, IconButton, useToast, Tooltip } from '@chakra-ui/react';
 import React from 'react';
 
 import { FaRobot } from "react-icons/fa6";
@@ -37,17 +37,28 @@ const ChatMessages = ({ currentChat, themeColor }) => {
                 {
                     currentChat && currentChat.length > 0 &&
                     currentChat.map((chatItem, index) => {
-                        return chatItem.map((item, itemIndex) => {
-                            return (
-                                <Box px={4} py={2} key={itemIndex} w={'full'} justifyContent={item.role !== 'assistant' ? 'flex-start' : 'flex-end'} display={'flex'} flexDirection={'row'} position={'relative'}>
-                                    <ChatItem data={item} themeColor={themeColor} />
-                                    {
-                                        item.role === 'assistant' &&
-                                        <CopyToClipboardButton data={item.content} />
-                                    }
-                                </Box>
-                            )
-                        })
+
+                        return (
+                            <React.Fragment key={`${index}_chat_`}>
+                                {
+                                    !chatItem['assistant']
+                                        ? <Box px={4} py={2} key={`${index}_chat`} w={'full'} justifyContent={'flex-start'} display={'flex'} flexDirection={'row'} position={'relative'}>
+                                            <ChatItem data={chatItem['user']} role={'user'} themeColor={themeColor} />
+                                        </Box>
+                                        :
+                                        <React.Fragment >
+                                            <Box px={4} py={2} key={`${index}_user`} w={'full'} justifyContent={'flex-start'} display={'flex'} flexDirection={'row'} position={'relative'}>
+                                                <ChatItem data={chatItem['user']} role={'user'} themeColor={themeColor} />
+                                            </Box>
+                                            <Box px={4} py={2} key={`${index}_assistant`} w={'full'} justifyContent={'flex-end'} display={'flex'} flexDirection={'row'} position={'relative'}>
+                                                <ChatItem data={chatItem['assistant']} role={'assistant'} themeColor={themeColor} />
+                                                {/* <CopyToClipboardButton data={chatItem['assistant'].content} /> */}
+                                            </Box>
+
+                                        </React.Fragment>
+                                }
+                            </React.Fragment>
+                        )
                     })
                 }
             </Box>
@@ -57,20 +68,24 @@ const ChatMessages = ({ currentChat, themeColor }) => {
 
 export default ChatMessages;
 
-const ChatItem = ({ data, themeColor }) => {
+const ChatItem = ({ data, role, themeColor }) => {
+
     return (
         <Box w={'90%'}>
-            <Card bg={data.role === 'assistant' ? `${'gray.50'}` : `${themeColor}.100`}>
+            <Card bg={role !== 'user' ? `${'gray.50'}` : `${themeColor}.100`}>
                 <CardBody>
-                    <HStack alignItems={'flex-start'}>
+                    <HStack alignItems={'flex-start'}  >
                         <Box px={1}>
                             {
-                                data.role === 'assistant'
-                                    ? <FaRobot size={'28px'} />
-                                    : <RxAvatar size={'28px'} />
+                                role === 'assistant'
+                                    ? <FaRobot size={'24px'} />
+                                    : <RxAvatar size={'24px'} />
                             }
                         </Box>
-                        <Text fontSize={['xs', 'lg']}>{data.content}</Text>
+                        <Text fontSize={['xs', 'lg']} w={'full'}>{data.content}</Text>
+                        {
+                            role !== 'user' && <CopyToClipboardButton data={data.content} themeColor={themeColor} />
+                        }
                     </HStack>
 
                 </CardBody>
@@ -80,7 +95,7 @@ const ChatItem = ({ data, themeColor }) => {
 }
 
 
-const CopyToClipboardButton = ({ data }) => {
+const CopyToClipboardButton = ({ data, themeColor }) => {
     const toast = useToast();
     const copyToClipboard = () => {
         navigator.clipboard.writeText(data).then(
@@ -117,22 +132,23 @@ const CopyToClipboardButton = ({ data }) => {
 
     return (
         <Box bg=''
-            position={'absolute'}
+            position={'relative'}
             color={'gray.400'}
             border={'0px solid red'}
-            top={'4'}
-            right={'3'}
+            mt={'-2'}
 
         >
 
-            <IconButton
-                onClick={copyToClipboard}
-                icon={<RiFileCopy2Fill size={'18px'} />}
-                color={'inherit'}
-                _hover={{ color: 'purple.500' }}
-                variant={'ghost'}
-                aria-label={'Copy to Clipboard'}
-            />
+            <Tooltip label='Copy' hasArrow bg={`${themeColor}.500`}>
+                <IconButton
+                    onClick={copyToClipboard}
+                    icon={<RiFileCopy2Fill size={'18px'} />}
+                    color={'inherit'}
+                    _hover={{ color: 'purple.500' }}
+                    variant={'ghost'}
+                    aria-label={'Copy to Clipboard'}
+                />
+            </Tooltip>
 
         </Box>
     )
