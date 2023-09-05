@@ -37,3 +37,7 @@ next-env.d.ts
  
 src/components/Settings/settingsDefaults.js
 src/lib/promptsDefaults.js
+firebase-debug.log
+.firebase/*
+firebase.json
+.firebaserc
