@@ -1,6 +1,6 @@
 'use client'
 
-import { Box, VStack, Portal } from '@chakra-ui/react';
+import { Box, VStack, Portal, Button } from '@chakra-ui/react';
 import React from 'react';
 
 import ChatArea from './ChatArea/ChatArea';
@@ -9,7 +9,7 @@ import SettingsContainer from './Settings/SettingsContainer';
 import HistoryContainer from './Settings/HistoryContainer';
 import Footer from './Footer/Footer';
 
-import { requestAssistant } from '@/src/lib/fetchData';
+import { getReplyFromAssistant } from '@/src/lib/fetchData';
 import { promptsAPI } from '../lib/promptsAPI';
 import { dbAPI } from '../lib/dbAPI';
 
@@ -59,19 +59,11 @@ const AppClient = () => {
     const onClickBtnHandler = async (inputRef) => {
         setIsBtnLoading(true);
 
-        const systemMessage = (activeButton) => {
-            let res = promptsAPI.createSystemMessage(activeButton);
+        const systemMessage = (activeButton) => promptsAPI.createSystemMessage(activeButton);
 
-            return res
-        }
+        const discussionContext = (arrayHistory) => ({ role: 'assistant', content: arrayHistory[arrayHistory.length - 1].assistant.content });
 
-        const discussionContext = (arrayHistory) => {
-
-            return { role: 'assistant', content: arrayHistory[arrayHistory.length - 1].assistant.content }
-        }
-        const getUserInput = (value) => {
-            return { role: 'user', content: value }
-        }
+        const getUserInput = (value) => ({ role: 'user', content: value });
 
         let messagesArray;
         if (chatHistory[chatId] && chatHistory[chatId].length > 0) {
@@ -80,7 +72,7 @@ const AppClient = () => {
             messagesArray = [systemMessage(activeButton), getUserInput(inputRef.current.value)];
         }
 
-        let data = await requestAssistant('/testEndpoint', messagesArray, 1200);
+        let data = await getReplyFromAssistant({ messagesArray, tokens: 1200 });
 
         if (data) {
 
