@@ -41,3 +41,5 @@ firebase-debug.log
 .firebase/*
 firebase.json
 .firebaserc
+ui-debug.log
+functions/.env
