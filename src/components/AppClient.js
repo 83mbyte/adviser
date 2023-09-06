@@ -1,6 +1,6 @@
 'use client'
 
-import { Box, VStack, Portal, Button } from '@chakra-ui/react';
+import { Box, VStack, Portal, } from '@chakra-ui/react';
 import React from 'react';
 
 import ChatArea from './ChatArea/ChatArea';
@@ -72,52 +72,51 @@ const AppClient = () => {
             messagesArray = [systemMessage(activeButton), getUserInput(inputRef.current.value)];
         }
 
-        let data = await getReplyFromAssistant({ messagesArray, tokens: 1200 });
+        try {
 
-        if (data) {
+            let data = await getReplyFromAssistant({ messagesArray, tokens: 1200 });
+            if (data) {
 
-            let chatQuestionAndReplyItem =
-            {
-                user: { content: inputRef.current.value },
-                assistant: { content: data.content }
-            }
+                let chatQuestionAndReplyItem =
+                {
+                    user: { content: inputRef.current.value },
+                    assistant: { content: data.content }
+                }
 
-            if (chatHistory && chatHistory[chatId]) {
-                setChatHistory({
-                    ...chatHistory,
-                    [chatId]: [
+                if (chatHistory && chatHistory[chatId]) {
+                    setChatHistory({
+                        ...chatHistory,
+                        [chatId]: [
+                            ...chatHistory[chatId],
+                            chatQuestionAndReplyItem
+                        ]
+                    });
+                    dataToUpload = [
                         ...chatHistory[chatId],
                         chatQuestionAndReplyItem
                     ]
-                });
-                dataToUpload = [
-                    ...chatHistory[chatId],
-                    chatQuestionAndReplyItem
-                ]
 
-            } else {
+                } else {
 
-                setChatHistory({
-                    ...chatHistory,
-                    [chatId]: [chatQuestionAndReplyItem]
-                });
+                    setChatHistory({
+                        ...chatHistory,
+                        [chatId]: [chatQuestionAndReplyItem]
+                    });
 
-                dataToUpload = [
-                    chatQuestionAndReplyItem
-                ]
-            }
+                    dataToUpload = [
+                        chatQuestionAndReplyItem
+                    ]
+                }
 
-
-            try {
                 await dbAPI.updateData(user.uid, chatId, dataToUpload);
+            }
 
-            } catch (error) {
-                console.error(error);
-            }
-            finally {
-                inputRef.current.value = '';
-                setIsBtnLoading(false);
-            }
+        } catch (error) {
+            console.error(error);
+        }
+        finally {
+            inputRef.current.value = '';
+            setIsBtnLoading(false);
         }
     }
 
@@ -196,7 +195,6 @@ const AppClient = () => {
                                         isBtnLoading={isBtnLoading}
                                         isVisibleChatArea={isVisibleChatArea}
                                         setChatHistory={setChatHistory}
-                                        // currentChat={newHistory[chatId] ? newHistory[chatId] : []}
                                         currentChat={chatHistory[chatId] ? chatHistory[chatId] : []}
                                         onClickBtn={(data) => onClickBtnHandler(data)}
                                         themeColor={themeColor}
