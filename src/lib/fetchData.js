@@ -55,7 +55,7 @@ export const getReplyFromAssistant = async (data) => {
         method: 'POST',
         body: JSON.stringify(data)
     }
-    let resp = await fetch('/api/chat', options);
+    let resp = await fetch(process.env.NEXT_PUBLIC_FUNC_PROD_URL, options);
 
     if (resp) {
         return await resp.json();
