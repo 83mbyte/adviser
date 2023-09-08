@@ -5,11 +5,11 @@ import {
 import React from 'react';
 
 import { FiSettings } from "react-icons/fi";
-import { RiHistoryLine, RiChatNewLine } from "react-icons/ri";
+import { RiHistoryLine, RiChatNewLine, RiImageAddLine } from "react-icons/ri";
 import OpacityBox from '../OpacityBox/OpacityBox';
 
 
-const Header = ({ toggleMenuView, toggleHistoryView, isChatHistoryExists, openNewChat, themeColor, }) => {
+const Header = ({ toggleMenuView, toggleHistoryView, isChatHistoryExists, openNewChat, openCreateImage, themeColor, }) => {
 
     return (
         <Box
@@ -73,6 +73,20 @@ const Header = ({ toggleMenuView, toggleHistoryView, isChatHistoryExists, openNe
                                 colorScheme={themeColor}
                                 variant={'ghost'}
                                 aria-label={'New Chat'}
+
+                            />
+                        </Tooltip>
+
+                        <Box w={'1px'} bg={`${themeColor}.300`} h={'20px'}>
+                            &nbsp;
+                        </Box>
+                        <Tooltip label='Create Image' hasArrow bg={`${themeColor}.500`} aria-label='A tooltip CreateImage'>
+                            <IconButton
+                                onClick={openCreateImage}
+                                icon={<RiImageAddLine size={'28px'} />}
+                                colorScheme={themeColor}
+                                variant={'ghost'}
+                                aria-label={'Create Image'}
 
                             />
                         </Tooltip>
