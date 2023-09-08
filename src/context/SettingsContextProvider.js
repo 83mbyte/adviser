@@ -22,6 +22,8 @@ const SettingsContextProvider = ({ children }) => {
         }
     )
 
+    const [model, setModel] = React.useState('');
+
     const [isVisibleMenu, setIsVisibleMenu] = React.useState(false);
     const [isVisibleHistory, setIsVisibleHistory] = React.useState(false);
     const [isVisibleChatArea, setIsVisibleChatArea] = React.useState(false);
@@ -35,6 +37,7 @@ const SettingsContextProvider = ({ children }) => {
         isVisibleHistory: { isVisibleHistory, setIsVisibleHistory },
         isVisibleChatArea: { isVisibleChatArea, setIsVisibleChatArea },
         themeColor: { themeColor, setThemeColor },
+        model: { model, setModel }
     }
 
 
