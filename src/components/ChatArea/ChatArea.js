@@ -30,7 +30,7 @@ const ChatArea = ({ currentChat, isBtnLoading, onClickBtn, themeColor }) => {
 
                 <Card w={'full'} h={'100%'} mx={'2'} bg={''}>
                     <CardBody bg='' display={'block'} flexDirection={'column'} overflow={'hidden'}>
-                        <Messages currentChat={currentChat} themeColor={themeColor} />
+                        <Messages currentChat={currentChat} themeColor={themeColor} isBtnLoading={isBtnLoading} />
                     </CardBody>
 
                     <CardFooter>
@@ -39,7 +39,10 @@ const ChatArea = ({ currentChat, isBtnLoading, onClickBtn, themeColor }) => {
                             <Flex w='full' gap={3} flexDirection={['column', 'row']} alignItems={'center'}>
                                 <Input
                                     ref={inputRef}
-                                    placeholder='ask me..'
+                                    borderColor={`${themeColor}.200`}
+                                    _hover={{ borderColor: `${themeColor}.600` }}
+                                    _focusVisible={{ borderColor: `${themeColor}.600` }}
+                                    placeholder={'ask me..'}
                                 />
                                 <Button
                                     isLoading={isBtnLoading}
