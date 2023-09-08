@@ -51,3 +51,56 @@ const createCompletions = async (dataJSON) => {
     return completion.choices[0].message.content
 }
 
+// Dall-e
+
+exports.requestToAssistantWithImage = onRequest(
+    {
+        cors: [process.env.APP_DOMAIN_MAIN, process.env.APP_DOMAIN_SECOND],
+        secrets: ['SECRET_KEY_OPENAI']
+    },
+    async (req, resp) => {
+
+        if (req.method !== 'POST') {
+            resp.status(400).json({ error: 'Bad request.' });
+        }
+        else {
+
+            if (req.body) {
+
+                const { request, size } = { ...JSON.parse(req.body) };
+
+
+
+                let imageUrl = await generateImage(request, `${size}x${size}`);
+                if (imageUrl) {
+                    resp.status(200).json({ content: imageUrl })
+                } else {
+                    resp.status(500).json({ error: 'Internal Server Error.' });
+                }
+            }
+            else {
+                resp.status(400).json({ error: 'Bad request.' });
+            }
+        }
+    }
+)
+
+
+const generateImage = async (request, size = '256x256') => {
+    const openai = new OpenAI({
+        //dev
+        // apiKey: process.env.NEXT_PUBLIC_ASSISTANT_KEY,
+        //prod
+        apiKey: process.env.SECRET_KEY_OPENAI,
+    });
+    try {
+        const image = await openai.images.generate({ prompt: request, size: size });
+        if (image?.data) {
+            return image.data[0].url
+        } else {
+            return null
+        }
+    } catch (error) {
+
+    }
+}
