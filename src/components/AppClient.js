@@ -94,7 +94,7 @@ const AppClient = () => {
 
         try {
 
-            let data = await getReplyFromAssistant({ messagesArray, tokens: 1200 }, 'chat');
+            let data = await getReplyFromAssistant({ messagesArray, tokens: 1800 }, 'chat');
             if (data) {
 
                 let chatQuestionAndReplyItem =
