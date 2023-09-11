@@ -34,7 +34,7 @@ const Header = ({ toggleMenuView, toggleHistoryView, isChatHistoryExists, openNe
                 px={2}
             >
                 <Box bg=''>
-                    <Heading as={'h5'} color={`${themeColor}.500`}>Adviser</Heading>
+                    <Heading as={'h5'} color={`${themeColor}.500`}>Helpi</Heading>
                 </Box>
                 <Box bg='' position={'relative'} >
 

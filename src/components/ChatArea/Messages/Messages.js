@@ -13,7 +13,7 @@ const ChatMessages = ({ currentChat, themeColor, isBtnLoading }) => {
     React.useEffect(() => {
         if (currentChat && currentChat.length > 0) {
             let lastChild = chatHistoryRef?.current?.lastElementChild;
-            lastChild.scrollIntoView({ behavior: 'smooth' });
+            lastChild.scrollIntoView({ behavior: 'smooth', block: 'end' });
         }
     }, [currentChat]);
 
@@ -21,11 +21,12 @@ const ChatMessages = ({ currentChat, themeColor, isBtnLoading }) => {
 
         <Box
             border={'1px dashed #DEDEDE'}
-            borderRadius={'5px'}
+            borderRadius={'10px'}
             w={'full'}
             display={'flex'}
             flexDirection={'column'}
             p={2}
+
             bg={'#FAFAFA'}
             h={'100%'}
             overflow={'auto'}
@@ -82,10 +83,10 @@ export default ChatMessages;
 const ChatItem = ({ data, role, themeColor }) => {
 
     return (
-        <Box w={'95%'} border={'0px solid black'}>
-            <Box bg='' display={'flex'} justifyContent={role === 'user' ? 'flex-start' : 'flex-end'}>
+        <Box maxW={'87%'} border={'0px solid black'}>
+            <Box bg='' display={'flex'} justifyContent={role === 'user' ? 'flex-start' : 'flex-end'} flexDirection={role !== 'user' ? 'row-reverse' : 'row'}>
                 <Box bg={''} display={'flex'} alignItems={'flex-end'}>
-                    <Box p={0} pr={2} mb={0}>
+                    <Box p={0} pl={role !== 'user' ? 2 : 0} pr={role === 'user' ? 2 : 0} mb={0}>
                         {
                             role === 'assistant'
                                 ? <FaRobot size={'21px'} />
@@ -101,7 +102,8 @@ const ChatItem = ({ data, role, themeColor }) => {
                     borderWidth={'1px'}
                     borderStyle={'solid'}
                     borderRadius={'10px'}
-                    borderBottomLeftRadius={0}
+                    borderBottomLeftRadius={role === 'user' ? 0 : '10px'}
+                    borderBottomRightRadius={role !== 'user' ? 0 : '10px'}
                     borderColor={role !== 'user' ? `${'gray.200'}` : `${themeColor}.200`}
                 >
                     <Text fontSize={['xs', 'md']} w={'full'}  >{data.content}</Text>

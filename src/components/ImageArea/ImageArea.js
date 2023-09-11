@@ -30,8 +30,8 @@ const ImageArea = ({ imgUrl, isBtnLoading, onClickBtn, themeColor, size, setSize
                 justifyContent={'center'}
             >
 
-                <Card w={'full'} h={'100%'} mx={'2'} bg={''}>
-                    <CardBody bg='' display={'block'} flexDirection={'column'} overflow={'hidden'}>
+                <Card w={'full'} h={'100%'} bg={''} borderTopRadius={'10px'} borderBottomRadius={0} >
+                    <CardBody bg='' display={'block'} flexDirection={'column'} overflow={'hidden'} m={0} p={['2', '3']}>
                         <Box
                             border={'1px dashed #DEDEDE'}
                             borderRadius={'5px'}

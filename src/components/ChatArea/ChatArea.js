@@ -28,8 +28,8 @@ const ChatArea = ({ currentChat, isBtnLoading, onClickBtn, themeColor }) => {
                 justifyContent={'center'}
             >
 
-                <Card w={'full'} h={'100%'} mx={'2'} bg={''}>
-                    <CardBody bg='' display={'block'} flexDirection={'column'} overflow={'hidden'}>
+                <Card w={'full'} h={'100%'} bg={''} borderTopRadius={'10px'} borderBottomRadius={0} >
+                    <CardBody bg='' display={'block'} flexDirection={'column'} overflow={'hidden'} m={0} p={['2', '3']}>
                         <Messages currentChat={currentChat} themeColor={themeColor} isBtnLoading={isBtnLoading} />
                     </CardBody>
 
@@ -43,11 +43,13 @@ const ChatArea = ({ currentChat, isBtnLoading, onClickBtn, themeColor }) => {
                                     _hover={{ borderColor: `${themeColor}.600` }}
                                     _focusVisible={{ borderColor: `${themeColor}.600` }}
                                     placeholder={'ask me..'}
+                                    w={'full'}
                                 />
                                 <Button
                                     isLoading={isBtnLoading}
                                     colorScheme={themeColor}
                                     onClick={() => onClickBtn(inputRef)}
+                                    w={['full', 'min']}
                                 >
                                     Send
                                 </Button>

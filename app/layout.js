@@ -1,8 +1,8 @@
 
 import './globals.css';
 export const metadata = {
-  title: 'Adviser AI App',
-  description: 'Your personal AI-based consultant.',
+  title: 'Helpi',
+  description: 'Helpi AI-bot. Your personal AI-based consultant.',
 }
 
 export default function RootLayout({ children }) {

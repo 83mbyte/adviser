@@ -21,18 +21,19 @@ const Footer = () => {
             borderTopColor={'gray.100'}
             w={'full'}
             as={'footer'}
+            h={['25px', '35px']}
         >
             <Container
                 as={Stack}
                 maxW={'6xl'}
-                py={4}
+                py={[1, 2]}
                 direction={{ base: 'column', md: 'row' }}
                 spacing={4}
                 justify={{ base: 'center', md: 'center' }}
                 align={{ base: 'center', md: 'center' }}
                 className={isVisible ? `${styles.footer} ${styles.visible}` : styles.footer}
             >
-                <Text>© 2023 Adviser App. All rights reserved</Text>
+                <Text fontSize={'sm'}>© 2023 Helpi AI-Bot. All rights reserved</Text>
             </Container>
         </Box>
 

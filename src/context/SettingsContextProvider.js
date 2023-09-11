@@ -18,7 +18,7 @@ const SettingsContextProvider = ({ children }) => {
             //role: 'Role_1',  //example. default role 
             tone: 'Professional',
             role: '',
-            theme: 'Purple',
+            theme: 'Green',
         }
     )
 
