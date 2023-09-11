@@ -30,6 +30,30 @@ const Login = () => {
         }
     }
 
+    const signInWithGoogleHandler = async () => {
+        console.log('signInWithGoogle');
+        await authAPI.signInGoogle();
+    }
+
+    React.useEffect(() => {
+        const signInAfterRedirect = async () => {
+            let user;
+            user = await authAPI.signInAfterRedirect();
+
+            if (user) {
+                if (user.uid && user.uid !== '') {
+                    router.push(`/chat`);
+                }
+            } else {
+                console.error('No response')
+            }
+        }
+
+        if (sessionStorage.getItem(`firebase:pendingRedirect:${process.env.NEXT_PUBLIC_FIREBASE_APIKEY}:[DEFAULT]`)) {
+            signInAfterRedirect();
+        }
+    }, []);
+
     return (
         <main className={styles.loginMain}>
             <div className={styles.signInContainer}>
@@ -40,12 +64,26 @@ const Login = () => {
                     </div>
                     <div className={styles.signInFormItem}>
                         <label htmlFor='password'>Password:</label>
-                        <input placeholder={'123123'} type={'text'} id={'password'} name={'password'} className={styles.input} />
+                        <input placeholder={'***'} type={'text'} id={'password'} name={'password'} className={styles.input} />
                     </div>
                     <div className={styles.signInFormItem}>
                         <button type='submit' onClick={(e) => onSubmit(e)}>Sign In</button>
                     </div>
                 </form>
+                <div style={{ margin: '0 0 10px 0' }}>
+                    <hr />
+                </div>
+                <div className={styles.signInFormItem}>
+
+                    <div className={styles.googleBtn} onClick={signInWithGoogleHandler}>
+                        <div className={styles.googleIcon}>
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" />
+                        </div>
+                        <div className={styles.googleBtnText}>
+                            Sign in with Google
+                        </div>
+                    </div>
+                </div>
             </div>
         </main>
     )

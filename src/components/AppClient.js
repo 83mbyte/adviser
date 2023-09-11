@@ -19,238 +19,237 @@ import HistoryContainer from './Settings/HistoryContainer';
 import ChatArea from './ChatArea/ChatArea';
 
 
-const AppClient
-    = () => {
-        const user = useAuthContext();
-        const settingsContext = useSettingsContext();
-        const historyContext = useHistoryContext();
+const AppClient = () => {
+    const user = useAuthContext();
+    const settingsContext = useSettingsContext();
+    const historyContext = useHistoryContext();
 
-        const [imgUrl, setImgUrl] = React.useState(null);
-        const [size, setSize] = React.useState('256');
-        const [chatHistory, setChatHistory] = React.useState({});
+    const [imgUrl, setImgUrl] = React.useState(null);
+    const [size, setSize] = React.useState('256');
+    const [chatHistory, setChatHistory] = React.useState({});
 
-        const { activeButton, setActiveButton } = { ...settingsContext.activeButton };
-        const { isVisibleMenu, setIsVisibleMenu } = { ...settingsContext.isVisibleMenu };
-        const { isVisibleHistory, setIsVisibleHistory } = { ...settingsContext.isVisibleHistory };
-        const { model, setModel } = { ...settingsContext.model };
+    const { activeButton, setActiveButton } = { ...settingsContext.activeButton };
+    const { isVisibleMenu, setIsVisibleMenu } = { ...settingsContext.isVisibleMenu };
+    const { isVisibleHistory, setIsVisibleHistory } = { ...settingsContext.isVisibleHistory };
+    const { model, setModel } = { ...settingsContext.model };
 
-        let themeColor = (activeButton.theme).toLowerCase();
+    let themeColor = (activeButton.theme).toLowerCase();
 
-        const [chatId, setChatId] = React.useState(null);
-        const [isBtnLoading, setIsBtnLoading] = React.useState(false)
+    const [chatId, setChatId] = React.useState(null);
+    const [isBtnLoading, setIsBtnLoading] = React.useState(false)
 
-        let dataToUpload;
+    let dataToUpload;
 
-        const toggleMenuView = () => {
-            setIsVisibleMenu(!isVisibleMenu)
+    const toggleMenuView = () => {
+        setIsVisibleMenu(!isVisibleMenu)
+    }
+    const toggleHistoryView = () => {
+        setIsVisibleHistory(!isVisibleHistory);
+    }
+
+    const openNewChat = () => {
+        let generatedId = Date.now();
+        if (generatedId) {
+            setChatId(generatedId);
+            setModel('chat');
+        } else {
+            alert(`something wrong.. a new chat can't be created`);
         }
-        const toggleHistoryView = () => {
-            setIsVisibleHistory(!isVisibleHistory);
-        }
+    }
 
-        const openNewChat = () => {
-            let generatedId = Date.now();
-            if (generatedId) {
-                setChatId(generatedId);
-                setModel('chat');
-            } else {
-                alert(`something wrong.. a new chat can't be created`);
+    const openCreateImage = () => {
+        setModel('image');
+    }
+
+    const onClickGenerateImageHandler = async (inputRef) => {
+        setIsBtnLoading(true);
+        try {
+            let data = await getReplyFromAssistant({ size: size, request: inputRef.current.value }, 'image');
+            if (data) {
+                setImgUrl(data.content)
             }
+        } catch (error) {
+
+        } finally {
+            inputRef.current.value = '';
+            setIsBtnLoading(false);
+        }
+    }
+
+    const onClickBtnHandler = async (inputRef) => {
+        setIsBtnLoading(true);
+
+        const systemMessage = (activeButton) => promptsAPI.createSystemMessage(activeButton);
+
+        const discussionContext = (arrayHistory) => ({ role: 'assistant', content: arrayHistory[arrayHistory.length - 1].assistant.content });
+
+        const getUserInput = (value) => ({ role: 'user', content: value });
+
+        let messagesArray;
+        if (chatHistory[chatId] && chatHistory[chatId].length > 0) {
+            messagesArray = [systemMessage(activeButton), discussionContext(chatHistory[chatId]), getUserInput(inputRef.current.value)]
+        } else {
+            messagesArray = [systemMessage(activeButton), getUserInput(inputRef.current.value)];
         }
 
-        const openCreateImage = () => {
-            setModel('image');
-        }
+        try {
 
-        const onClickGenerateImageHandler = async (inputRef) => {
-            setIsBtnLoading(true);
-            try {
-                let data = await getReplyFromAssistant({ size: size, request: inputRef.current.value }, 'image');
-                if (data) {
-                    setImgUrl(data.content)
+            let data = await getReplyFromAssistant({ messagesArray, tokens: 1800 }, 'chat');
+            if (data) {
+
+                let chatQuestionAndReplyItem =
+                {
+                    user: { content: inputRef.current.value },
+                    assistant: { content: data.content }
                 }
-            } catch (error) {
 
-            } finally {
-                inputRef.current.value = '';
-                setIsBtnLoading(false);
-            }
-        }
-
-        const onClickBtnHandler = async (inputRef) => {
-            setIsBtnLoading(true);
-
-            const systemMessage = (activeButton) => promptsAPI.createSystemMessage(activeButton);
-
-            const discussionContext = (arrayHistory) => ({ role: 'assistant', content: arrayHistory[arrayHistory.length - 1].assistant.content });
-
-            const getUserInput = (value) => ({ role: 'user', content: value });
-
-            let messagesArray;
-            if (chatHistory[chatId] && chatHistory[chatId].length > 0) {
-                messagesArray = [systemMessage(activeButton), discussionContext(chatHistory[chatId]), getUserInput(inputRef.current.value)]
-            } else {
-                messagesArray = [systemMessage(activeButton), getUserInput(inputRef.current.value)];
-            }
-
-            try {
-
-                let data = await getReplyFromAssistant({ messagesArray, tokens: 1800 }, 'chat');
-                if (data) {
-
-                    let chatQuestionAndReplyItem =
-                    {
-                        user: { content: inputRef.current.value },
-                        assistant: { content: data.content }
-                    }
-
-                    if (chatHistory && chatHistory[chatId]) {
-                        setChatHistory({
-                            ...chatHistory,
-                            [chatId]: [
-                                ...chatHistory[chatId],
-                                chatQuestionAndReplyItem
-                            ]
-                        });
-                        dataToUpload = [
+                if (chatHistory && chatHistory[chatId]) {
+                    setChatHistory({
+                        ...chatHistory,
+                        [chatId]: [
                             ...chatHistory[chatId],
                             chatQuestionAndReplyItem
                         ]
+                    });
+                    dataToUpload = [
+                        ...chatHistory[chatId],
+                        chatQuestionAndReplyItem
+                    ]
 
-                    } else {
+                } else {
 
-                        setChatHistory({
-                            ...chatHistory,
-                            [chatId]: [chatQuestionAndReplyItem]
-                        });
+                    setChatHistory({
+                        ...chatHistory,
+                        [chatId]: [chatQuestionAndReplyItem]
+                    });
 
-                        dataToUpload = [
-                            chatQuestionAndReplyItem
-                        ]
-                    }
-
-                    await dbAPI.updateData(user.uid, chatId, dataToUpload);
+                    dataToUpload = [
+                        chatQuestionAndReplyItem
+                    ]
                 }
 
-            } catch (error) {
-                console.error(error);
+                await dbAPI.updateData(user.uid, chatId, dataToUpload);
             }
-            finally {
-                inputRef.current.value = '';
-                setIsBtnLoading(false);
-            }
+
+        } catch (error) {
+            console.error(error);
         }
-
-        const chooseHistory = (data) => {
-            setChatId(data);
+        finally {
+            inputRef.current.value = '';
+            setIsBtnLoading(false);
         }
+    }
 
-        const clearChatFromHistory = async (chatId) => {
-            let res = await dbAPI.deleteChat(user.uid, chatId)
+    const chooseHistory = (data) => {
+        setChatId(data);
+        setIsVisibleHistory(false);
+    }
 
-            if (res) {
-                const { [chatId]: removedData, ...restHistory } = chatHistory;
-                setChatHistory(restHistory);
-            }
-            return 'done'
+    const clearChatFromHistory = async (chatId) => {
+        let res = await dbAPI.deleteChat(user.uid, chatId)
+
+        if (res) {
+            const { [chatId]: removedData, ...restHistory } = chatHistory;
+            setChatHistory(restHistory);
         }
+        return 'done'
+    }
 
 
-        React.useEffect(() => {
-            openNewChat();
-        }, []);
+    React.useEffect(() => {
+        openNewChat();
+    }, []);
 
-        React.useEffect(() => {
-            if (historyContext) {
-                setChatHistory(historyContext)
-            }
-        }, [historyContext]);
+    React.useEffect(() => {
+        if (historyContext) {
+            setChatHistory(historyContext)
+        }
+    }, [historyContext]);
 
-        return (
-            <React.Fragment>
-                {
-                    !user
-                        ? 'Access Denied.'
-                        :
-                        <React.Fragment>
-                            {/* header */}
-                            <Box as='header' className={styles.header}  >
-                                <Header
-                                    openNewChat={openNewChat}
-                                    toggleMenuView={toggleMenuView}
-                                    toggleHistoryView={toggleHistoryView}
-                                    openCreateImage={openCreateImage}
-                                    isChatHistoryExists={Object.keys(chatHistory).length > 0}
+    return (
+        <React.Fragment>
+            {
+                !user
+                    ? 'Access Denied.'
+                    :
+                    <React.Fragment>
+                        {/* header */}
+                        <Box as='header' className={styles.header}  >
+                            <Header
+                                openNewChat={openNewChat}
+                                toggleMenuView={toggleMenuView}
+                                toggleHistoryView={toggleHistoryView}
+                                openCreateImage={openCreateImage}
+                                isChatHistoryExists={Object.keys(chatHistory).length > 0}
+                                themeColor={themeColor}
+                            />
+                        </Box>
+
+                        {/* main  */}
+                        <Box as='main'
+                            bg={'gray.300'}
+                            className={styles.main}
+                            top={['45px', '55px']}
+                            bottom={['25px', '35px']}
+                            overflowY={'hidden'}
+                            px={['1', '2']}
+                            pt={['1', '2']}
+                            pb={'0.5'}
+                        >
+
+                            {
+
+                                chatId && model === 'chat' &&
+                                <ChatArea
+                                    currentChat={chatHistory[chatId] ? chatHistory[chatId] : []}
+                                    isBtnLoading={isBtnLoading}
+                                    onClickBtn={(data) => onClickBtnHandler(data)}
                                     themeColor={themeColor}
                                 />
-                            </Box>
+                            }
+                            {
+                                model === 'image' &&
+                                <ImageArea
+                                    currentChat={chatHistory[chatId] ? chatHistory[chatId] : []}
+                                    isBtnLoading={isBtnLoading}
+                                    onClickBtn={(data) => onClickGenerateImageHandler(data)}
+                                    themeColor={themeColor}
+                                    imgUrl={imgUrl}
+                                    size={size}
+                                    setSize={setSize}
+                                />
+                            }
 
-                            {/* main  */}
-                            <Box as='main'
-                                bg={'gray.300'}
-                                className={styles.main}
-                                top={['45px', '55px']}
-                                bottom={['25px', '35px']}
-                                overflowY={'hidden'}
-                                px={['1', '2']}
-                                pt={['1', '2']}
-                                pb={'0.5'}
-                            >
+                        </Box>
 
-                                {
+                        {/* footer */}
+                        <Box as='footer' className={styles.footer}>
+                            <Footer themeColor={themeColor} />
+                        </Box>
+                        <Portal>
+                            {
+                                isVisibleMenu &&
+                                <SettingsContainer isOpen={isVisibleMenu} toggleMenuView={toggleMenuView} activeButton={activeButton} setActiveButton={setActiveButton} themeColor={themeColor} />
+                            }
+                        </Portal>
+                        <Portal>
+                            {
+                                isVisibleHistory &&
+                                <HistoryContainer
+                                    themeColor={themeColor}
+                                    isOpen={isVisibleHistory}
+                                    toggleHistoryView={toggleHistoryView}
+                                    chatHistory={chatHistory}
+                                    setChatHistory={setChatHistory}
+                                    chooseHistory={chooseHistory}
+                                    clearChatFromHistory={clearChatFromHistory}
+                                />
+                            }
+                        </Portal>
+                    </React.Fragment >
+            }
+        </React.Fragment>
+    );
+};
 
-                                    chatId && model === 'chat' &&
-                                    <ChatArea
-                                        currentChat={chatHistory[chatId] ? chatHistory[chatId] : []}
-                                        isBtnLoading={isBtnLoading}
-                                        onClickBtn={(data) => onClickBtnHandler(data)}
-                                        themeColor={themeColor}
-                                    />
-                                }
-                                {
-                                    model === 'image' &&
-                                    <ImageArea
-                                        currentChat={chatHistory[chatId] ? chatHistory[chatId] : []}
-                                        isBtnLoading={isBtnLoading}
-                                        onClickBtn={(data) => onClickGenerateImageHandler(data)}
-                                        themeColor={themeColor}
-                                        imgUrl={imgUrl}
-                                        size={size}
-                                        setSize={setSize}
-                                    />
-                                }
-
-                            </Box>
-
-                            {/* footer */}
-                            <Box as='footer' className={styles.footer}>
-                                <Footer themeColor={themeColor} />
-                            </Box>
-                            <Portal>
-                                {
-                                    isVisibleMenu &&
-                                    <SettingsContainer isOpen={isVisibleMenu} toggleMenuView={toggleMenuView} activeButton={activeButton} setActiveButton={setActiveButton} themeColor={themeColor} />
-                                }
-                            </Portal>
-                            <Portal>
-                                {
-                                    isVisibleHistory &&
-                                    <HistoryContainer
-                                        themeColor={themeColor}
-                                        isOpen={isVisibleHistory}
-                                        toggleHistoryView={toggleHistoryView}
-                                        chatHistory={chatHistory}
-                                        setChatHistory={setChatHistory}
-                                        chooseHistory={chooseHistory}
-                                        clearChatFromHistory={clearChatFromHistory}
-                                    />
-                                }
-                            </Portal>
-                        </React.Fragment >
-                }
-            </React.Fragment>
-        );
-    };
-
-export default AppClient
-    ;
+export default AppClient;

@@ -1,6 +1,12 @@
 
+const functions = require("firebase-functions");
 const { onRequest } = require("firebase-functions/v2/https");
 const { setGlobalOptions } = require("firebase-functions/v2");
+
+
+const { initializeApp } = require("firebase-admin/app");
+const { getFirestore } = require("firebase-admin/firestore");
+
 const { OpenAI } = require("openai");
 
 setGlobalOptions({ maxInstances: 5 });
@@ -103,4 +109,25 @@ const generateImage = async (request, size = '256x256') => {
     } catch (error) {
 
     }
+}
+
+
+exports.userAdded = functions.auth.user().onCreate((user) => {
+
+    let result = createUserInDB(user.uid);
+    return Promise.resolve();
+})
+
+
+const createUserInDB = async (userId) => {
+    initializeApp();
+
+    // create initial db documents for a new  user //
+    const db = getFirestore();
+    const chatsUserDoc = db.collection('chats').doc(userId);
+    const usersUserDoc = db.collection('users').doc(userId);
+    const chatsUserRes = await chatsUserDoc.set({}, { merge: true });
+    const usersUserRes = await usersUserDoc.set({ theme: 'Green' }, { merge: true });
+
+    return `Document created.`
 }

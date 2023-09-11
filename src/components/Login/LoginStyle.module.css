@@ -1,3 +1,5 @@
+@import url(https://fonts.googleapis.com/css?family=Roboto:400);
+
 .loginMain {
   background-color: none;
   display: flex;
@@ -34,7 +36,7 @@
   font-size: inherit;
 }
 .signInFormItem button {
-  background-color: #fafafa;
+  background-color: lightgreen;
   padding: 10px;
   font-size: inherit;
 }
@@ -44,4 +46,32 @@
     width: 100%;
     font-size: 18px;
   }
+}
+
+.googleBtn {
+  border: 1px solid #4285f4;
+  border-radius: 10px;
+  width: 184px;
+  height: 42px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  padding: 5px;
+  margin: 0 auto;
+}
+.googleIcon {
+  border: 0px solid black;
+}
+.googleIcon img {
+  border: 0px solid green;
+  width: 18px;
+  height: 18px;
+}
+.googleBtnText {
+  margin: 0 11px;
+  font-size: 14px;
+  letter-spacing: 0.2px;
+  font-family: "Roboto";
 }
