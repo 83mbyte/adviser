@@ -1,15 +1,30 @@
 'use client'
 import {
-    Box, Heading, useColorModeValue, Flex, IconButton, Tooltip
+    Box, Heading, useColorModeValue, Flex, IconButton, Tooltip,
 } from '@chakra-ui/react';
 import React from 'react';
+
+//driver.js for a page tour
+import { driverObj } from '../../lib/userGuide';
 
 import { FiSettings } from "react-icons/fi";
 import { RiHistoryLine, RiChatNewLine, RiImageAddLine } from "react-icons/ri";
 import OpacityBox from '../OpacityBox/OpacityBox';
 
 
-const Header = ({ toggleMenuView, toggleHistoryView, isChatHistoryExists, openNewChat, openCreateImage, themeColor, }) => {
+
+const Header = ({ toggleMenuView, toggleHistoryView, isChatHistoryExists, openNewChat, openCreateImage, themeColor }) => {
+
+    React.useEffect(() => {
+
+        try {
+            if (localStorage.getItem('showGuide') !== 'false') {
+                driverObj.drive();
+            }
+        } catch (error) {
+            console.error('Unable to get data from browser storage. Here is the received error:', error);
+        }
+    }, [])
 
     return (
         <Box
@@ -73,7 +88,7 @@ const Header = ({ toggleMenuView, toggleHistoryView, isChatHistoryExists, openNe
                                 colorScheme={themeColor}
                                 variant={'ghost'}
                                 aria-label={'New Chat'}
-
+                                id={'newChat'}
                             />
                         </Tooltip>
 
@@ -87,7 +102,7 @@ const Header = ({ toggleMenuView, toggleHistoryView, isChatHistoryExists, openNe
                                 colorScheme={themeColor}
                                 variant={'ghost'}
                                 aria-label={'Create Image'}
-
+                                id={'newImage'}
                             />
                         </Tooltip>
 
@@ -103,13 +118,14 @@ const Header = ({ toggleMenuView, toggleHistoryView, isChatHistoryExists, openNe
                                 colorScheme={themeColor}
                                 variant={'ghost'}
                                 aria-label={'Toggle Settings'}
+                                id={'settingsToggler'}
                             />
                         </Tooltip>
 
                     </Flex>
                 </Box>
             </Box>
-        </Box >
+        </Box>
     );
 };
 
