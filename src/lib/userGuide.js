@@ -48,7 +48,7 @@ export const driverObj = driver({
 
     onNextClick: () => {
         // Implement your own functionality here
-        if (driverObj.getActiveStep().element !== '#settingsToggler') {
+        if (driverObj.getActiveStep().element === '#settingsToggler') {
             console.log('saved');
             disableGuide();
         }
