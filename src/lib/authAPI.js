@@ -50,6 +50,7 @@ export const authAPI = {
                 // The AuthCredential type that was used.
                 const credential = GoogleAuthProvider.credentialFromError(error);
                 // ...
+                return ({ errorCode, errorMessage })
             });
     },
 

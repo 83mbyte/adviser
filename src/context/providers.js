@@ -2,7 +2,6 @@
 import { CacheProvider } from '@chakra-ui/next-js'
 import { ChakraProvider, extendTheme } from '@chakra-ui/react'
 
-import AuthContextProvider from './AuthContextProvider';
 
 const theme = extendTheme({
 
@@ -15,11 +14,10 @@ export function NecessaryProviders({
     return (
         <CacheProvider>
             <ChakraProvider theme={theme}>
-                <AuthContextProvider>
 
-                    {children}
 
-                </AuthContextProvider>
+                {children}
+
             </ChakraProvider>
         </CacheProvider>
     )

@@ -1,77 +1,13 @@
-@import url(https://fonts.googleapis.com/css?family=Roboto:400);
+.footer {
+  bottom: 0;
+}
 
-.loginMain {
-  background-color: none;
-  display: flex;
-  flex-direction: column;
-  flex: 1;
+.main,
+.footer {
   width: 100%;
-  align-items: center;
-  justify-content: center;
-  padding: 10px;
+  position: absolute;
 }
-.signInContainer {
-  background-color: white;
-  border: 1px solid gray;
-  border-radius: 10px;
-  padding: 25px 15px;
-  margin: 10px;
-  display: flex;
-  flex-direction: column;
-  width: 40%;
-  font-size: 26px;
-}
-
-.signInFormItem {
-  display: flex;
-  flex-direction: column;
-  margin: 0 0 10px 0;
-}
-.signInFormItem label {
-  margin: 0 0 5px 0;
-}
-.signInFormItem input {
-  padding: 10px;
-  width: 100%;
-  font-size: inherit;
-}
-.signInFormItem button {
-  background-color: lightgreen;
-  padding: 10px;
-  font-size: inherit;
-}
-
-@media (max-width: 450px) {
-  .signInContainer {
-    width: 100%;
-    font-size: 18px;
-  }
-}
-
-.googleBtn {
-  border: 1px solid #4285f4;
-  border-radius: 10px;
-  width: 184px;
-  height: 42px;
-  cursor: pointer;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  padding: 5px;
-  margin: 0 auto;
-}
-.googleIcon {
-  border: 0px solid black;
-}
-.googleIcon img {
-  border: 0px solid green;
-  width: 18px;
-  height: 18px;
-}
-.googleBtnText {
-  margin: 0 11px;
-  font-size: 14px;
-  letter-spacing: 0.2px;
-  font-family: "Roboto";
+.main {
+  overflow-y: hidden;
+  height: 100%;
 }

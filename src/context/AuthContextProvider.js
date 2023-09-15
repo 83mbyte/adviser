@@ -1,6 +1,8 @@
+'use client'
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { app as firebase_app } from '../_f_i_r_e_base/_f_i_r_e_base';
 import React from 'react';
+import { Box, Spinner } from '@chakra-ui/react';
 
 const AuthContext = React.createContext();
 
@@ -30,7 +32,24 @@ const AuthContextProvider = ({ children }) => {
 
     return (
         <AuthContext.Provider value={user}>
-            {loading ? <div>Loading..</div> : children}
+            {loading
+                ? <Box
+                    display={'flex'}
+                    height={'100%'}
+                    flexDirection={'column'}
+                    flex={1}
+                    alignItems={'center'}
+                    justifyContent={'center'}
+                >
+                    <Spinner thickness='4px'
+                        speed='2s'
+                        emptyColor='gray.200'
+                        color='green.500'
+                        size='xl'
+                    />
+                </Box>
+                : children}
+            {/* {loading ? <div>Loading..Please wait..</div> : children} */}
         </AuthContext.Provider>
     );
 };
