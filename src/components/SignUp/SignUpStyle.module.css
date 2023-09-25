@@ -1,0 +1,13 @@
+.footer {
+  bottom: 0;
+}
+
+.main,
+.footer {
+  width: 100%;
+  position: absolute;
+}
+.main {
+  overflow-y: hidden;
+  height: 100%;
+}
