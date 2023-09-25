@@ -31,9 +31,9 @@ const IndexPage = ({ data }) => {
     return (
         <React.Fragment>
             <HeroSection />
-            <FeaturesSection features={features.dataArray} />
+            <FeaturesSection features={features ? features.dataArray : []} />
             <Divider my={12} />
-            <PricingSection pricing={pricing.dataArray} />
+            <PricingSection pricing={pricing ? pricing.dataArray : []} />
             <Divider my={12} />
             <Testimonials />
             <Footer />
