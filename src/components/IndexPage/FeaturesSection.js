@@ -11,6 +11,8 @@ import {
     HStack,
     VStack,
     Highlight,
+    Skeleton,
+    SkeletonText,
 } from '@chakra-ui/react';
 
 import { FaCheckCircle } from 'react-icons/fa';
@@ -44,10 +46,11 @@ const FeaturesSection = ({ features }) => {
             </Stack>
 
             <Container maxW={'6xl'} mt={10} as='section'>
+
                 <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={[8, 10]}>
 
-                    {
-                        features.length > 0 &&
+                    {features.length > 0
+                        ?
                         features.map((feature, index) => (
                             <HStack key={index} align={'top'}>
                                 <Box color={'green.400'} mt={1} px={1} display={'flex'} alignItems={'flex-start'}>
@@ -59,8 +62,13 @@ const FeaturesSection = ({ features }) => {
                                 </VStack>
                             </HStack>
                         ))
+                        : Array.apply(null, Array(3)).map(function (x, i) {
+                            return (<SkeletonText mt='4' noOfLines={4} spacing='4' skeletonHeight='2' key={i} />)
+                        })
                     }
                 </SimpleGrid>
+
+
             </Container>
         </Box >
     )
