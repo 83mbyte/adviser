@@ -23,6 +23,7 @@ import styles from './LoginStyle.module.css';
 
 import { FcGoogle } from 'react-icons/fc';
 import Footer from '../Footer/Footer';
+import Link from 'next/link';
 
 
 
@@ -103,8 +104,13 @@ export default function Login() {
 
                     <Flex p={8} flex={1} align={'center'} justify={'center'}>
                         <Stack spacing={4} w={'full'} maxW={'md'}>
-                            <Box bg='' mb={[2, 6]}>
-                                <Heading as={'h2'} size={'3xl'} color={`green.500`}>Helpi</Heading>
+                            <Box bg='' mb={[2, 6]} >
+                                <Link href={'/'}>
+                                    <Heading as={'h2'} size={'3xl'} color={`green.500`}
+
+                                    >Helpi</Heading>
+                                </Link>
+
                             </Box>
                             <Heading fontSize={'2xl'}>Sign in to your account</Heading>
                             <form ref={formRef} onSubmit={onSubmit}>
@@ -138,6 +144,15 @@ export default function Login() {
                                     <Text>Sign In with {'Google'}</Text>
                                 </Button>
                             </AlternativeSignInForm>
+                            <Stack pt={6} direction={{ base: 'column', md: 'row' }} alignItems={'center'} justifyContent={'center'}>
+                                <Text>Not registered yet?</Text>
+
+                                <Link href={{
+                                    pathname: '/signup',
+                                }}>
+                                    <Text color='green'>Sign up</Text>
+                                </Link>
+                            </Stack>
                         </Stack>
                     </Flex>
                     <Flex flex={1}>
