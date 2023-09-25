@@ -1,0 +1,44 @@
+.header,
+.main {
+  width: 100%;
+  /* position: absolute; */
+}
+.header {
+  top: 0;
+  /* display: flex; */
+
+  position: fixed;
+  z-index: 1000;
+  text-align: center;
+  /* align-items: center; */
+  /* justify-content: center; */
+}
+.main {
+  /* margin-top: 100px; */
+  height: 100%;
+  position: relative;
+  background-color: blue;
+  overflow-y: scroll;
+}
+
+/* testimonail bg  */
+.customBgTriangle {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  overflow: hidden;
+  line-height: 0;
+}
+
+.customBgTriangle svg {
+  position: relative;
+  display: block;
+  width: calc(100% + 1.3px);
+  height: 144px;
+  transform: rotateY(180deg);
+}
+
+.customBgTriangle .shapeFill {
+  fill: #cbd5e0;
+}
