@@ -20,10 +20,20 @@ import {
     InputRightElement,
     IconButton,
     Icon,
+    VStack, Divider, Portal,
+    Modal,
+    ModalOverlay,
+    ModalContent,
+    ModalHeader,
+    ModalFooter,
+    ModalBody,
 } from '@chakra-ui/react';
 import Footer from '../Footer/Footer';
 import styles from './SignUpStyle.module.css';
 import { FaEyeSlash, FaEye, FaCheckCircle, FaRegTimesCircle } from 'react-icons/fa'
+
+
+import { FcGoogle } from 'react-icons/fc';
 import { authAPI } from '@/src/lib/authAPI';
 
 const emailPattern = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
@@ -31,9 +41,11 @@ const emailPattern = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
 const SignUp = () => {
     const formRef = React.useRef(null);
     const [isLoading, setIsLoading] = React.useState(false);
+    const [isLoadingGoogle, setIsLoadingGoogle] = React.useState(false);
     const [showPassword, setShowPassword] = React.useState(false);
     const [isValidEmail, setIsValidEmail] = React.useState(null);
     const [isValidPass, setIsValidPass] = React.useState(null);
+    const [isOpenModal, setIsOpenModal] = React.useState(false);
 
     const params = useSearchParams();
     const router = useRouter();
@@ -75,27 +87,53 @@ const SignUp = () => {
         if (email && password) {
             setIsLoading(true);
             try {
-                // let user = await authAPI.signIn(email, password);
+
                 let signUpResp = await authAPI.signUp(email, password);
-                console.log('RESP: ', signUpResp)
 
                 if (signUpResp && signUpResp.uid && signUpResp.uid !== '') {
                     setIsLoading(false);
-                    router.push(`/chat`);
+                    setIsOpenModal({ status: 'ok', open: true });
+
                 } else {
                     formRef.current.password.value = '';
                     throw new Error(`Unsuccessful sign up. ${signUpResp.errorCode}`)
-
                 }
             } catch (error) {
-                console.error('Warning: ', error)
+                console.error('Warning: ', error);
+                setIsOpenModal({ status: 'error', open: true });
             }
             finally {
                 setIsLoading(false);
+                formRef.current.password.value = '';
             }
         }
         return null
     }
+
+    const signUpWithGoogleHandler = async () => {
+        console.log('signInWithGoogle');
+        await authAPI.signInGoogle();
+    }
+
+    React.useEffect(() => {
+        const signInAfterRedirect = async () => {
+            setIsLoadingGoogle(true)
+            let signInResp;
+            signInResp = await authAPI.signInAfterRedirect();
+
+            if (signInResp && signInResp.uid && signInResp.uid !== '') {
+                setIsLoadingGoogle(false);
+                router.push(`/chat`);
+            } else {
+                setIsLoadingGoogle(false);
+                console.error('No response')
+            }
+        }
+
+        if (sessionStorage.getItem(`firebase:pendingRedirect:${process.env.NEXT_PUBLIC_FIREBASE_APIKEY}:[DEFAULT]`)) {
+            signInAfterRedirect();
+        }
+    }, []);
     React.useEffect(() => {
         if (plan) {
             sessionStorage.setItem('planToSubscribe', `${plan}`)
@@ -149,8 +187,6 @@ const SignUp = () => {
                                 </FormControl>
                                 <FormControl id="password" isRequired mb={2}>
                                     <FormLabel>Password</FormLabel>
-                                    {/* <Input type="password" name={'password'} /> */}
-
                                     <InputGroup >
                                         <Input name="password" type={showPassword ? 'text' : 'password'} onChange={(e) => validateInput(e.target)} pr={'90px'} />
                                         <InputRightElement h={'full'} w={'90px'} mr={'10px'} >
@@ -182,28 +218,30 @@ const SignUp = () => {
                                     </Button>
                                 </Stack>
                             </form>
+                            <AlternativeSignInForm>
+                                <Button
+                                    onClick={signUpWithGoogleHandler}
+                                    w={'full'}
+                                    variant={'outline'}
+                                    colorScheme='green'
+                                    isDisabled={isLoading}
+                                    isLoading={isLoadingGoogle}
+                                    leftIcon={<FcGoogle />}
+                                    _hover={{ backgroundColor: 'white' }}
+                                >
+                                    <Text>Sign Up with {'Google'}</Text>
+                                </Button>
+                            </AlternativeSignInForm>
                             <Stack pt={1} direction={{ base: 'column', md: 'row' }} alignItems={'center'} justifyContent={'center'}>
                                 <Text>Already registered?</Text>
-
                                 <Link href={{
                                     pathname: '/login',
                                 }}>
                                     <Text color='green'>Login</Text>
                                 </Link>
                             </Stack>
-                            {/* <AlternativeSignInForm>
-                                <Button
-                                    onClick={signInWithGoogleHandler}
-                                    w={'full'}
-                                    variant={'outline'}
-                                    colorScheme='green'
-                                    isLoading={isLoadingGoogle}
-                                    leftIcon={<FcGoogle />}
-                                    _hover={{ backgroundColor: 'white' }}
-                                >
-                                    <Text>Sign In with {'Google'}</Text>
-                                </Button>
-                            </AlternativeSignInForm> */}
+
+
                         </Stack>
                     </Flex>
                     <Flex flex={1}>
@@ -223,9 +261,64 @@ const SignUp = () => {
             <Box as='footer' className={styles.footer}>
                 <Footer />
             </Box>
+            <Portal>
+                <ModalNotification isOpen={isOpenModal} setIsOpen={setIsOpenModal} router={router} />
+            </Portal>
         </React.Fragment>
 
     )
 }
 
 export default SignUp;
+
+
+const AlternativeSignInForm = ({ children }) => {
+
+    return (
+        <Box w='full'>
+            <VStack spacing={[3, 4]} >
+                <HStack w={'full'} justifyContent={'space-between'}>
+                    <Divider w={'full'} />
+                    <Text backgroundColor={''} textAlign={'center'} px={1} w={10} fontSize={'xs'}>or</Text>
+                    <Divider w={'full'} />
+                </HStack>
+                <Box w='full' bg=''>
+                    {children}
+                </Box>
+            </VStack >
+        </Box >
+    )
+}
+
+const ModalNotification = ({ isOpen, setIsOpen, router }) => {
+    const onClose = () => {
+        setIsOpen({ type: null, open: false });
+        if (isOpen.status === 'ok') {
+            router.push('/chat');
+        }
+    }
+
+    return (
+        <Modal isOpen={isOpen.open} onClose={onClose} motionPreset='slideInBottom' isCentered size={['xs', 'md']}>
+            <ModalOverlay />
+            <ModalContent>
+                <ModalHeader textAlign={'center'} >{isOpen.status === 'ok' ? 'Thank you!' : 'Warning..'}</ModalHeader>
+
+                <ModalBody>
+                    <Text textAlign={'center'}>{
+                        `Registration ${isOpen.status === 'ok' ? 'complete' : 'error'}.`}</Text>
+                    <Box display={'flex'} alignItems={'center'}>
+                        <Icon as={isOpen.status === 'ok' ? FaCheckCircle : FaRegTimesCircle} color={isOpen.status === 'ok' ? 'green' : 'red'} boxSize={'16'} mx={'auto'} my={2} />
+                    </Box>
+                </ModalBody>
+                <ModalFooter>
+                    <Button colorScheme={isOpen.status === 'ok' ? 'green' : 'red'} mx={'auto'} onClick={onClose} w='full'
+                        variant={isOpen.status === 'ok' ? 'solid' : 'outline'}
+                    >
+                        OK
+                    </Button>
+
+                </ModalFooter>
+            </ModalContent>
+        </Modal >)
+}
