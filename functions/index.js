@@ -11,6 +11,10 @@ const { OpenAI } = require("openai");
 
 setGlobalOptions({ maxInstances: 5 });
 
+// init App and DB
+initializeApp();
+const db = getFirestore();
+
 exports.requestToAssistant = onRequest(
     {
         cors: [process.env.APP_DOMAIN_MAIN, process.env.APP_DOMAIN_SECOND],
@@ -118,16 +122,28 @@ exports.userAdded = functions.auth.user().onCreate((user) => {
     return Promise.resolve();
 })
 
+exports.userDeleted = functions.auth.user().onDelete((user) => {
+    let result = deleteUserInDB(user.uid);
+    return Promise.resolve();
+})
 
 const createUserInDB = async (userId) => {
-    initializeApp();
 
     // create initial db documents for a new  user //
-    const db = getFirestore();
     const chatsUserDoc = db.collection('chats').doc(userId);
     const usersUserDoc = db.collection('users').doc(userId);
     const chatsUserRes = await chatsUserDoc.set({}, { merge: true });
     const usersUserRes = await usersUserDoc.set({ theme: 'Green' }, { merge: true });
 
     return `Document created.`
+}
+
+const deleteUserInDB = async (userId) => {
+
+    const chatsUserDoc = db.collection('chats').doc(userId);
+    const usersUserDoc = db.collection('users').doc(userId);
+
+    await chatsUserDoc.delete();
+    await usersUserDoc.delete();
+    return `User (${userId}) deleted from DataBase.`
 }
