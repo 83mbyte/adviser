@@ -1,5 +1,5 @@
 import { app } from '../_f_i_r_e_base/_f_i_r_e_base';
-import { getAuth, signInWithEmailAndPassword, signOut, GoogleAuthProvider, signInWithRedirect, getRedirectResult } from 'firebase/auth'
+import { getAuth, signInWithEmailAndPassword, signOut, GoogleAuthProvider, signInWithRedirect, getRedirectResult, createUserWithEmailAndPassword } from 'firebase/auth'
 
 
 export const authAPI = {
@@ -50,6 +50,21 @@ export const authAPI = {
                 // The AuthCredential type that was used.
                 const credential = GoogleAuthProvider.credentialFromError(error);
                 // ...
+                return ({ errorCode, errorMessage })
+            });
+    },
+
+    signUp: async (email, password) => {
+        const auth = getAuth(app);
+        return await createUserWithEmailAndPassword(auth, email, password)
+            .then((userCredential) => {
+                // Signed in 
+                const user = userCredential.user;
+                return user
+            })
+            .catch((error) => {
+                const errorCode = error.code;
+                const errorMessage = error.message;
                 return ({ errorCode, errorMessage })
             });
     },
