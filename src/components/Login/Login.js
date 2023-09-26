@@ -3,17 +3,21 @@ import React from 'react';
 import {
     Box,
     Button,
+    IconButton,
     Flex,
     Text,
     FormControl,
     FormLabel,
     Heading,
     Input,
+    InputGroup,
+    InputRightElement,
     Stack,
     Image,
     VStack,
     HStack,
     Divider,
+    useToast,
 } from '@chakra-ui/react'
 
 import { useRouter } from 'next/navigation';
@@ -22,6 +26,7 @@ import { authAPI } from '@/src/lib/authAPI';
 import styles from './LoginStyle.module.css';
 
 import { FcGoogle } from 'react-icons/fc';
+import { FaEyeSlash, FaEye } from 'react-icons/fa';
 import Footer from '../Footer/Footer';
 import Link from 'next/link';
 
@@ -30,8 +35,17 @@ import Link from 'next/link';
 export default function Login() {
     const formRef = React.useRef(null);
 
+    const toast = useToast({
+        status: 'error',
+        duration: 9000,
+        isClosable: true,
+        variant: 'solid',
+        position: 'top',
+    });
+
     const [isLoading, setIsLoading] = React.useState(false);
     const [isLoadingGoogle, setIsLoadingGoogle] = React.useState(false);
+    const [showPassword, setShowPassword] = React.useState(false);
     const router = useRouter();
 
 
@@ -46,19 +60,36 @@ export default function Login() {
 
             setIsLoading(true);
             try {
-                // let user = await authAPI.signIn(email, password);
-                let signInResp = await authAPI.signIn('1@1.com', password);
 
-                if (signInResp && signInResp.uid && signInResp.uid !== '') {
-                    setIsLoading(false);
-                    router.push(`/chat`);
-                } else {
-                    formRef.current.password.value = '';
-                    throw new Error(`Unsuccessful sign in. ${signInResp.errorCode}`)
+                let signInResp = await authAPI.signIn(email, password);
 
+                if (signInResp) {
+                    if (signInResp.status === 'error') {
+                        toast({
+                            title: 'Unsuccessful sign in.',
+                            description: 'Please check your email/password.',
+                        })
+                        throw new Error(`Unsuccessful sign in. ${signInResp.errorCode}`)
+                    }
+                    // dev temporal else if
+                    // dev temporal else if
+                    else if (
+                        (signInResp.status === 'ok' && signInResp.user.emailVerified === true) || (signInResp.status === 'ok' && signInResp.user.email === process.env.NEXT_PUBLIC_DEV_EMAIL)
+                    ) {
+                        setIsLoading(false);
+                        router.push(`/chat`);
+                    }
+                    else if (signInResp.status === 'ok' && signInResp.user.emailVerified === false) {
+                        toast({
+                            title: 'Unsuccessful sign in.',
+                            description: 'Please verify your email first.',
+                        })
+                        throw new Error(`Unsuccessful sign in. Please verify your email.`)
+                    }
                 }
+
             } catch (error) {
-                console.error('Warning: ', error)
+                console.error(error);
             }
             finally {
                 setIsLoading(false);
@@ -76,14 +107,23 @@ export default function Login() {
         const signInAfterRedirect = async () => {
             setIsLoadingGoogle(true)
             let signInResp;
-            signInResp = await authAPI.signInAfterRedirect();
+            try {
+                signInResp = await authAPI.signInAfterRedirect();
 
-            if (signInResp && signInResp.uid && signInResp.uid !== '') {
-                setIsLoadingGoogle(false);
-                router.push(`/chat`);
-            } else {
-                setIsLoadingGoogle(false);
-                console.error('No response')
+                if (signInResp) {
+                    if (signInResp.status === 'ok' && signInResp.uid && signInResp.uid !== '') {
+                        setIsLoadingGoogle(false);
+                        router.push(`/chat`);
+                    } else if (signInResp.status === 'error') {
+                        throw new Error(`Unsuccessful sign in. ${signInResp.errorCode}`)
+                    }
+                }
+                else {
+                    setIsLoadingGoogle(false);
+                    throw new Error(`Unsuccessful sign in. No response from a server.`)
+                }
+            } catch (error) {
+                console.error(error);
             }
         }
 
@@ -116,11 +156,27 @@ export default function Login() {
                             <form ref={formRef} onSubmit={onSubmit}>
                                 <FormControl id="email">
                                     <FormLabel>Email address</FormLabel>
-                                    <Input type="email" placeholder={'1@1.com'} defaultValue={'1@1.com'} name={'email'} />
+                                    <Input type="email" placeholder={'email@example.com'} defaultValue={process.env.NEXT_PUBLIC_DEV_EMAIL} name={'email'} />
                                 </FormControl>
-                                <FormControl id="password">
+                                <FormControl id="password" isRequired mb={2}>
                                     <FormLabel>Password</FormLabel>
-                                    <Input type="password" name={'password'} />
+                                    <InputGroup >
+                                        <Input name="password" type={showPassword ? 'text' : 'password'} />
+                                        <InputRightElement h={'full'}   >
+
+                                            <Stack direction={'row'}>
+                                                <IconButton
+                                                    fontSize={'sm'}
+                                                    variant={'link'}
+                                                    colorScheme='gray'
+                                                    color='gray'
+                                                    onClick={() => setShowPassword((showPassword) => !showPassword)}
+                                                    icon={showPassword ? <FaEye /> : <FaEyeSlash />}>
+                                                </IconButton>
+
+                                            </Stack>
+                                        </InputRightElement>
+                                    </InputGroup>
                                 </FormControl>
                                 <Stack spacing={6}>
                                     <Box></Box>
@@ -160,9 +216,10 @@ export default function Login() {
                             alt={'Login Image'}
                             objectFit={'cover'}
                             style={{ filter: 'blur(10px) sepia(10%) opacity(25%)' }}
-                            src={
-                                'https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=1352&q=80'
-                            }
+                            src={'./sign_img.jpg'}
+                        // src={
+                        //     'https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=1352&q=80'
+                        // }
                         />
                     </Flex>
                 </Stack>

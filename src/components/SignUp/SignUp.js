@@ -35,6 +35,7 @@ import { FaEyeSlash, FaEye, FaCheckCircle, FaRegTimesCircle } from 'react-icons/
 
 import { FcGoogle } from 'react-icons/fc';
 import { authAPI } from '@/src/lib/authAPI';
+import * as DOMPurify from 'dompurify';
 
 const emailPattern = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
 
@@ -76,6 +77,9 @@ const SignUp = () => {
                 break;
         }
     }
+    const sanitizeString = (dirtyString) => {
+        return DOMPurify.sanitize(dirtyString, { USE_PROFILES: { html: true } });
+    }
 
     const onSubmit = async (e) => {
         e.preventDefault();
@@ -84,20 +88,28 @@ const SignUp = () => {
         let password = formData.get('password');
         let firstName = formData.get('firstName');
         let lastName = formData.get('lastName');
+
+        if (firstName && firstName.length > 1) {
+            firstName = sanitizeString(firstName)
+        }
+        if (lastName && lastName.length > 1) {
+            lastName = sanitizeString(lastName)
+        }
+
         if (email && password) {
             setIsLoading(true);
             try {
 
-                let signUpResp = await authAPI.signUp(email, password);
+                let signUpResp = await authAPI.signUp(email, password, firstName, lastName);
 
-                if (signUpResp && signUpResp.uid && signUpResp.uid !== '') {
+                if (signUpResp && signUpResp.status === 'ok' && signUpResp.message === 'verify-email') {
                     setIsLoading(false);
-                    setIsOpenModal({ status: 'ok', open: true });
-
+                    setIsOpenModal({ status: 'ok', open: true, email: signUpResp.user.email });
                 } else {
                     formRef.current.password.value = '';
                     throw new Error(`Unsuccessful sign up. ${signUpResp.errorCode}`)
                 }
+
             } catch (error) {
                 console.error('Warning: ', error);
                 setIsOpenModal({ status: 'error', open: true });
@@ -249,9 +261,10 @@ const SignUp = () => {
                             alt={'Login Image'}
                             objectFit={'cover'}
                             style={{ filter: 'blur(10px) sepia(10%) opacity(25%)' }}
-                            src={
-                                'https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=1352&q=80'
-                            }
+                            src={'./sign_img.jpg'}
+                        // src={
+                        //     'https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=1352&q=80'
+                        // }
                         />
                     </Flex>
                 </Stack>
@@ -292,9 +305,12 @@ const AlternativeSignInForm = ({ children }) => {
 
 const ModalNotification = ({ isOpen, setIsOpen, router }) => {
     const onClose = () => {
-        setIsOpen({ type: null, open: false });
+
         if (isOpen.status === 'ok') {
-            router.push('/chat');
+            setIsOpen({ type: null, open: false, email: null });
+            router.push('/login');
+        } else {
+            setIsOpen({ type: null, open: false, email: null });
         }
     }
 
@@ -302,11 +318,20 @@ const ModalNotification = ({ isOpen, setIsOpen, router }) => {
         <Modal isOpen={isOpen.open} onClose={onClose} motionPreset='slideInBottom' isCentered size={['xs', 'md']}>
             <ModalOverlay />
             <ModalContent>
-                <ModalHeader textAlign={'center'} >{isOpen.status === 'ok' ? 'Thank you!' : 'Warning..'}</ModalHeader>
+                <ModalHeader textAlign={'center'} >{isOpen.status === 'ok' ? `Thank you! It's almost complete.` : 'Warning..'}</ModalHeader>
 
                 <ModalBody>
-                    <Text textAlign={'center'}>{
-                        `Registration ${isOpen.status === 'ok' ? 'complete' : 'error'}.`}</Text>
+                    <Box textAlign={'center'}>
+                        {
+                            isOpen.status === 'ok'
+                                ? <>
+                                    <Text>Please <span style={{ fontWeight: 'bold' }}>verify</span> your email by visiting a link we sent to:</Text>
+                                    <Text my={1} fontSize={'lg'} as='mark'>{isOpen.email}</Text>
+
+                                </>
+                                : <Text>Registration error.</Text>
+                        }
+                    </Box>
                     <Box display={'flex'} alignItems={'center'}>
                         <Icon as={isOpen.status === 'ok' ? FaCheckCircle : FaRegTimesCircle} color={isOpen.status === 'ok' ? 'green' : 'red'} boxSize={'16'} mx={'auto'} my={2} />
                     </Box>

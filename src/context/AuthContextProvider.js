@@ -20,7 +20,11 @@ const AuthContextProvider = ({ children }) => {
     // user context
     React.useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, (user) => {
-            if (user) {
+            // prod mode If
+            // if (user && user.emailVerified === true ) {
+
+            // dev mode IF
+            if (user && user.emailVerified === true || (user && user.email === process.env.NEXT_PUBLIC_DEV_EMAIL)) {
                 setUser(user);
             } else {
                 setUser(null);
@@ -48,7 +52,8 @@ const AuthContextProvider = ({ children }) => {
                         size='xl'
                     />
                 </Box>
-                : children}
+                : children
+            }
             {/* {loading ? <div>Loading..Please wait..</div> : children} */}
         </AuthContext.Provider>
     );
