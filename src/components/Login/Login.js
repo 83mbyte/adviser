@@ -111,7 +111,7 @@ export default function Login() {
                 signInResp = await authAPI.signInAfterRedirect();
 
                 if (signInResp) {
-                    if (signInResp.status === 'ok' && signInResp.uid && signInResp.uid !== '') {
+                    if (signInResp.status === 'ok' && signInResp.user.uid && signInResp.user.uid !== '') {
                         setIsLoadingGoogle(false);
                         router.push(`/chat`);
                     } else if (signInResp.status === 'error') {
