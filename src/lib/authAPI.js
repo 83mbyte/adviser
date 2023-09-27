@@ -29,18 +29,18 @@ export const authAPI = {
     },
 
     signInAfterRedirect: async () => {
-        const auth = getAuth();
+        const auth = getAuth(app);
         return getRedirectResult(auth)
             .then((result) => {
                 // This gives you a Google Access Token. You can use it to access Google APIs.
-                const credential = GoogleAuthProvider.credentialFromResult(result);
-                const token = credential.accessToken;
+                //const credential = GoogleAuthProvider.credentialFromResult(result);
+                //const token = credential.accessToken;
 
                 // The signed-in user info.
                 const user = result.user;
                 // IdP data available using getAdditionalUserInfo(result)
                 // ...
-                return { status: 'ok', user }
+                return ({ status: 'ok', user })
             }).catch((error) => {
                 // Handle Errors here.
                 const errorCode = error.code;
