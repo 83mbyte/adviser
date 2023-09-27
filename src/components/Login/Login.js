@@ -119,11 +119,17 @@ export default function Login() {
                     }
                 }
                 else {
-                    setIsLoadingGoogle(false);
                     throw new Error(`Unsuccessful sign in. No response from a server.`)
                 }
             } catch (error) {
                 console.error(error);
+                toast({
+                    title: `Error!`,
+                    description: error,
+                })
+            }
+            finally {
+                setIsLoadingGoogle(false);
             }
         }
 

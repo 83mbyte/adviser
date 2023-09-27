@@ -27,6 +27,7 @@ import {
     ModalHeader,
     ModalFooter,
     ModalBody,
+    useToast,
 } from '@chakra-ui/react';
 import Footer from '../Footer/Footer';
 import styles from './SignUpStyle.module.css';
@@ -41,6 +42,13 @@ const emailPattern = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
 
 const SignUp = () => {
     const formRef = React.useRef(null);
+    const toast = useToast({
+        status: 'error',
+        duration: 9000,
+        isClosable: true,
+        variant: 'solid',
+        position: 'top',
+    });
     const [isLoading, setIsLoading] = React.useState(false);
     const [isLoadingGoogle, setIsLoadingGoogle] = React.useState(false);
     const [showPassword, setShowPassword] = React.useState(false);
@@ -131,14 +139,26 @@ const SignUp = () => {
         const signInAfterRedirect = async () => {
             setIsLoadingGoogle(true)
             let signInResp;
-            signInResp = await authAPI.signInAfterRedirect();
+            try {
+                signInResp = await authAPI.signInAfterRedirect();
 
-            if (signInResp && signInResp.uid && signInResp.uid !== '') {
+                if (signInResp && signInResp.user.uid && signInResp.user.uid !== '') {
+                    setIsLoadingGoogle(false);
+                    router.push(`/chat`);
+                } else {
+                    setIsLoadingGoogle(false);
+                    console.error('No response');
+                    throw new Error(`Unsuccessful sign up. No response from a server.`)
+                }
+            } catch (error) {
+                console.error(error);
+                toast({
+                    title: `Error!`,
+                    description: error,
+                })
+            }
+            finally {
                 setIsLoadingGoogle(false);
-                router.push(`/chat`);
-            } else {
-                setIsLoadingGoogle(false);
-                console.error('No response')
             }
         }
 
