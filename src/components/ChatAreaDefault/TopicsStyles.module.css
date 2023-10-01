@@ -1,0 +1,10 @@
+.topicsItem {
+  background: ;
+  transition: transform ease 0.5s;
+  cursor: pointer;
+}
+
+.topicsItem:hover {
+  transform: scale(1.1);
+  transition: transform ease 0.1s;
+}
