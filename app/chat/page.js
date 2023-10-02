@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { useAuthContext } from "@/src/context/AuthContextProvider";
 import HistoryContextProvider from "@/src/context/HistoryContextProvider";
 import SettingsContextProvider from "@/src/context/SettingsContextProvider";
+import UISettingsContextProvider from "@/src/context/UISettingsContext";
 
 export default function Home() {
 
@@ -17,7 +18,6 @@ export default function Home() {
         if (user === null || user === undefined) {
             router.push('/')
         }
-
     }, [user])
 
     return (
@@ -25,11 +25,13 @@ export default function Home() {
         <div className={styles.mainOuterContainer}>
             {
                 user
-                    ? <HistoryContextProvider userId={user.uid}>
-                        <SettingsContextProvider>
-                            <AppClient />
-                        </SettingsContextProvider>
-                    </HistoryContextProvider>
+                    ? <UISettingsContextProvider userId={user.uid}>
+                        <HistoryContextProvider userId={user.uid}>
+                            <SettingsContextProvider>
+                                <AppClient />
+                            </SettingsContextProvider>
+                        </HistoryContextProvider>
+                    </UISettingsContextProvider>
                     : 'not logged'
             }
         </div>
