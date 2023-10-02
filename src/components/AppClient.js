@@ -2,6 +2,7 @@ import React from 'react';
 import { useAuthContext } from '../context/AuthContextProvider';
 import { useSettingsContext } from '../context/SettingsContextProvider';
 import { useHistoryContext } from '../context/HistoryContextProvider';
+import { useUISettingsContext } from '../context/UISettingsContext';
 
 import { getReplyFromAssistant } from '@/src/lib/fetchData';
 import { promptsAPI } from '../lib/promptsAPI';
@@ -17,12 +18,18 @@ import ImageArea from './ImageArea/ImageArea';
 import SettingsContainer from './Settings/SettingsContainer';
 import HistoryContainer from './Settings/HistoryContainer';
 import ChatArea from './ChatArea/ChatArea';
+import ChatAreaDefault from './ChatAreaDefault/ChatAreaDefault';
+
 
 
 const AppClient = () => {
     const user = useAuthContext();
     const settingsContext = useSettingsContext();
     const historyContext = useHistoryContext();
+
+    const UISettingsContext = useUISettingsContext();
+
+    const { themeColor, setThemeColor } = UISettingsContext.userThemeColor;
 
     const [imgUrl, setImgUrl] = React.useState(null);
     const [size, setSize] = React.useState('256');
@@ -32,8 +39,6 @@ const AppClient = () => {
     const { isVisibleMenu, setIsVisibleMenu } = { ...settingsContext.isVisibleMenu };
     const { isVisibleHistory, setIsVisibleHistory } = { ...settingsContext.isVisibleHistory };
     const { model, setModel } = { ...settingsContext.model };
-
-    let themeColor = (activeButton.theme).toLowerCase();
 
     const [chatId, setChatId] = React.useState(null);
     const [isBtnLoading, setIsBtnLoading] = React.useState(false)
@@ -57,9 +62,23 @@ const AppClient = () => {
         }
     }
 
-    const openCreateImage = () => {
-        setModel('image');
+
+    const setApplicationModel = (model) => {
+        switch (model) {
+            case 'defaultChat':
+                setModel('defaultChat');
+                break;
+            case 'chat':
+                openNewChat();
+                break;
+            case 'image':
+                setModel('image');
+                break;
+            default:
+                break;
+        }
     }
+
 
     const onClickGenerateImageHandler = async (inputRef) => {
         setIsBtnLoading(true);
@@ -77,6 +96,11 @@ const AppClient = () => {
     }
 
     const onClickBtnHandler = async (inputRef) => {
+        //just DEV test return
+        // if (inputRef) {
+        //     console.log('!!!', inputRef);
+        //     return
+        // }
         setIsBtnLoading(true);
 
         const systemMessage = (activeButton) => promptsAPI.createSystemMessage(activeButton);
@@ -96,7 +120,7 @@ const AppClient = () => {
 
             let data = await getReplyFromAssistant({ messagesArray, tokens: 1800 }, 'chat');
             if (data) {
-
+                // console.log('reply from assist for DEVELOPER mode:: ', data.content)
                 let chatQuestionAndReplyItem =
                 {
                     user: { content: inputRef.current.value },
@@ -157,7 +181,7 @@ const AppClient = () => {
 
 
     React.useEffect(() => {
-        openNewChat();
+        setApplicationModel('defaultChat')
     }, []);
 
     React.useEffect(() => {
@@ -179,7 +203,7 @@ const AppClient = () => {
                                 openNewChat={openNewChat}
                                 toggleMenuView={toggleMenuView}
                                 toggleHistoryView={toggleHistoryView}
-                                openCreateImage={openCreateImage}
+                                openCreateImage={() => setApplicationModel('image')}
                                 isChatHistoryExists={Object.keys(chatHistory).length > 0}
                                 themeColor={themeColor}
                             />
@@ -217,6 +241,17 @@ const AppClient = () => {
                                     imgUrl={imgUrl}
                                     size={size}
                                     setSize={setSize}
+
+                                />
+                            }
+                            {
+                                model === 'defaultChat' &&
+
+                                <ChatAreaDefault
+                                    currentChat={chatHistory[chatId] ? chatHistory[chatId] : []}
+                                    isBtnLoading={isBtnLoading}
+                                    onClickBtn={(data) => onClickBtnHandler(data)}
+                                    setChatId={setChatId}
                                 />
                             }
 
@@ -231,8 +266,7 @@ const AppClient = () => {
                                 isVisibleMenu &&
                                 <SettingsContainer isOpen={isVisibleMenu} toggleMenuView={toggleMenuView} activeButton={activeButton} setActiveButton={setActiveButton} themeColor={themeColor} />
                             }
-                        </Portal>
-                        <Portal>
+
                             {
                                 isVisibleHistory &&
                                 <HistoryContainer
@@ -245,7 +279,9 @@ const AppClient = () => {
                                     clearChatFromHistory={clearChatFromHistory}
                                 />
                             }
+
                         </Portal>
+
                     </React.Fragment >
             }
         </React.Fragment>
