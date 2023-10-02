@@ -19,62 +19,47 @@ const ChatMessages = ({ currentChat, themeColor, isBtnLoading }) => {
 
     return (
 
-        <Box
-            border={'1px dashed #DEDEDE'}
-            borderRadius={'10px'}
-            w={'full'}
-            display={'flex'}
-            flexDirection={'column'}
-            p={2}
 
-            bg={'#FAFAFA'}
-            h={'100%'}
-            overflow={'auto'}
-            position='relative'
-            justifyContent={'flex-end'}
-        >
+        <Box ref={chatHistoryRef} bg='' display={'block'} overflow={'auto'} >
+            {
+                currentChat && currentChat.length > 0 &&
+                currentChat.map((chatItem, index) => {
 
-            <Box ref={chatHistoryRef} bg='' display={'block'} overflow={'auto'} >
-                {
-                    currentChat && currentChat.length > 0 &&
-                    currentChat.map((chatItem, index) => {
-
-                        return (
-                            <React.Fragment key={`${index}_chat_`}>
-                                {
-                                    !chatItem['assistant']
-                                        ? <Box px={0} py={[1, 2]} key={`${index}_chat`} w={'full'} justifyContent={'flex-start'} display={'flex'} flexDirection={'row'} position={'relative'}>
+                    return (
+                        <React.Fragment key={`${index}_chat_`}>
+                            {
+                                !chatItem['assistant']
+                                    ? <Box px={0} py={[1, 2]} key={`${index}_chat`} w={'full'} justifyContent={'flex-start'} display={'flex'} flexDirection={'row'} position={'relative'}>
+                                        <ChatItem data={chatItem['user']} role={'user'} themeColor={themeColor} />
+                                    </Box>
+                                    :
+                                    <React.Fragment >
+                                        <Box px={0} py={[1, 2]} key={`${index}_user`} w={'full'} justifyContent={'flex-start'} display={'flex'} flexDirection={'row'} >
                                             <ChatItem data={chatItem['user']} role={'user'} themeColor={themeColor} />
                                         </Box>
-                                        :
-                                        <React.Fragment >
-                                            <Box px={0} py={[1, 2]} key={`${index}_user`} w={'full'} justifyContent={'flex-start'} display={'flex'} flexDirection={'row'} >
-                                                <ChatItem data={chatItem['user']} role={'user'} themeColor={themeColor} />
-                                            </Box>
-                                            <Box px={0} py={[1, 2]} key={`${index}_assistant`} w={'full'} justifyContent={'flex-end'} display={'flex'} flexDirection={'row'} >
-                                                <ChatItem data={chatItem['assistant']} role={'assistant'} themeColor={themeColor} />
-                                            </Box>
+                                        <Box px={0} py={[1, 2]} key={`${index}_assistant`} w={'full'} justifyContent={'flex-end'} display={'flex'} flexDirection={'row'} >
+                                            <ChatItem data={chatItem['assistant']} role={'assistant'} themeColor={themeColor} />
+                                        </Box>
 
-                                        </React.Fragment>
-                                }
-                            </React.Fragment>
-                        )
-                    })
-                }
-                {
-                    isBtnLoading && <Box px={0} py={[2, 2]} w={'full'} justifyContent={'flex-end'} display={'flex'} flexDirection={'row'} position={'relative'}>
-                        <Box w={'95%'} display={'flex'} flexDirection={'row'}>
-                            <Box display={'flex'} alignItems={'flex-end'} mr={1}><SkeletonCircle /></Box>
-                            <VStack bg='' w={'full'} alignItems={'flex-start'}>
-                                <Skeleton w={'90%'} h={'10px'} />
-                                <Skeleton w={'95%'} h={'10px'} />
-                                <Skeleton w={'full'} h={'20px'} />
-                            </VStack>
-                        </Box>
+                                    </React.Fragment>
+                            }
+                        </React.Fragment>
+                    )
+                })
+            }
+            {
+                isBtnLoading && <Box px={0} py={[2, 2]} w={'full'} justifyContent={'flex-end'} display={'flex'} flexDirection={'row'} position={'relative'}>
+                    <Box w={'95%'} display={'flex'} flexDirection={'row'}>
+                        <Box display={'flex'} alignItems={'flex-end'} mr={1}><SkeletonCircle /></Box>
+                        <VStack bg='' w={'full'} alignItems={'flex-start'}>
+                            <Skeleton w={'90%'} h={'10px'} />
+                            <Skeleton w={'95%'} h={'10px'} />
+                            <Skeleton w={'full'} h={'20px'} />
+                        </VStack>
                     </Box>
-                }
-            </Box>
-        </Box >
+                </Box>
+            }
+        </Box>
     );
 };
 

@@ -10,7 +10,8 @@ const ChatArea = ({ currentChat, isBtnLoading, onClickBtn, themeColor }) => {
     const inputRef = useRef(null);
 
     React.useEffect(() => {
-        setIsVisible(true)
+        setIsVisible(true);
+        return () => setIsVisible(false)
     }, []);
 
     return (
@@ -30,7 +31,22 @@ const ChatArea = ({ currentChat, isBtnLoading, onClickBtn, themeColor }) => {
 
                 <Card w={'full'} h={'100%'} bg={''} borderTopRadius={'10px'} borderBottomRadius={0} >
                     <CardBody bg='' display={'block'} flexDirection={'column'} overflow={'hidden'} m={0} p={['2', '3']}>
-                        <Messages currentChat={currentChat} themeColor={themeColor} isBtnLoading={isBtnLoading} />
+                        <Box
+                            border={'1px dashed #DEDEDE'}
+                            borderRadius={'10px'}
+                            w={'full'}
+                            display={'flex'}
+                            flexDirection={'column'}
+                            p={2}
+
+                            bg={'#FAFAFA'}
+                            h={'100%'}
+                            overflow={'auto'}
+                            position='relative'
+                            justifyContent={'flex-end'}
+                        >
+                            <Messages currentChat={currentChat} themeColor={themeColor} isBtnLoading={isBtnLoading} />
+                        </Box>
                     </CardBody>
 
                     <CardFooter>
