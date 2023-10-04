@@ -19,6 +19,7 @@ import SettingsContainer from './Settings/SettingsContainer';
 import HistoryContainer from './Settings/HistoryContainer';
 import ChatArea from './ChatArea/ChatArea';
 import ChatAreaDefault from './ChatAreaDefault/ChatAreaDefault';
+import PredefinedDataContextProvider from '../context/PredefinedDataContextProvider';
 
 
 
@@ -41,7 +42,10 @@ const AppClient = () => {
     const { model, setModel } = { ...settingsContext.model };
 
     const [chatId, setChatId] = React.useState(null);
-    const [isBtnLoading, setIsBtnLoading] = React.useState(false)
+    const [isBtnLoading, setIsBtnLoading] = React.useState(false);
+
+    const [selectedTopic, setSelectedTopic] = React.useState(null);
+    const [showTopics, setShowTopics] = React.useState(true);
 
     let dataToUpload;
 
@@ -62,11 +66,21 @@ const AppClient = () => {
         }
     }
 
+    const openDefaultChat = () => {
+        let generatedId = Date.now();
+        if (generatedId) {
+            setChatId(generatedId);
+            console.log()
+            setModel('defaultChat');
+        } else {
+            alert(`something wrong.. a new chat can't be created`);
+        }
+    }
 
     const setApplicationModel = (model) => {
         switch (model) {
             case 'defaultChat':
-                setModel('defaultChat');
+                openDefaultChat();
                 break;
             case 'chat':
                 openNewChat();
@@ -97,6 +111,7 @@ const AppClient = () => {
 
     const onClickBtnHandler = async (inputRef) => {
         //just DEV test return
+        //
         // if (inputRef) {
         //     console.log('!!!', inputRef);
         //     return
@@ -120,11 +135,12 @@ const AppClient = () => {
 
             let data = await getReplyFromAssistant({ messagesArray, tokens: 1800 }, 'chat');
             if (data) {
-                // console.log('reply from assist for DEVELOPER mode:: ', data.content)
+                console.log('reply from assist for DEVELOPER mode:: ', data.content)
                 let chatQuestionAndReplyItem =
                 {
                     user: { content: inputRef.current.value },
-                    assistant: { content: data.content }
+                    assistant: { content: data.content },
+                    // subject: { content: selectedTopic }
                 }
 
                 if (chatHistory && chatHistory[chatId]) {
@@ -167,6 +183,7 @@ const AppClient = () => {
     const chooseHistory = (data) => {
         setChatId(data);
         setIsVisibleHistory(false);
+        setShowTopics(false);
     }
 
     const clearChatFromHistory = async (chatId) => {
@@ -247,12 +264,17 @@ const AppClient = () => {
                             {
                                 model === 'defaultChat' &&
 
-                                <ChatAreaDefault
-                                    currentChat={chatHistory[chatId] ? chatHistory[chatId] : []}
-                                    isBtnLoading={isBtnLoading}
-                                    onClickBtn={(data) => onClickBtnHandler(data)}
-                                    setChatId={setChatId}
-                                />
+                                <PredefinedDataContextProvider>
+                                    <ChatAreaDefault
+                                        currentChat={chatHistory[chatId] ? chatHistory[chatId] : []}
+                                        isBtnLoading={isBtnLoading}
+                                        onClickBtn={(data) => onClickBtnHandler(data)}
+                                        selectedTopic={selectedTopic}
+                                        setSelectedTopic={setSelectedTopic}
+                                        setShowTopics={setShowTopics}
+                                        showTopics={showTopics}
+                                    />
+                                </PredefinedDataContextProvider>
                             }
 
                         </Box>
