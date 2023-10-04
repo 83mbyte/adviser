@@ -22,6 +22,8 @@ const ChatAreaDefault = ({ isBtnLoading, onClickBtn, currentChat, selectedTopic,
     const [showPredefined, setShowPredefined] = React.useState(false);
     const [predefinedPrompt, setPredefinedPrompt] = React.useState('');
 
+    const [showChatSettings, setShowChatSettings] = React.useState(false);
+
     const [showFooter, setShowFooter] = React.useState(false);
 
     const toggleShowTopics = () => {
@@ -113,7 +115,10 @@ const ChatAreaDefault = ({ isBtnLoading, onClickBtn, currentChat, selectedTopic,
                                         clickToSelectItemFromList={clickToSelectItemFromList}
                                         showPredefined={showPredefined}
                                         togglePredefinedList={togglePredefinedList}
+                                        setShowPredefined={setShowPredefined}
                                         predefinedList={selectedTopic && predefinedData.prompts ? predefinedData.prompts[selectedTopic] : null}
+                                        setShowChatSettings={setShowChatSettings}
+                                        showChatSettings={showChatSettings}
                                     />
 
                                 }
