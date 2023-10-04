@@ -4,9 +4,10 @@ import { AnimatePresence, motion } from 'framer-motion';
 import HeaderWithButtons from '../ChatAreaHeader/HeaderWithButtons';
 import PredefinedPromptsList from '../Topics/PredefinedPromptsList';
 import ChatMessages from '../../Messages/Messages';
+import ChatAreaSettings from '../ChatAreaSettings/ChatAreaSettings';
 
 
-const ChatAreaWorkspace = ({ themeColor, currentChat, isBtnLoading, toggleShowTopics, clickToSelectItemFromList, togglePredefinedList, showPredefined, predefinedList }) => {
+const ChatAreaWorkspace = ({ themeColor, currentChat, isBtnLoading, toggleShowTopics, clickToSelectItemFromList, togglePredefinedList, setShowPredefined, showPredefined, predefinedList, setShowChatSettings, showChatSettings }) => {
     return (
         <Stack
             height={'100%'}
@@ -23,19 +24,20 @@ const ChatAreaWorkspace = ({ themeColor, currentChat, isBtnLoading, toggleShowTo
             animate={{ opacity: 1, transition: { delay: 0.1, duration: 0.5 } }}
         >
             <Box bg='' zIndex={100}>
-                <HeaderWithButtons themeColor={themeColor} toggleShowTopics={toggleShowTopics} togglePredefinedList={togglePredefinedList} showIconList={predefinedList !== null}
+                <HeaderWithButtons themeColor={themeColor} toggleShowTopics={toggleShowTopics} togglePredefinedList={togglePredefinedList} showIconList={predefinedList !== null} setShowChatSettings={setShowChatSettings} showChatSettings={showChatSettings} setShowPredefined={setShowPredefined}
                 />
             </Box>
 
             <Box height={'100%'} w='full' zIndex={10} overflow={'auto'}  >
-                <AnimatePresence >
+                <AnimatePresence mode={'wait'}>
 
                     {
                         (predefinedList !== null && showPredefined === true) &&
                         <motion.section
                             key={1}
                             layoutScroll
-                            initial={'ready'}
+                            initial={'hidden'}
+                            animate={'ready'}
                             exit={'hidden'}
                             variants={variantsPredefinedItems}
                         >
@@ -44,12 +46,18 @@ const ChatAreaWorkspace = ({ themeColor, currentChat, isBtnLoading, toggleShowTo
                             />
                         </motion.section>
                     }
+
                     {
-                        !showPredefined &&
-                        currentChat && currentChat.length > 0 &&
-                        <ChatMessages currentChat={currentChat} themeColor={themeColor} isBtnLoading={isBtnLoading} />
+                        showChatSettings && showPredefined === false &&
+                        <ChatAreaSettings themeColor={themeColor} />
                     }
                 </AnimatePresence>
+                {
+                    !showPredefined &&
+                    currentChat && currentChat.length > 0 &&
+                    <ChatMessages currentChat={currentChat} themeColor={themeColor} isBtnLoading={isBtnLoading} />
+                }
+
 
             </Box>
         </Stack >
