@@ -1,55 +1,67 @@
 import React from 'react';
-import { Box, Card, CardBody } from '@chakra-ui/react';
+import { Box, Card, CardBody, useBreakpointValue } from '@chakra-ui/react';
 
 import { motion, AnimatePresence } from 'framer-motion';
 
 import { useUISettingsContext } from '@/src/context/UISettingsContext';
 
 import OpacityBox from '../OpacityBox/OpacityBox';
-import TopicsGrid from './TopicsGrid';
+import TopicsGrid from './Topics/TopicsGrid';
 import ChatAreaFooter from './ChatAreaFooter/ChatAreaFooter';
-import ChatAreaTopicSelected from './ChatAreaTopicSelected/ChatAreaTopicSelected';
+import ChatAreaWorkspace from './ChatAreaWorkspace/ChatAreaWorkspace';
+import { usePredefinedDataContext } from '@/src/context/PredefinedDataContextProvider';
 
 
-const ChatAreaDefault = ({ isBtnLoading, onClickBtn, setChatId, currentChat }) => {
+const ChatAreaDefault = ({ isBtnLoading, onClickBtn, currentChat, selectedTopic, setSelectedTopic, showTopics, setShowTopics }) => {
+
+    const predefinedData = usePredefinedDataContext();
     const UISettingsContext = useUISettingsContext();
-
     const { themeColor, setThemeColor } = UISettingsContext.userThemeColor;
 
     const [isVisible, setIsVisible] = React.useState(false);
-    const [showTopics, setShowTopics] = React.useState(true);
-    const [selectedTopic, setSelectedTopic] = React.useState(null);
-
-    const [showPredefined, setShowPredefined] = React.useState(true);
+    const [showPredefined, setShowPredefined] = React.useState(false);
     const [predefinedPrompt, setPredefinedPrompt] = React.useState('');
 
     const [showFooter, setShowFooter] = React.useState(false);
 
-    const toggleShowTopics = (data) => {
+    const toggleShowTopics = () => {
+
         setShowTopics(!showTopics);
-        setShowFooter(!showFooter);
         setPredefinedPrompt('');
         setShowPredefined(true);
     }
 
     const clickToSelectItemFromList = (data) => {
-
-        let generatedId = Date.now();
-        if (generatedId) {
-            setChatId(generatedId);
-            console.log('ID: ', generatedId);
-            setPredefinedPrompt(data);
-        }
+        setPredefinedPrompt(data);
     }
 
     const togglePredefinedList = () => {
         setShowPredefined(!showPredefined);
     }
 
+    const footerHeightVariant = useBreakpointValue(
+        {
+            base: '115px',
+            md: '80px'
+        }
+    )
+
     React.useEffect(() => {
         setIsVisible(true);
+        if (currentChat && currentChat[0]?.subject) {
+
+            setSelectedTopic(currentChat[0].subject)
+        }
         return () => setIsVisible(false);
     }, []);
+
+    React.useEffect(() => {
+        if (showTopics !== true) {
+            setShowFooter(true)
+        } else {
+            setShowFooter(false)
+        }
+    }, [showTopics])
 
     return (
         <OpacityBox isVisible={isVisible}>
@@ -79,7 +91,7 @@ const ChatAreaDefault = ({ isBtnLoading, onClickBtn, setChatId, currentChat }) =
                             h={'100%'}
                             overflow={'auto'}
                             position='relative'
-                            justifyContent={'flex-end'}
+                            justifyContent={showTopics === true ? 'center' : 'flex-end'}
                         >
 
                             <Box bg='' overflow={'auto'} pb={2} as={'section'} h={!showTopics ? '100%' : ''} position={'relative'} >
@@ -88,19 +100,20 @@ const ChatAreaDefault = ({ isBtnLoading, onClickBtn, setChatId, currentChat }) =
                                     <TopicsGrid
                                         toggleShowTopics={toggleShowTopics}
                                         setSelectedTopic={setSelectedTopic}
+                                        predefinedData={predefinedData ? predefinedData.prompts : null}
                                     />
                                 }
                                 {
                                     !showTopics &&
-                                    // 'dddd'
-                                    <ChatAreaTopicSelected
+                                    <ChatAreaWorkspace
                                         themeColor={themeColor}
                                         currentChat={currentChat}
-                                        isBtnLoading={isBtnLoading} toggleShowTopics={toggleShowTopics}
-                                        selectedTopic={selectedTopic}
+                                        isBtnLoading={isBtnLoading}
+                                        toggleShowTopics={toggleShowTopics}
                                         clickToSelectItemFromList={clickToSelectItemFromList}
                                         showPredefined={showPredefined}
                                         togglePredefinedList={togglePredefinedList}
+                                        predefinedList={selectedTopic && predefinedData.prompts ? predefinedData.prompts[selectedTopic] : null}
                                     />
 
                                 }
@@ -109,15 +122,16 @@ const ChatAreaDefault = ({ isBtnLoading, onClickBtn, setChatId, currentChat }) =
                     </CardBody>
 
 
-                    {/*  card footer */}
+                    {/*  ChatArea footer (CardFooter) */}
+
                     <AnimatePresence>
                         {
-                            showFooter &&
+                            (showFooter || (showFooter && currentChat.length > 0)) &&
                             <MotionFooter
                                 variants={footerAnimation}
                                 initial={'hidden'}
                                 exit={'hidden'}
-                                //predefinedPrompt={null}
+                                layout
                                 predefinedPrompt={predefinedPrompt}
                                 transition={{
                                     duration: 0.5,
@@ -129,11 +143,12 @@ const ChatAreaDefault = ({ isBtnLoading, onClickBtn, setChatId, currentChat }) =
                                 themeColor={themeColor}
                                 isBtnLoading={isBtnLoading}
                                 onClickBtn={onClickBtn}
-                                //setShowPredefined={null}
+                                custom={footerHeightVariant}
                                 setShowPredefined={setShowPredefined}
                             />
                         }
                     </AnimatePresence>
+
 
                 </Card>
             </Box>
@@ -148,13 +163,14 @@ export default ChatAreaDefault;
 const MotionFooter = motion(ChatAreaFooter);
 
 const footerAnimation = {
-    visible: {
+    visible: custom => ({
         opacity: 1,
-        height: '115px',
+
+        height: custom,
         transition: {
             delay: 0.1
         }
-    },
+    }),
     hidden: {
         height: 0,
         opacity: 0,
