@@ -1,7 +1,6 @@
-import { deleteField, getFirestore, updateDoc } from 'firebase/firestore'
+import { deleteField, getFirestore, updateDoc, doc, getDoc } from 'firebase/firestore'
 import { app } from '../_f_i_r_e_base/_f_i_r_e_base';
 
-import { doc, getDoc } from "firebase/firestore";
 export const dbAPI = {
     getSectionData: async (sectionName) => {
         const db = getFirestore(app);
@@ -69,5 +68,20 @@ export const dbAPI = {
             return null
         }
     },
+
+    //predefined data
+    getPredefinedData: async (documentName) => {
+        const db = getFirestore(app);
+        const docRef = doc(db, 'predefined_data', documentName);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+            //console.log("Document data:", docSnap.data());
+            return docSnap.data()
+        } else {
+            // docSnap.data() will be undefined in this case
+            console.log("No such document!");
+            return null
+        }
+    }
 
 }
