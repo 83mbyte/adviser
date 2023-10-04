@@ -1,7 +1,7 @@
 import React from 'react';
 import { Box, Button, CardFooter, Flex, Input, VStack } from '@chakra-ui/react';
 
-const ChatAreaFooter = React.forwardRef((props, ref) => {
+const ChatAreaFooter = React.forwardRef(function ChatAreaFooterWithRef(props, ref) {
     const inputRef = React.useRef(null);
 
     const onClickHandler = () => {
@@ -16,14 +16,16 @@ const ChatAreaFooter = React.forwardRef((props, ref) => {
         }
     }, [predefinedPrompt]);
     return (
-        <CardFooter ref={ref}>
+        <CardFooter ref={ref} bg='' py={0}  >
 
-            <VStack w='full' rowGap={4}>
-                <Box bg={`${themeColor}.300`} w={'full'} h={'1px'}>
-
+            <VStack w='full'>
+                <Box bg={`${themeColor}.300`} w={'full'} h={'1px'} my={'5px'}>
                 </Box>
-                <Flex w='full' gap={3} flexDirection={['column', 'row']} alignItems={'center'}>
+                <Flex w='full' flexDirection={['column', 'row']} alignItems={'center'}
+                    columnGap={2}
+                >
                     <Input
+                        marginTop={'2px'}
                         ref={inputRef}
                         borderColor={`${themeColor}.200`}
                         _hover={{ borderColor: `${themeColor}.600` }}
@@ -31,6 +33,7 @@ const ChatAreaFooter = React.forwardRef((props, ref) => {
                         defaultValue={predefinedPrompt}
                         placeholder={'ask me.. or use a predefined prompt'}
                         w={'full'}
+                        marginBottom={{ base: '10px', md: '1px' }}
                     />
                     <Button
                         isLoading={isBtnLoading}
