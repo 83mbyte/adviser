@@ -26,6 +26,7 @@ const ChatSettingsAnimatedIcon = ({ color, size }) => {
             height={size}
             width={size}
             strokeDasharray="0 1"
+            as={motion.svg}
 
         >
             <motion.path variants={animationVars} initial={'hidden'} animate={'visible'} viewport={{ once: true }} custom={1} fill='red' d="M20 7h-9"></motion.path>
