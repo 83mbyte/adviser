@@ -1,10 +1,9 @@
-import SignUp from "@/src/components/SignUp/SignUp";
+import SignUp from "@/src/site_pages/SignUpPage/SignUp";
 
 
-export default async function Home() {
+export default async function Signup_Page() {
 
     return (
-
         <SignUp />
     )
 }

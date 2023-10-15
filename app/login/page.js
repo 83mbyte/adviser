@@ -1,9 +1,8 @@
+import Login from "@/src/site_pages/LoginPage/Login";
 
-import Login from '@/src/components/Login/Login';
+export default async function Login_Page() {
 
-export default async function Home() {
-
-    return (
-        <Login />
-    )
+  return (
+    <Login />
+  )
 }

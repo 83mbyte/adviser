@@ -1,9 +1,6 @@
-
-import { NecessaryProviders } from '@/src/context/providers';
-import styles from './page.module.css';
-import IndexPage from '@/src/components/IndexPage/IndexPage';
-import { dbAPI } from '@/src/lib/dbAPI';
-
+import IndexPage from "@/src/site_pages/IndexPage/IndexPage";
+import { NecessaryProviders } from "@/src/context/providers";
+import { dbAPI } from "@/src/lib/dbAPI";
 
 const getData = async (sectionName) => {
   const resp = await dbAPI.getSectionData(sectionName);
@@ -13,25 +10,18 @@ const getData = async (sectionName) => {
   return resp
 }
 
-
-
 export default async function Home() {
   let features;
   let pricing;
   try {
     features = await getData('features');
-    pricing = await getData('pricing')
+    pricing = await getData('pricing');
   } catch (error) {
     console.error(error)
   }
-
   return (
-    <div className={styles.mainOuterContainer}>
-      <NecessaryProviders>
-        <IndexPage data={{ features, pricing }} />
-      </NecessaryProviders>
-
-
-    </div>
+    <NecessaryProviders >
+      <IndexPage data={{ features, pricing }} />
+    </NecessaryProviders>
   )
 }

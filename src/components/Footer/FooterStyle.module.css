@@ -1,8 +1,0 @@
-.footer {
-  opacity: 0;
-}
-.visible {
-  opacity: 1;
-  transition: opacity 0.5s;
-  transition-delay: 0.3s;
-}

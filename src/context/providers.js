@@ -1,23 +1,15 @@
 'use client'
+
 import { CacheProvider } from '@chakra-ui/next-js'
-import { ChakraProvider, extendTheme } from '@chakra-ui/react'
+import { ChakraProvider } from '@chakra-ui/react'
 
-
-const theme = extendTheme({
-
-})
 export function NecessaryProviders({
     children
 }) {
-
-
     return (
         <CacheProvider>
-            <ChakraProvider theme={theme}>
-
-
+            <ChakraProvider>
                 {children}
-
             </ChakraProvider>
         </CacheProvider>
     )

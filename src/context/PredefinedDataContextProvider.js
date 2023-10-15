@@ -9,12 +9,11 @@ export const usePredefinedDataContext = () => {
 }
 
 const PredefinedDataContextProvider = ({ children }) => {
-
     const [predefinedDatadata, setPredefinedData] = useState(null);
 
     useEffect(() => {
         const getPredefinedData = async (documentName) => {
-            let res = await dbAPI.getPredefinedData(documentName)
+            let res = await dbAPI.getPredefinedData(documentName);
             if (res) {
                 setPredefinedData({
                     ...predefinedDatadata,
