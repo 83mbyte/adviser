@@ -1,4 +1,4 @@
-import { Box, HStack, IconButton, Text } from '@chakra-ui/react';
+import { Box, HStack, IconButton, Text, Tooltip } from '@chakra-ui/react';
 import { AnimatePresence, motion } from 'framer-motion';
 
 import { animationProps } from '@/src/lib/animationProps';
@@ -136,20 +136,24 @@ const LeftSideButtons = ({ themeColor, currentTopic, topicsButtonHandler, prompt
     return (
 
         <HStack>
-            <IconButton icon={<FcIdea size='20px' />}
-                colorScheme={themeColor}
-                variant={'ghost'}
-                onClick={topicsButtonHandler}
-                size={'sm'}
-            />
-            {
-                (currentTopic && currentTopic !== undefined && currentTopic !== 'Blank') &&
-                <IconButton icon={<MdOutlineNotes size={'20px'} />}
+            <Tooltip label='Ideas' hasArrow bg={`${themeColor}.500`}>
+                <IconButton icon={<FcIdea size='20px' />}
                     colorScheme={themeColor}
                     variant={'ghost'}
-                    onClick={promptsButtonHandler}
+                    onClick={topicsButtonHandler}
                     size={'sm'}
                 />
+            </Tooltip>
+            {
+                (currentTopic && currentTopic !== undefined && currentTopic !== 'Blank') &&
+                <Tooltip label='Prompts list' hasArrow bg={`${themeColor}.500`}>
+                    <IconButton icon={<MdOutlineNotes size={'20px'} />}
+                        colorScheme={themeColor}
+                        variant={'ghost'}
+                        onClick={promptsButtonHandler}
+                        size={'sm'}
+                    />
+                </Tooltip>
 
             }
         </HStack>
@@ -159,12 +163,14 @@ const LeftSideButtons = ({ themeColor, currentTopic, topicsButtonHandler, prompt
 const RightSideButtons = ({ themeColor, settingsButtonHandler }) => {
     return (
         <HStack justifyContent={'flex-end'}>
-            <IconButton icon={<MdTune size={'20px'} />}
-                colorScheme={themeColor}
-                variant={'ghost'}
-                onClick={settingsButtonHandler}
-                size={'sm'}
-            />
+            <Tooltip label='Chat settings' hasArrow bg={`${themeColor}.500`}>
+                <IconButton icon={<MdTune size={'20px'} />}
+                    colorScheme={themeColor}
+                    variant={'ghost'}
+                    onClick={settingsButtonHandler}
+                    size={'sm'}
+                />
+            </Tooltip>
         </HStack>
     )
 }
