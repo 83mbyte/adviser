@@ -4,7 +4,9 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { animationProps } from '@/src/lib/animationProps';
 import { MdOutlineNotes, MdApps, MdChevronLeft, MdTune } from 'react-icons/md';
 
-const ChatWindowHeader = ({ themeColor, currentTopic, showHeaderReturnPanel, headerBackButtonHandler, topicsButtonHandler, promptsButtonHandler, settingsButtonHandler }) => {
+import { FcIdea } from "react-icons/fc";
+
+const ChatWindowHeader = ({ themeColor, currentTopic, showHeaderReturnPanel, showTopicQuestions, headerBackButtonHandler, topicsButtonHandler, promptsButtonHandler, settingsButtonHandler }) => {
     return (
 
         <Box w='full' bg='' display={'flex'} flexDirection={'column'} alignItems={'center'} h={'auto'}>
@@ -16,6 +18,7 @@ const ChatWindowHeader = ({ themeColor, currentTopic, showHeaderReturnPanel, hea
                 settingsButtonHandler={settingsButtonHandler}
                 headerBackButtonHandler={headerBackButtonHandler}
                 showHeaderReturnPanel={showHeaderReturnPanel}
+                showTopicQuestions={showTopicQuestions}
             />
         </Box >
     )
@@ -23,7 +26,7 @@ const ChatWindowHeader = ({ themeColor, currentTopic, showHeaderReturnPanel, hea
 export default ChatWindowHeader;
 
 
-const HeaderPanel = ({ themeColor, currentTopic, topicsButtonHandler, promptsButtonHandler, settingsButtonHandler, headerBackButtonHandler, showHeaderReturnPanel }) => {
+const HeaderPanel = ({ themeColor, currentTopic, topicsButtonHandler, promptsButtonHandler, settingsButtonHandler, headerBackButtonHandler, showHeaderReturnPanel, showTopicQuestions }) => {
     return (
         <HStack w='full' h='100%' px={2}>
 
@@ -57,7 +60,7 @@ const HeaderPanel = ({ themeColor, currentTopic, topicsButtonHandler, promptsBut
             <Box bg='' flex={3}>
                 <AnimatePresence mode='wait'>
                     {
-                        showHeaderReturnPanel.state == true &&
+                        showHeaderReturnPanel.state == true && showTopicQuestions == false &&
                         <motion.div
                             key={'titleOne'}
                             variants={animationProps.text.scale}
@@ -65,11 +68,26 @@ const HeaderPanel = ({ themeColor, currentTopic, topicsButtonHandler, promptsBut
                             animate={'visible'}
                             exit={'exit'}
                         >
-                            <Text textAlign={'center'}>{showHeaderReturnPanel.title}</Text>
+                            <Text textAlign={'center'} lineHeight={'1'}>{showHeaderReturnPanel.title}</Text>
                         </motion.div>
                     }
 
                     {
+                        showHeaderReturnPanel.state == true && showTopicQuestions == true &&
+                        <motion.div
+                            key={'titleTwo'}
+                            variants={animationProps.text.scale}
+                            initial={'hidden'}
+                            animate={'visible'}
+                            exit={'exit'}
+                        >
+                            <Box>
+                                <Text textAlign={'center'} fontSize={'xs'} lineHeight={'1'}>Ideas on:</Text>
+                                <Text textAlign={'center'} lineHeight={'1'}>{currentTopic}</Text>
+                            </Box>
+                        </motion.div>
+                    }
+                    {/* {
                         showHeaderReturnPanel.state == false &&
                         <motion.div
                             key={'titleTwo'}
@@ -80,7 +98,19 @@ const HeaderPanel = ({ themeColor, currentTopic, topicsButtonHandler, promptsBut
                         >
                             <Text textAlign={'center'}>{currentTopic}</Text>
                         </motion.div>
-                    }
+                    } */}
+                    {/* {
+                        currentTopic !== '' || currentTopic !== undefined &&
+                        <motion.div
+                            key={'titleTh'}
+                            variants={animationProps.text.scale}
+                            initial={'hidden'}
+                            animate={'visible'}
+                            exit={'exit'}
+                        >
+                            <Text textAlign={'center'}>{currentTopic}!!!!!!</Text>
+                        </motion.div>
+                    } */}
                 </AnimatePresence>
             </Box>
 
@@ -106,7 +136,7 @@ const LeftSideButtons = ({ themeColor, currentTopic, topicsButtonHandler, prompt
     return (
 
         <HStack>
-            <IconButton icon={<MdApps size='20px' />}
+            <IconButton icon={<FcIdea size='20px' />}
                 colorScheme={themeColor}
                 variant={'ghost'}
                 onClick={topicsButtonHandler}
