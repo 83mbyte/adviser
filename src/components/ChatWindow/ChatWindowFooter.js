@@ -1,6 +1,6 @@
 import { Box, Button, CardFooter, Textarea, VStack, useBreakpointValue } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
-import { useEffect, useRef, useState } from 'react';
+import { forwardRef, useEffect, useState } from 'react';
 
 
 const textAreaAnimation = {
@@ -34,8 +34,8 @@ const footerVisibilityAnimation = {
 }
 
 
-const ChatWindowFooter = ({ themeColor, selectedQuestion }) => {
-    const textAreaRef = useRef(null);
+const ChatWindowFooter = forwardRef(({ themeColor, selectedQuestion, isLoadingBtn, submitButtonHandler }, ref) => {
+
     const [changeHeight, setChangeHeight] = useState(false);
     const footerHeightVariant = useBreakpointValue(
         {
@@ -56,9 +56,9 @@ const ChatWindowFooter = ({ themeColor, selectedQuestion }) => {
     }
     useEffect(() => {
         if (selectedQuestion && (selectedQuestion !== '' || selectedQuestion !== undefined)) {
-            textAreaRef.current.value = '';
-            textAreaRef.current.value = selectedQuestion;
-            textAreaRef.current.focus();
+            ref.current.value = '';
+            ref.current.value = selectedQuestion;
+            ref.current.focus();
         }
     }, [selectedQuestion])
 
@@ -85,7 +85,7 @@ const ChatWindowFooter = ({ themeColor, selectedQuestion }) => {
                     columnGap={2}
                 >
                     <Textarea
-                        ref={textAreaRef}
+                        ref={ref}
                         resize={'none'}
                         rows={1}
                         marginBottom={{ base: '10px', sm: '0px' }}
@@ -101,11 +101,14 @@ const ChatWindowFooter = ({ themeColor, selectedQuestion }) => {
                         animate={changeHeight ? 'multiRows' : 'oneRow'}
                     />
 
-                    <Button colorScheme={themeColor} w={['full', 'min']}>Send</Button>
+                    <Button colorScheme={themeColor} w={['full', 'min']}
+                        isLoading={isLoadingBtn}
+                        onClick={() => submitButtonHandler()}
+                    >Send</Button>
                 </Box>
             </VStack>
         </CardFooter>
     );
-};
+});
 
 export default ChatWindowFooter;
