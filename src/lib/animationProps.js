@@ -74,5 +74,37 @@ export const animationProps = {
                 }
             }
         }
+    },
+    opacity: {
+        hidden: {
+            opacity: 0
+        },
+        show: {
+            opacity: 1,
+            transition: { delay: 0.1, duration: 0.8 }
+        },
+        exit: {
+            opacity: 0,
+            transition: {
+                duration: 0.4
+            }
+        }
+    }
+    ,
+    slideFromTop: {
+        hidden: {
+            y: '-100vh',
+            opacity: 0
+        },
+        visible: custom => ({
+            y: 0,
+            opacity: 1,
+            transition: {
+                type: 'spring',
+                delay: custom * 0.8,
+                stiffness: 100
+            }
+        }),
+        exit: { opacity: 0, y: '-100vh', transition: { duration: 0.5, delay: 0.2 } },
     }
 }
