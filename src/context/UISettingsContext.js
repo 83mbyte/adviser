@@ -10,7 +10,7 @@ export const useUISettingsContext = () => {
 }
 
 const UISettingsContextProvider = ({ userId, children }) => {
-    const [themeColor, setThemeColor] = React.useState('purple');
+    const [themeColor, setThemeColor] = React.useState('green');
 
     const settingsObject = {
         userThemeColor: { themeColor, setThemeColor }
@@ -18,13 +18,13 @@ const UISettingsContextProvider = ({ userId, children }) => {
 
     React.useEffect(() => {
         const getUserUISettings = async () => {
-
             let resp = await dbAPI.getUserData(userId);
             if (resp) {
                 setThemeColor(resp.theme.toLowerCase());
             }
             return null
         }
+
         getUserUISettings();
     }, [])
 
