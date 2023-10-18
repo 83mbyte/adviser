@@ -1,16 +1,21 @@
-import { Box } from '@chakra-ui/react';
+import { Button, Box, Modal, ModalBody, ModalFooter, ModalCloseButton, ModalContent, ModalHeader, ModalOverlay, Portal, HStack } from '@chakra-ui/react';
 import React from 'react';
 import styles from './WorkspaceStyles.module.css';
 import Header from '../../components/Workspace/Header/Header';
 import MainArea from '../../components/Workspace/MainArea/MainArea';
 import Footer from '../../components/PagesFooter/Footer';
+import { authAPI } from '@/src/lib/authAPI';
+import ModalWindow from '@/src/components/Modal/ModalWindow';
+import MotionModal from '@/src/components/Modal/MotionModal';
+import { AnimatePresence, motion } from 'framer-motion';
 
 const Workspace = () => {
+    const [showModalSignOut, setShowModalSignOut] = React.useState(false);
     return (
 
         <>
             <Box as='header' className={styles.header}  >
-                <Header />
+                <Header setShowModalSignOut={setShowModalSignOut} />
             </Box>
 
             {/* main  */}
@@ -35,8 +40,17 @@ const Workspace = () => {
             <Box as='footer' className={styles.footer}>
                 <Footer />
             </Box>
+            <Portal>
+                <MotionModal showModal={showModalSignOut}
+                    headerText='Are you sure?'
+                    bodyText='Your current session will be closed. Please confirm.'
+                    handleClose={() => setShowModalSignOut(false)}
+                    confirmAction={() => authAPI.signOut()}
+                />
+            </Portal>
         </>
     )
 };
 
 export default Workspace;
+
