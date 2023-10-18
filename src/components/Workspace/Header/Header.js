@@ -74,7 +74,7 @@ const buttonsAnimation = {
 
 const btns = ['one', 'two', 'three'];
 
-const Header = () => {
+const Header = ({ setShowModalSignOut }) => {
   const UISettingsContext = useUISettingsContext();
   const { themeColor, setThemeColor } = UISettingsContext.userThemeColor;
 
@@ -122,7 +122,7 @@ const Header = () => {
               display="flex"
               alignItems={"center"}
             >
-              <NavigationButtons show={navVisibility} themeColor={themeColor} setThemeColor={setThemeColor} />
+              <NavigationButtons show={navVisibility} themeColor={themeColor} setThemeColor={setThemeColor} setShowModalSignOut={setShowModalSignOut} />
               <MenuBtn show={navVisibility} themeColor={themeColor} />
             </Box>
           </MainWrapper>
@@ -135,7 +135,7 @@ const Header = () => {
 export default Header;
 
 
-const NavigationButtons = ({ show, themeColor, setThemeColor }) => {
+const NavigationButtons = ({ show, themeColor, setThemeColor, setShowModalSignOut }) => {
 
   return (
     <>
@@ -160,7 +160,7 @@ const NavigationButtons = ({ show, themeColor, setThemeColor }) => {
               key={'SettingsButton'}
               variants={buttonsAnimation}
             >
-              <HeaderSettingsMenu setThemeColor={setThemeColor} themeColor={themeColor} />
+              <HeaderSettingsMenu setThemeColor={setThemeColor} themeColor={themeColor} setShowModalSignOut={setShowModalSignOut} />
             </motion.div>
           </HStack>
         }
