@@ -68,6 +68,16 @@ export const dbAPI = {
             return null
         }
     },
+    updateUserData: async (userId, field, data) => {
+        const db = getFirestore(app);
+        const docRef = doc(db, 'users', userId);
+
+        await updateDoc(docRef,
+            {
+                [field]: data
+            },
+            { merge: true });
+    },
 
     //predefined data
     getPredefinedData: async (documentName) => {
