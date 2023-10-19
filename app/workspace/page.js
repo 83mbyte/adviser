@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import PredefinedDataContextProvider from "@/src/context/PredefinedDataContextProvider";
 import Workspace from "@/src/site_pages/WorkspacePage/Workspace";
+import HistoryContextProvider from "@/src/context/HistoryContextProvider";
 
 export default function WorkspacePage() {
     const user = useAuthContext();
@@ -39,7 +40,9 @@ export default function WorkspacePage() {
                     :
                     <UISettingsContextProvider userId={user.uid}>
                         <PredefinedDataContextProvider>
-                            <Workspace />
+                            <HistoryContextProvider userId={user.uid}>
+                                <Workspace />
+                            </HistoryContextProvider>
                         </PredefinedDataContextProvider>
                     </UISettingsContextProvider >
             }
