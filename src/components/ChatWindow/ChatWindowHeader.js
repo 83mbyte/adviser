@@ -2,11 +2,11 @@ import { Box, HStack, IconButton, Text, Tooltip } from '@chakra-ui/react';
 import { AnimatePresence, motion } from 'framer-motion';
 
 import { animationProps } from '@/src/lib/animationProps';
-import { MdOutlineNotes, MdApps, MdChevronLeft, MdTune } from 'react-icons/md';
+import { MdOutlineNotes, MdHistory, MdChevronLeft, MdTune, } from 'react-icons/md';
 
-import { FcIdea } from "react-icons/fc";
+import { HiOutlineLightBulb } from "react-icons/hi";
 
-const ChatWindowHeader = ({ themeColor, currentTopic, showHeaderReturnPanel, showTopicQuestions, headerBackButtonHandler, topicsButtonHandler, promptsButtonHandler, settingsButtonHandler }) => {
+const ChatWindowHeader = ({ themeColor, currentTopic, showHeaderReturnPanel, showTopicQuestions, headerBackButtonHandler, topicsButtonHandler, promptsButtonHandler, settingsButtonHandler, historyButtonHandler, isChatHistoryExists }) => {
     return (
 
         <Box w='full' bg='' display={'flex'} flexDirection={'column'} alignItems={'center'} h={'auto'}>
@@ -19,6 +19,8 @@ const ChatWindowHeader = ({ themeColor, currentTopic, showHeaderReturnPanel, sho
                 headerBackButtonHandler={headerBackButtonHandler}
                 showHeaderReturnPanel={showHeaderReturnPanel}
                 showTopicQuestions={showTopicQuestions}
+                historyButtonHandler={historyButtonHandler}
+                isChatHistoryExists={isChatHistoryExists}
             />
         </Box >
     )
@@ -26,35 +28,12 @@ const ChatWindowHeader = ({ themeColor, currentTopic, showHeaderReturnPanel, sho
 export default ChatWindowHeader;
 
 
-const HeaderPanel = ({ themeColor, currentTopic, topicsButtonHandler, promptsButtonHandler, settingsButtonHandler, headerBackButtonHandler, showHeaderReturnPanel, showTopicQuestions }) => {
+const HeaderPanel = ({ themeColor, currentTopic, topicsButtonHandler, promptsButtonHandler, settingsButtonHandler, headerBackButtonHandler, showHeaderReturnPanel, showTopicQuestions, historyButtonHandler, isChatHistoryExists }) => {
     return (
         <HStack w='full' h='100%' px={2}>
 
             <Box bg='' flex={1} >
-                <AnimatePresence mode={'wait'}>
-                    {
-                        showHeaderReturnPanel.state == false &&
-                        <motion.div key={'leftBtns'} variants={animationProps.buttons.slideFromLeft} initial={'hidden'} animate={'visible'} exit={'exit'} layout>
-                            <LeftSideButtons themeColor={themeColor} currentTopic={currentTopic} topicsButtonHandler={topicsButtonHandler} promptsButtonHandler={promptsButtonHandler} />
-                        </motion.div>
-                    }
-
-                    {
-                        showHeaderReturnPanel.state == true &&
-                        <motion.div key={'backBtn'} variants={animationProps.buttons.slideFromLeft} initial={'hidden'} animate={'visible'} exit={'exit'} layout>
-                            <HStack>
-                                <IconButton icon={<MdChevronLeft size={'28px'} />}
-                                    colorScheme={themeColor}
-                                    variant={'ghost'}
-                                    onClick={() => {
-                                        headerBackButtonHandler();
-                                    }}
-                                    size={'sm'}
-                                />
-                            </HStack>
-                        </motion.div>
-                    }
-                </AnimatePresence >
+                <LeftSideButtons showButtons={showHeaderReturnPanel.state == false} themeColor={themeColor} currentTopic={currentTopic} topicsButtonHandler={topicsButtonHandler} promptsButtonHandler={promptsButtonHandler} headerBackButtonHandler={headerBackButtonHandler} />
             </Box >
 
             <Box bg='' flex={3}>
@@ -87,93 +66,143 @@ const HeaderPanel = ({ themeColor, currentTopic, topicsButtonHandler, promptsBut
                             </Box>
                         </motion.div>
                     }
-                    {/* {
-                        showHeaderReturnPanel.state == false &&
-                        <motion.div
-                            key={'titleTwo'}
-                            variants={animationProps.text.scale}
-                            initial={'hidden'}
-                            animate={'visible'}
-                            exit={'exit'}
-                        >
-                            <Text textAlign={'center'}>{currentTopic}</Text>
-                        </motion.div>
-                    } */}
-                    {/* {
-                        currentTopic !== '' || currentTopic !== undefined &&
-                        <motion.div
-                            key={'titleTh'}
-                            variants={animationProps.text.scale}
-                            initial={'hidden'}
-                            animate={'visible'}
-                            exit={'exit'}
-                        >
-                            <Text textAlign={'center'}>{currentTopic}!!!!!!</Text>
-                        </motion.div>
-                    } */}
                 </AnimatePresence>
             </Box>
 
             <Box bg='' flex={1}   >
-                <AnimatePresence mode='wait'>
-                    {
-                        showHeaderReturnPanel.state == false &&
-                        <motion.div style={{ backgroundColor: '', }} key={'rightBtns'} variants={animationProps.buttons.slideFromRight} initial={'hidden'} animate={'visible'} exit={'exit'} layout>
-                            <RightSideButtons themeColor={themeColor} settingsButtonHandler={settingsButtonHandler} />
-                        </motion.div>
-                    }
 
-                    {
-                        showHeaderReturnPanel.state == true && <Box>&nbsp;</Box>
-                    }
-                </AnimatePresence>
+                <RightSideButtons showButtons={showHeaderReturnPanel.state == false} themeColor={themeColor} settingsButtonHandler={settingsButtonHandler} historyButtonHandler={historyButtonHandler} isChatHistoryExists={isChatHistoryExists} />
             </Box>
         </HStack >
     )
 }
 
-const LeftSideButtons = ({ themeColor, currentTopic, topicsButtonHandler, promptsButtonHandler }) => {
+const LeftSideButtons = ({ showButtons, themeColor, currentTopic, topicsButtonHandler, promptsButtonHandler, headerBackButtonHandler }) => {
     return (
+        <HStack >
+            <AnimatePresence mode='wait'>
+                {
+                    showButtons == true &&
+                    <motion.div
+                        style={{ display: 'flex', flexDirection: 'row' }}
+                        key={'leftBtnsContainer'}
+                        variants={animationProps.buttons.slideFromLeft}
+                        initial={'hidden'}
+                        animate={'visible'}
+                        exit={'exit'}
 
-        <HStack>
-            <Tooltip label='Ideas' hasArrow bg={`${themeColor}.500`}>
-                <IconButton icon={<FcIdea size='20px' />}
-                    colorScheme={themeColor}
-                    variant={'ghost'}
-                    onClick={topicsButtonHandler}
-                    size={'sm'}
-                />
-            </Tooltip>
-            {
-                (currentTopic && currentTopic !== undefined && currentTopic !== 'Blank') &&
-                <Tooltip label='Prompts list' hasArrow bg={`${themeColor}.500`}>
-                    <IconButton icon={<MdOutlineNotes size={'20px'} />}
-                        colorScheme={themeColor}
-                        variant={'ghost'}
-                        onClick={promptsButtonHandler}
-                        size={'sm'}
-                    />
-                </Tooltip>
+                    >
+                        <motion.div
+                            key={'ideaBtn'}
+                            variants={animationProps.buttons.slideFromLeftChild}
+                        >
+                            <Tooltip label='Ideas' hasArrow bg={`${themeColor}.500`}>
+                                <IconButton icon={<HiOutlineLightBulb size='22px' />}
+                                    colorScheme={themeColor}
+                                    variant={'ghost'}
+                                    onClick={topicsButtonHandler}
+                                    size={'sm'}
+                                />
+                            </Tooltip>
+                        </motion.div>
+                        {
+                            (currentTopic && currentTopic !== undefined && currentTopic !== 'Blank') &&
+                            <motion.div
+                                key={'promptsBtn'}
+                                variants={animationProps.buttons.slideFromLeftChild}
+                            >
+                                <Tooltip label='Prompts list' hasArrow bg={`${themeColor}.500`}>
+                                    <IconButton icon={<MdOutlineNotes size={'20px'} />}
+                                        colorScheme={themeColor}
+                                        variant={'ghost'}
+                                        onClick={promptsButtonHandler}
+                                        size={'sm'}
+                                    />
+                                </Tooltip>
+                            </motion.div>
+                        }
+                    </motion.div>
+                }
+                {
+                    showButtons == false &&
+                    <motion.div
+                        key={'returnContainer'}
+                        variants={animationProps.buttons.slideFromLeft}
+                        initial={'hidden'}
+                        animate={'visible'}
+                        exit={'exit'}
+                    >
+                        <motion.div
+                            key={'returnBtn'}
+                            variants={animationProps.buttons.slideFromLeftChild}
+                        >
+                            <IconButton icon={<MdChevronLeft size={'28px'} />}
+                                colorScheme={themeColor}
+                                variant={'ghost'}
+                                onClick={() => {
+                                    headerBackButtonHandler();
+                                }}
+                                size={'sm'}
+                            />
+                        </motion.div>
 
-            }
+                    </motion.div>
+                }
+            </AnimatePresence>
         </HStack>
     )
 }
 
-const RightSideButtons = ({ themeColor, settingsButtonHandler }) => {
+const RightSideButtons = ({ showButtons, themeColor, settingsButtonHandler, historyButtonHandler, isChatHistoryExists }) => {
     return (
-        <HStack justifyContent={'flex-end'}>
-            <Tooltip label='Chat settings' hasArrow bg={`${themeColor}.500`}>
-                <IconButton icon={<MdTune size={'20px'} />}
-                    colorScheme={themeColor}
-                    variant={'ghost'}
-                    onClick={settingsButtonHandler}
-                    size={'sm'}
-                />
-            </Tooltip>
-        </HStack>
+        <HStack justifyContent={'flex-end'} >
+            <AnimatePresence mode='wait'>
+                {
+                    showButtons == true &&
+                    <motion.div
+                        style={{ display: 'flex', flexDirection: 'row' }}
+                        key={'rightBtnsContainer'}
+                        variants={animationProps.buttons.slideFromRight}
+                        initial={'hidden'}
+                        animate={'visible'}
+                        exit={'exit'}
+                    >
+                        {
+                            isChatHistoryExists &&
+                            <motion.div
+                                key={'historyBtn'}
+                                variants={animationProps.buttons.slideFromRightChild}
+                            >
+                                <Tooltip label='History' hasArrow bg={`${themeColor}.500`}>
+                                    <IconButton icon={<MdHistory size={'20px'} />}
+                                        colorScheme={themeColor}
+                                        variant={'ghost'}
+                                        onClick={historyButtonHandler}
+                                        size={'sm'}
+                                    />
+                                </Tooltip>
+                            </motion.div>
+                        }
+                        <motion.div
+                            key={'settingsBtn'}
+                            variants={animationProps.buttons.slideFromRightChild}
+                        >
+                            <Tooltip label='Chat settings' hasArrow bg={`${themeColor}.500`}>
+                                <IconButton icon={<MdTune size={'20px'} />}
+                                    colorScheme={themeColor}
+                                    variant={'ghost'}
+                                    onClick={settingsButtonHandler}
+                                    size={'sm'}
+                                />
+                            </Tooltip>
+                        </motion.div>
+                    </motion.div>
+                }
+                {
+                    showButtons === false &
+                    <Box key={'emptyBox'}>&nbsp;</Box>
+                }
+            </AnimatePresence>
+        </HStack >
     )
 }
-
-
-
