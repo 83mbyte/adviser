@@ -1,4 +1,4 @@
-const transitionSpringButtons = {
+const transitionSpring = {
     type: 'spring',
     duration: 1,
     bounce: 0.3
@@ -6,29 +6,54 @@ const transitionSpringButtons = {
 export const animationProps = {
 
     buttons: {
+        // slide from left
         slideFromLeft: {
             hidden: { opacity: 0, x: -200 },
             visible: {
                 opacity: 1,
                 x: 0,
                 transition: {
-                    ...transitionSpringButtons
+                    ...transitionSpring,
+                    staggerChildren: 0.4
                 }
             },
             exit: { opacity: 0, x: -200, transition: { duration: 0.3, delay: 0.2 } }
         },
+        // slide from left child
+        slideFromLeftChild: {
+            hidden: { opacity: 0, x: -200 },
+            visible: {
+                opacity: 1,
+                x: 0,
+                transition: transitionSpring,
+            },
+            exit: { opacity: 0, x: -200 }
+        },
+        // slide from right
         slideFromRight: {
             hidden: { opacity: 0, x: 200 },
             visible: {
                 opacity: 1,
                 x: 0,
                 transition: {
-                    ...transitionSpringButtons,
-                    delay: 0.4
+                    ...transitionSpring,
+                    delay: 0.6,
+                    staggerChildren: 0.9,
+                    staggerDirection: -1
                 }
             },
             exit: { opacity: 0, x: 200, transition: { duration: 0.3, delay: 0.2 } }
-        }
+        },
+        // slide from right child
+        slideFromRightChild: {
+            hidden: { opacity: 0, x: 200 },
+            visible: {
+                opacity: 1,
+                x: 0,
+                transition: transitionSpring,
+            },
+            exit: { opacity: 0, x: 200 }
+        },
     },
 
     text: {
