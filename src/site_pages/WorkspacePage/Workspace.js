@@ -1,13 +1,11 @@
-import { Button, Box, Modal, ModalBody, ModalFooter, ModalCloseButton, ModalContent, ModalHeader, ModalOverlay, Portal, HStack } from '@chakra-ui/react';
+import { Box, Portal } from '@chakra-ui/react';
 import React from 'react';
 import styles from './WorkspaceStyles.module.css';
 import Header from '../../components/Workspace/Header/Header';
 import MainArea from '../../components/Workspace/MainArea/MainArea';
 import Footer from '../../components/PagesFooter/Footer';
 import { authAPI } from '@/src/lib/authAPI';
-import ModalWindow from '@/src/components/Modal/ModalWindow';
 import MotionModal from '@/src/components/Modal/MotionModal';
-import { AnimatePresence, motion } from 'framer-motion';
 
 const Workspace = () => {
     const [showModalSignOut, setShowModalSignOut] = React.useState(false);
