@@ -15,7 +15,7 @@ const slideFromTopAnimation = {
             stiffness: 100
         }
     }),
-    exit: { opacity: 0, y: '100vh', transition: { dureation: 0.5, delay: 0.2 } },
+    exit: { opacity: 0, y: '100vh', transition: { duration: 0.5, delay: 0.2 } },
 }
 
 const SlideFromTopContainer = ({ height = 'auto', width = 'full', delay, children }) => {
