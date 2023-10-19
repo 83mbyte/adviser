@@ -4,8 +4,10 @@ import { forwardRef, useEffect, useState } from 'react';
 
 
 const textAreaAnimation = {
-    oneRow: { height: 'auto', minHeight: '40px', transition: { duration: 1, delay: 0.2 } },
-    multiRows: { height: '70px', transition: { duration: 2, delay: 0.2 } }
+    oneRow: { height: 'auto', minHeight: '40px' },
+    // oneRow: { height: 'auto', minHeight: '40px', transition: { duration: 0.6, delay: 0.1, type: 'tween', ease: 'linear' } },
+    // multiRows: { height: '70px' }
+    multiRows: { height: '70px' }
 }
 
 const footerVisibilityAnimation = {
@@ -46,14 +48,14 @@ const ChatWindowFooter = forwardRef(({ themeColor, selectedQuestion, isLoadingBt
 
     const checkInputHeight = (e) => {
 
-        if (e.keyCode === 13) {
+        if (e.target.scrollHeight > 39 && e.target.value !== '') {
             setChangeHeight(true);
-        } else {
-            if (e.target.value == '' || e.target.value.length < 1) {
-                setChangeHeight(false);
-            }
+        } else if (e.target.value == '' || e.target.value.length < 20) {
+            setChangeHeight(false);
         }
+
     }
+
     useEffect(() => {
         if (selectedQuestion && (selectedQuestion !== '' || selectedQuestion !== undefined)) {
             ref.current.value = '';
@@ -85,6 +87,7 @@ const ChatWindowFooter = forwardRef(({ themeColor, selectedQuestion, isLoadingBt
                     columnGap={2}
                 >
                     <Textarea
+
                         ref={ref}
                         resize={'none'}
                         rows={1}
@@ -93,7 +96,8 @@ const ChatWindowFooter = forwardRef(({ themeColor, selectedQuestion, isLoadingBt
                         _hover={{ borderColor: `${themeColor}.600` }}
                         _focusVisible={{ borderColor: `${themeColor}.600` }}
                         placeholder={'ask me.. or use a predefined prompt'}
-                        onKeyDown={(e) => checkInputHeight(e)}
+                        onChange={(e) => checkInputHeight(e)}
+                        onFocus={(e) => { checkInputHeight(e); e.target.setSelectionRange(e.target.value.length, e.target.value.length) }}
                         defaultValue={selectedQuestion}
                         as={motion.textarea}
                         variants={textAreaAnimation}
