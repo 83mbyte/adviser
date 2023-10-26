@@ -10,21 +10,11 @@ import {
 } from "@chakra-ui/react";
 import { AnimatePresence, motion } from "framer-motion";
 
-import { HiMenu, HiX } from "react-icons/hi";
+import { HiMenu } from "react-icons/hi";
 import MainWrapper from "../../Wrappers/MainWrapper";
-import HeaderSettingsMenu from "../../Menu/HeaderSettingsMenu";
+import HeaderSettingsMenu from "../../Menus/HeaderSettingsMenu";
 
-const headerVars = {
-  hidden: { y: -200 },
-  visible: {
-    y: 0,
-    transition: {
-      delay: 0,
-      type: "spring",
-      snifness: 10,
-    },
-  },
-};
+
 
 const navContainerVariants = {
   hidden: {
@@ -72,11 +62,9 @@ const buttonsAnimation = {
   }
 }
 
-const btns = ['one', 'two', 'three'];
+const Header = () => {
 
-const Header = ({ setShowModalSignOut }) => {
-  const UISettingsContext = useUISettingsContext();
-  const { themeColor, setThemeColor } = UISettingsContext.userThemeColor;
+  const { themeColor, setThemeColor } = useUISettingsContext().userThemeColor;
 
 
   const navVisibility = useBreakpointValue({
@@ -90,9 +78,6 @@ const Header = ({ setShowModalSignOut }) => {
         <Box
           as={motion.div}
           key={'header'}
-          // variants={headerVars}
-          // animate={"visible"}
-          // initial={"hidden"}
           display="flex"
           flexDirection={"row"}
           justifyContent={"center"}
@@ -122,7 +107,7 @@ const Header = ({ setShowModalSignOut }) => {
               display="flex"
               alignItems={"center"}
             >
-              <NavigationButtons show={navVisibility} themeColor={themeColor} setThemeColor={setThemeColor} setShowModalSignOut={setShowModalSignOut} />
+              <NavigationButtons show={navVisibility} themeColor={themeColor} setThemeColor={setThemeColor} />
               <MenuBtn show={navVisibility} themeColor={themeColor} />
             </Box>
           </MainWrapper>
@@ -135,7 +120,7 @@ const Header = ({ setShowModalSignOut }) => {
 export default Header;
 
 
-const NavigationButtons = ({ show, themeColor, setThemeColor, setShowModalSignOut }) => {
+const NavigationButtons = ({ show, themeColor, setThemeColor }) => {
 
   return (
     <>
@@ -151,16 +136,10 @@ const NavigationButtons = ({ show, themeColor, setThemeColor, setShowModalSignOu
             spacing='10px'
           >
             <motion.div
-              key={'btn1'}
-              variants={buttonsAnimation}
-            >
-              <IconButton icon={<HiX />} variant={'outline'} colorScheme={themeColor} />
-            </motion.div>
-            <motion.div
               key={'SettingsButton'}
               variants={buttonsAnimation}
             >
-              <HeaderSettingsMenu setThemeColor={setThemeColor} themeColor={themeColor} setShowModalSignOut={setShowModalSignOut} />
+              <HeaderSettingsMenu setThemeColor={setThemeColor} themeColor={themeColor} />
             </motion.div>
           </HStack>
         }

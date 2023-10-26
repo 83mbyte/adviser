@@ -11,9 +11,13 @@ export const useUISettingsContext = () => {
 
 const UISettingsContextProvider = ({ userId, children }) => {
     const [themeColor, setThemeColor] = React.useState('green');
+    const [showModal, setShowModal] = React.useState({ isShow: false, type: '' });
+    const [workspaceType, setWorkspaceType] = React.useState('chat');
 
     const settingsObject = {
-        userThemeColor: { themeColor, setThemeColor }
+        userThemeColor: { themeColor, setThemeColor },
+        showModalWindow: { showModal, setShowModal },
+        userWorkspaceType: { workspaceType, setWorkspaceType }
     }
 
     React.useEffect(() => {

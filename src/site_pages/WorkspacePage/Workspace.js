@@ -1,19 +1,28 @@
 import { Box, Portal } from '@chakra-ui/react';
-import React from 'react';
+
 import styles from './WorkspaceStyles.module.css';
 import Header from '../../components/Workspace/Header/Header';
 import MainArea from '../../components/Workspace/MainArea/MainArea';
 import Footer from '../../components/PagesFooter/Footer';
-import { authAPI } from '@/src/lib/authAPI';
-import MotionModal from '@/src/components/Modal/MotionModal';
+import MotionModalSignOut from '@/src/components/Modal/MotionSignOutModal';
+import MotionZoomImgModal from '@/src/components/Modal/MotionZoomImgModal';
+import { useUISettingsContext } from '@/src/context/UISettingsContext';
 
 const Workspace = () => {
-    const [showModalSignOut, setShowModalSignOut] = React.useState(false);
-    return (
 
+    const userUISettings = useUISettingsContext();
+    const showModalSettings = userUISettings.showModalWindow;
+    const userWorkspaceType = userUISettings.userWorkspaceType;
+
+    const closeModal = () => {
+        showModalSettings.setShowModal({ isShow: false, type: null, body: null });
+        return null
+    }
+
+    return (
         <>
             <Box as='header' className={styles.header}  >
-                <Header setShowModalSignOut={setShowModalSignOut} />
+                <Header />
             </Box>
 
             {/* main  */}
@@ -31,7 +40,7 @@ const Workspace = () => {
                 alignItems={'center'}
                 overflow={'hidden'}
             >
-                <MainArea />
+                <MainArea workspaceType={userWorkspaceType.workspaceType} />
             </Box>
 
             {/* footer */}
@@ -39,11 +48,14 @@ const Workspace = () => {
                 <Footer />
             </Box>
             <Portal>
-                <MotionModal showModal={showModalSignOut}
-                    headerText='Are you sure?'
-                    bodyText='Your current session will be closed. Please confirm.'
-                    handleClose={() => setShowModalSignOut(false)}
-                    confirmAction={() => authAPI.signOut()}
+                <MotionModalSignOut
+                    showModal={showModalSettings.showModal}
+                    handleClose={closeModal}
+                />
+
+                <MotionZoomImgModal
+                    showModal={showModalSettings.showModal}
+                    handleClose={closeModal}
                 />
             </Portal>
         </>

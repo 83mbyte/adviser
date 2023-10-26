@@ -27,7 +27,7 @@ export const animationProps = {
                 x: 0,
                 transition: transitionSpring,
             },
-            exit: { opacity: 0, x: -200 }
+            exit: { opacity: 0, x: -200, transition: transitionSpring, }
         },
         // slide from right
         slideFromRight: {
@@ -52,7 +52,7 @@ export const animationProps = {
                 x: 0,
                 transition: transitionSpring,
             },
-            exit: { opacity: 0, x: 200 }
+            exit: { opacity: 0, x: 200, transition: transitionSpring, }
         },
     },
 
@@ -65,7 +65,33 @@ export const animationProps = {
     },
 
     chatWindowScreens: {
-
+        // slideFromTop: {
+        //     hidden: {
+        //         y: '-80vh',
+        //         opacity: 0
+        //     },
+        //     show: {
+        //         y: 0,
+        //         opacity: 1,
+        //         transition: {
+        //             y: {
+        //                 type: 'spring',
+        //                 delay: 0.1,
+        //                 stiffness: 100
+        //             }
+        //         }
+        //     },
+        //     exit: {
+        //         opacity: 0, y: '50vh',
+        //         transition: {
+        //             y: {
+        //                 type: 'spring',
+        //                 delay: 0.1,
+        //                 stiffness: 100
+        //             }
+        //         }
+        //     }
+        // },
         slideFromLeft: {
             hidden: {
                 x: '-300px',
@@ -100,6 +126,32 @@ export const animationProps = {
             }
         }
     },
+    listLikeItems: {
+        listItem: {
+            opacity: [0, 0.5, 1],
+            // x: ['-500px', '0px'],
+            transition: {
+                // delay: custom * 0.08,
+                duration: 0.5,
+                ease: 'linear',
+                // opacity: { duration: 1, delay: custom * 0.08 }
+            }
+        },
+        rightIcon: {
+            init: {
+                opacity: 0,
+                x: '-40px',
+                transition: { duration: 0.5 }
+            },
+
+            ready: custom => ({
+                opacity: [0.1, 1],
+                x: ['-40px', '0px'],
+                transition: { duration: 0.8, delay: custom * 0.1 }
+            })
+        }
+    },
+
     opacity: {
         hidden: {
             opacity: 0
@@ -114,22 +166,34 @@ export const animationProps = {
                 duration: 0.4
             }
         }
-    }
-    ,
+    },
     slideFromTop: {
         hidden: {
-            y: '-100vh',
+            y: '-50vh',
             opacity: 0
         },
         visible: custom => ({
             y: 0,
             opacity: 1,
-            transition: {
-                type: 'spring',
-                delay: custom * 0.8,
-                stiffness: 100
-            }
+            transition: { duration: 0.5, delay: 0.1 }
+            // transition: {
+            //     type: 'spring',
+            //     delay: custom * 0.8,
+            //     stiffness: 100
+            // }
         }),
-        exit: { opacity: 0, y: '-100vh', transition: { duration: 0.5, delay: 0.2 } },
+        exit: { opacity: 0, y: '10vh', transition: { duration: 0.5, delay: 0.1 } },
+    },
+    scaleFromMinToMax: {
+        hidden: { opacity: 0, scale: 0.5 },
+        visible: {
+            opacity: 1,
+            scale: 1,
+            transition: {
+                scale: { type: 'spring', bounce: 0.3 }
+            }
+        },
+        exit: { opacity: 0, scale: 0.5 }
     }
+
 }

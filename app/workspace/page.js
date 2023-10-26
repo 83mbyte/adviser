@@ -8,6 +8,7 @@ import { useEffect } from "react";
 import PredefinedDataContextProvider from "@/src/context/PredefinedDataContextProvider";
 import Workspace from "@/src/site_pages/WorkspacePage/Workspace";
 import HistoryContextProvider from "@/src/context/HistoryContextProvider";
+import SettingsChatContextProvider from "@/src/context/ChatSettingsContext";
 
 export default function WorkspacePage() {
     const user = useAuthContext();
@@ -41,7 +42,9 @@ export default function WorkspacePage() {
                     <UISettingsContextProvider userId={user.uid}>
                         <PredefinedDataContextProvider>
                             <HistoryContextProvider userId={user.uid}>
-                                <Workspace />
+                                <SettingsChatContextProvider>
+                                    <Workspace />
+                                </SettingsChatContextProvider>
                             </HistoryContextProvider>
                         </PredefinedDataContextProvider>
                     </UISettingsContextProvider >
