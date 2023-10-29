@@ -89,16 +89,11 @@ const ChatItem = ({ data, role, themeColor, }) => {
                     borderBottomRightRadius={role !== 'user' ? 0 : '10px'}
                     borderColor={role !== 'user' ? `${'gray.200'}` : `${themeColor}.200`}
                 >
-                    {role === 'user' &&
-                        <Text fontSize={['xs', 'md']} w={'full'} px={'0'} >{data.content}</Text>
-                    }
-                    {
-                        role !== 'user' &&
-                        <Image src={data.content} alt='' border={'1px solid black'} />
-                    }
+                    <Text fontSize={['xs', 'md']} w={'full'}  >{data.content}</Text>
                     {
                         role !== 'user' && <CopyToClipboardButton data={data.content} themeColor={themeColor} />
                     }
+
                 </Box>
             </Box>
         </Box >
