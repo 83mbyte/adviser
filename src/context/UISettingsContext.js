@@ -2,6 +2,7 @@
 'use client'
 import React from 'react';
 import { dbAPI } from '../lib/dbAPI';
+import { useAuthContext } from './AuthContextProvider';
 
 const UISettingsContext = React.createContext();
 
@@ -9,10 +10,12 @@ export const useUISettingsContext = () => {
     return React.useContext(UISettingsContext);
 }
 
-const UISettingsContextProvider = ({ userId, children }) => {
-    const [themeColor, setThemeColor] = React.useState('green');
+const UISettingsContextProvider = ({ children }) => {
+    const [themeColor, setThemeColor] = React.useState(null);
     const [showModal, setShowModal] = React.useState({ isShow: false, type: '' });
     const [workspaceType, setWorkspaceType] = React.useState('chat');
+
+    const user = useAuthContext();
 
     const settingsObject = {
         userThemeColor: { themeColor, setThemeColor },
@@ -22,15 +25,20 @@ const UISettingsContextProvider = ({ userId, children }) => {
 
     React.useEffect(() => {
         const getUserUISettings = async () => {
-            let resp = await dbAPI.getUserData(userId);
-            if (resp) {
-                setThemeColor(resp.theme.toLowerCase());
+            try {
+                let resp = await dbAPI.getUserData(user.uid);
+                if (resp) {
+                    setThemeColor(resp.theme.toLowerCase());
+                }
+            } catch (error) {
+                console.error(error)
             }
-            return null
         }
 
-        getUserUISettings();
-    }, [])
+        if (user?.uid) {
+            getUserUISettings();
+        }
+    }, [user])
 
     return (
         <UISettingsContext.Provider value={settingsObject}>
