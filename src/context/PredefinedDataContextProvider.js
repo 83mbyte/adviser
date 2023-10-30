@@ -9,14 +9,13 @@ export const usePredefinedDataContext = () => {
 }
 
 const PredefinedDataContextProvider = ({ children }) => {
-    const [predefinedDatadata, setPredefinedData] = useState(null);
+    const [predefinedData, setPredefinedData] = useState(null);
 
     useEffect(() => {
         const getPredefinedData = async (documentName) => {
             let res = await dbAPI.getPredefinedData(documentName);
             if (res) {
                 setPredefinedData({
-                    ...predefinedDatadata,
                     prompts: res
                 })
             }
@@ -25,7 +24,7 @@ const PredefinedDataContextProvider = ({ children }) => {
         getPredefinedData('prompts')
     }, []);
 
-    return <PredefinedDataContext.Provider value={predefinedDatadata}>
+    return <PredefinedDataContext.Provider value={predefinedData}>
         {children}
     </PredefinedDataContext.Provider>
 }
