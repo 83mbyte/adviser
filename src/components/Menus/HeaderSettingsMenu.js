@@ -78,8 +78,8 @@ const HeaderSettingsMenu = ({ setThemeColor, themeColor, }) => {
                                         <Box>
                                             <Text mb={'2'}>Model</Text>
                                             <VStack alignItems={'flex-start'}>
-                                                <Button leftIcon={<MdChat />} size='sm' variant={'ghost'} colorScheme='red' onClick={() => { openNewWindowHandler('chat'); onClose(); }}>Start chat</Button>
-                                                <Button leftIcon={<MdImage />} size='sm' variant={'ghost'} colorScheme='red' onClick={() => { openNewWindowHandler('image'); onClose() }}>Create image</Button>
+                                                <Button leftIcon={<MdChat />} size='sm' variant={'ghost'} colorScheme={themeColor} onClick={() => { openNewWindowHandler('chat'); onClose(); }}>Start chat</Button>
+                                                <Button leftIcon={<MdImage />} size='sm' variant={'ghost'} colorScheme={themeColor} onClick={() => { openNewWindowHandler('image'); onClose() }}>Create image</Button>
                                             </VStack>
 
                                         </Box>
