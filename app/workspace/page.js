@@ -41,8 +41,8 @@ export default function WorkspacePage() {
                     :
                     <PredefinedDataContextProvider>
                         <SettingsChatContextProvider>
-                            <HistoryContextProvider userId={user.uid}>
-                                <UISettingsContextProvider >
+                            <HistoryContextProvider>
+                                <UISettingsContextProvider>
 
                                     <Workspace />
 
