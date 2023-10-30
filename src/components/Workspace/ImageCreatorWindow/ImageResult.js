@@ -102,7 +102,7 @@ const ImageResult = ({ currentChat, themeColor, isLoadingBtn, }) => {
                                 </CardHeader>
                                 <CardBody bg='' display={'flex'} alignItems={'center'} justifyContent={'center'} my={0} pt={0} pb={0} overflow={'hidden'}>
                                     {/* <Box w='100%' minH={'256px'} maxH='260px' backgroundRepeat={'no-repeat'} backgroundPosition={'center'} backgroundSize={'cover'} backgroundImage={'url(https://lh3.googleusercontent.com/p/AF1QipNmYgl7ZpzblRTs6arXzEQSQTiUkQBEfPLLDSAm=s1360-w1360-h1020)'}></Box> */}
-                                    <Image src={chatItem['assistant'].content} w='256px' h={'256px'} borderRadius={'md'} />
+                                    <Image src={chatItem['assistant'].content} w='256px' h={'256px'} borderRadius={'md'} alt={`img_${index}`} />
                                 </CardBody>
                                 <CardFooter bg='' my={0} pt={0} pb={2}>
                                     <Stack direction={'row'} bg='' w='full' justifyContent={'space-around'}>
