@@ -42,7 +42,7 @@ const footerVisibilityAnimation = {
     }
 }
 
-const ImageCreatorFooter = forwardRef(({ themeColor, isLoadingBtn, submitButtonHandler, imgSize, setImgSize, selectedIdea }, ref) => {
+const ImageCreatorFooter = forwardRef(function ImageCreatorFooterRef({ themeColor, isLoadingBtn, submitButtonHandler, imgSize, setImgSize, selectedIdea }, ref) {
     const [changeHeight, setChangeHeight] = useState(false);
     const footerHeightVariant = useBreakpointValue(
         {
@@ -64,7 +64,7 @@ const ImageCreatorFooter = forwardRef(({ themeColor, isLoadingBtn, submitButtonH
             ref.current.focus();
         }
 
-    }, [selectedIdea])
+    }, [selectedIdea, ref])
     return (
         <CardFooter bg='' py={1} px={[2, 3]}
             key={'footerContainer'}

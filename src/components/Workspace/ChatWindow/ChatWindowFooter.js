@@ -43,7 +43,7 @@ const footerVisibilityAnimation = {
 }
 
 
-const ChatWindowFooter = forwardRef(({ themeColor, selectedQuestion, isLoadingBtn, submitButtonHandler }, ref) => {
+const ChatWindowFooter = forwardRef(function ChatWindowFooterRef({ themeColor, selectedQuestion, isLoadingBtn, submitButtonHandler }, ref) {
 
     const [changeHeight, setChangeHeight] = useState(false);
     const footerHeightVariant = useBreakpointValue(
@@ -68,7 +68,7 @@ const ChatWindowFooter = forwardRef(({ themeColor, selectedQuestion, isLoadingBt
             ref.current.value = selectedQuestion;
             ref.current.focus();
         }
-    }, [selectedQuestion])
+    }, [selectedQuestion, ref])
 
     return (
         <CardFooter bg='' py={1} px={[2, 3]}
