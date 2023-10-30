@@ -107,8 +107,8 @@ const Header = () => {
               display="flex"
               alignItems={"center"}
             >
-              <NavigationButtons show={navVisibility} themeColor={themeColor} setThemeColor={setThemeColor} />
-              <MenuBtn show={navVisibility} themeColor={themeColor} />
+              <NavigationButtons show={true} themeColor={themeColor} setThemeColor={setThemeColor} />
+              {/* <MenuBtn show={navVisibility} themeColor={themeColor} /> */}
             </Box>
           </MainWrapper>
         </Box>
