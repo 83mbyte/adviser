@@ -39,15 +39,17 @@ export default function WorkspacePage() {
                         <div style={{ border: '1px solid rgb(225,180,180)', fontSize: '26px', padding: '20px', }}>Access denied!</div>
                     </div>
                     :
-                    <UISettingsContextProvider userId={user.uid}>
-                        <PredefinedDataContextProvider>
+                    <PredefinedDataContextProvider>
+                        <SettingsChatContextProvider>
                             <HistoryContextProvider userId={user.uid}>
-                                <SettingsChatContextProvider>
+                                <UISettingsContextProvider >
+
                                     <Workspace />
-                                </SettingsChatContextProvider>
+
+                                </UISettingsContextProvider>
                             </HistoryContextProvider>
-                        </PredefinedDataContextProvider>
-                    </UISettingsContextProvider >
+                        </SettingsChatContextProvider>
+                    </PredefinedDataContextProvider>
             }
         </>
     )

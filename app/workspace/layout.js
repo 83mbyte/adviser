@@ -14,9 +14,8 @@ export default function WorkspaceLayout({ children }) {
         <NecessaryProviders>
             <AuthContextProvider>
 
-                <>
-                    {children}
-                </>
+                {children}
+
             </AuthContextProvider>
         </NecessaryProviders>
     )
