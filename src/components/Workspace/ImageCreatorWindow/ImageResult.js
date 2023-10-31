@@ -2,11 +2,11 @@ import { Box, Text, IconButton, Tooltip, Skeleton, Image, Stack, Card, CardBody,
 import { useRef, useEffect } from 'react';
 
 import { MdZoomOutMap, MdSaveAlt } from "react-icons/md";
-import { useUISettingsContext } from "@/src/context/UISettingsContext";
+import { useSettingsContext } from "@/src/context/SettingsContext";
 const ImageResult = ({ currentChat, themeColor, isLoadingBtn, }) => {
 
     const chatHistoryRef = useRef(null);
-    const showModalSettings = useUISettingsContext().showModalWindow;
+    const showModalSettings = useSettingsContext().showModalWindow;
 
     const saveImageCreateBlob = async (url) => {
         if (url) {

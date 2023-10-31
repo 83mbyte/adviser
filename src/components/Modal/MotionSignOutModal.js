@@ -1,6 +1,6 @@
 import { Box, Card, CardBody, CardFooter, Button, HStack, Heading, Text, VStack } from "@chakra-ui/react";
 
-import { useUISettingsContext } from "@/src/context/UISettingsContext";
+import { useSettingsContext } from "@/src/context/SettingsContext";
 import { animationProps } from "@/src/lib/animationProps";
 import { authAPI } from "@/src/lib/authAPI";
 
@@ -8,7 +8,7 @@ const { motion, AnimatePresence } = require("framer-motion")
 
 const MotionModalSignOut = ({ showModal = { isShow: false, type: null }, handleClose }) => {
 
-    const { themeColor } = useUISettingsContext().userThemeColor;
+    const { themeColor } = useSettingsContext().userThemeColor;
 
     return (
         <AnimatePresence mode='wait'>

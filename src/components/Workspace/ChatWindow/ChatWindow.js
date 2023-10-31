@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 
 import { Box, Card, CardBody, Text, VStack } from "@chakra-ui/react";
 
-import { useUISettingsContext } from "@/src/context/UISettingsContext";
+import { useSettingsContext } from "@/src/context/SettingsContext";
 import { usePredefinedDataContext } from "@/src/context/PredefinedDataContextProvider";
 import { useAuthContext } from "@/src/context/AuthContextProvider";
 import { useHistoryContext } from "@/src/context/HistoryContextProvider";
@@ -28,8 +28,9 @@ const ChatWindow = () => {
 
     //contexts
     const user = useAuthContext()
-    const UISettingsContext = useUISettingsContext();
-    const { themeColor } = UISettingsContext.userThemeColor;
+    const SettingsContext = useSettingsContext();
+    const { themeColor } = SettingsContext.userThemeColor;
+    const { replyLength, replyStyle, replyTone } = SettingsContext.chatSettings.chatSettings;
     const predefinedData = usePredefinedDataContext();
     const historyContext = useHistoryContext();
 
@@ -157,8 +158,11 @@ const ChatWindow = () => {
 
         let systemMessage = {
             role: 'system',
-            content: `You are a helpful assistant. Act as an educated professional and reply with a bit of humor. The reply must be from 5 to 10 words.`
+            content: `You are as helpful assistant. Answer the user question in a ${replyTone ? replyTone.toLowerCase() : 'professional'} manner. Write from 5 to ${replyLength} maximum ${replyStyle && `and provide a ${replyStyle.toLowerCase()} reply`}.`
+
+            // content: `You are a helpful assistant. Act as an educated professional and reply with a bit of humor. The reply must be from 5 to 10 words.`
         }
+        //console.log('PROMPT::: ', systemMessage.content)
 
         let messagesArray;
         if (chatHistory[chatId] && chatHistory[chatId].length > 0) {
@@ -169,7 +173,7 @@ const ChatWindow = () => {
 
 
         try {
-
+            // dev mode... uncomment await getReplyFromAssistant to prod..
             let resp = await getReplyFromAssistant({ messagesArray, tokens: 1800 }, 'chat');
             if (resp) {
                 // Deve mode test

@@ -6,11 +6,11 @@ import MainArea from '../../components/Workspace/MainArea/MainArea';
 import Footer from '../../components/PagesFooter/Footer';
 import MotionModalSignOut from '@/src/components/Modal/MotionSignOutModal';
 import MotionZoomImgModal from '@/src/components/Modal/MotionZoomImgModal';
-import { useUISettingsContext } from '@/src/context/UISettingsContext';
+import { useSettingsContext } from '@/src/context/SettingsContext';
 
 const Workspace = () => {
 
-    const userUISettings = useUISettingsContext();
+    const userUISettings = useSettingsContext();
     const showModalSettings = userUISettings.showModalWindow;
     const userWorkspaceType = userUISettings.userWorkspaceType;
 

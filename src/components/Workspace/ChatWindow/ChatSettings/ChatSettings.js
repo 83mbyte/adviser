@@ -1,15 +1,17 @@
 'use client'
-import { useChatSettingsContext } from '@/src/context/ChatSettingsContext';
 import { VStack, Box, Button, Text, StackDivider, Divider, Stack, SimpleGrid, Icon, HStack } from '@chakra-ui/react';
 import { AnimatePresence, motion } from 'framer-motion';
 
-import { Fragment } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 
 
 import { MdRule } from "react-icons/md";
 
 import { RiSpeakLine } from "react-icons/ri";
 import { AiFillEdit } from "react-icons/ai";
+import { dbAPI } from '@/src/lib/dbAPI';
+import { useAuthContext } from '@/src/context/AuthContextProvider';
+import { useSettingsContext } from '@/src/context/SettingsContext';
 const settingsArray = [
     {
         title: `Assistant's adjustment`,
@@ -47,7 +49,20 @@ const settingsArray = [
 ]
 
 const ChatSettings = ({ themeColor }) => {
-    const { settingsOptions, setSettingsOptions } = useChatSettingsContext();
+    const { chatSettings, setChatSettings } = useSettingsContext().chatSettings;
+    const [settingsUpdated, setSettingsUpdated] = useState(false);
+    const user = useAuthContext();
+
+    useEffect(() => {
+        const onExitSave = async () => {
+            if (settingsUpdated === true) {
+                let resp = await dbAPI.updateUserData(user.uid, 'chatSettings', chatSettings);
+                setSettingsUpdated(false);
+            }
+        }
+        return () => onExitSave();
+
+    })
 
     return (
         <>
@@ -78,7 +93,7 @@ const ChatSettings = ({ themeColor }) => {
                                                                     <Button
                                                                         key={btnIndex}
                                                                         leftIcon={
-                                                                            settingsOptions[el.key] === btn ? <CheckIcon color='green' show={true} /> : <CheckIcon color='green' show={false} />
+                                                                            chatSettings[el.key] === btn ? <CheckIcon color='green' show={true} /> : <CheckIcon color='green' show={false} />
 
                                                                         }
                                                                         colorScheme={themeColor}
@@ -88,10 +103,11 @@ const ChatSettings = ({ themeColor }) => {
 
                                                                         onClick={() => {
 
-                                                                            setSettingsOptions({
-                                                                                ...settingsOptions,
+                                                                            setChatSettings({
+                                                                                ...chatSettings,
                                                                                 [el.key]: btn
-                                                                            })
+                                                                            });
+                                                                            setSettingsUpdated(true);
                                                                         }}
                                                                     >{btn}</Button>
                                                                 )

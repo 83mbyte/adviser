@@ -21,15 +21,15 @@ import { motion } from 'framer-motion';
 import { MdMenu, MdChat, MdImage } from "react-icons/md";
 import { dbAPI } from '@/src/lib/dbAPI';
 import { useAuthContext } from '@/src/context/AuthContextProvider';
-import { useUISettingsContext } from '@/src/context/UISettingsContext';
+import { useSettingsContext } from '@/src/context/SettingsContext';
 
 const colors = ['green', 'teal', 'orange', 'purple', 'pink']
 
 const HeaderSettingsMenu = ({ setThemeColor, themeColor, }) => {
 
-    const userUISettings = useUISettingsContext();
-    const showModalSettings = userUISettings.showModalWindow;
-    const userWorkspaceType = userUISettings.userWorkspaceType;
+    const userSettings = useSettingsContext();
+    const showModalSettings = userSettings.showModalWindow;
+    const userWorkspaceType = userSettings.userWorkspaceType;
 
     const user = useAuthContext();
 

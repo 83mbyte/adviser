@@ -1,5 +1,5 @@
 "use client";
-import { useUISettingsContext } from "@/src/context/UISettingsContext";
+import { useSettingsContext } from "@/src/context/SettingsContext";
 import {
   Box,
   useColorModeValue,
@@ -65,7 +65,7 @@ const buttonsAnimation = {
 
 const Header = () => {
 
-  const { themeColor, setThemeColor } = useUISettingsContext().userThemeColor;
+  const { themeColor, setThemeColor } = useSettingsContext().userThemeColor;
 
 
   const navVisibility = useBreakpointValue({

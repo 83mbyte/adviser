@@ -4,10 +4,10 @@ import {
 import { Fragment } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { animationProps } from "@/src/lib/animationProps";
-import { useUISettingsContext } from '@/src/context/UISettingsContext';
+import { useSettingsContext } from '@/src/context/SettingsContext';
 
 const MotionZoomImgModal = ({ handleClose, showModal = { isShow: false, type: null } }) => {
-    const { themeColor } = useUISettingsContext().userThemeColor;
+    const { themeColor } = useSettingsContext().userThemeColor;
 
     return (
         <Fragment>

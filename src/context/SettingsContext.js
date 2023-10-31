@@ -4,23 +4,30 @@ import React from 'react';
 import { dbAPI } from '../lib/dbAPI';
 import { useAuthContext } from './AuthContextProvider';
 
-const UISettingsContext = React.createContext();
+const SettingsContext = React.createContext();
 
-export const useUISettingsContext = () => {
-    return React.useContext(UISettingsContext);
+export const useSettingsContext = () => {
+    return React.useContext(SettingsContext);
 }
 
-const UISettingsContextProvider = ({ children }) => {
+const SettingsContextProvider = ({ children }) => {
     const [themeColor, setThemeColor] = React.useState(null);
     const [showModal, setShowModal] = React.useState({ isShow: false, type: '' });
     const [workspaceType, setWorkspaceType] = React.useState('chat');
+
+    const [chatSettings, setChatSettings] = React.useState({
+        replyLength: '100 words',
+        replyStyle: 'Facts only',
+        replyTone: 'Casual'
+    })
 
     const user = useAuthContext();
 
     const settingsObject = {
         userThemeColor: { themeColor, setThemeColor },
         showModalWindow: { showModal, setShowModal },
-        userWorkspaceType: { workspaceType, setWorkspaceType }
+        userWorkspaceType: { workspaceType, setWorkspaceType },
+        chatSettings: { chatSettings, setChatSettings },
     }
 
     React.useEffect(() => {
@@ -29,6 +36,9 @@ const UISettingsContextProvider = ({ children }) => {
                 let resp = await dbAPI.getUserData(user.uid);
                 if (resp) {
                     setThemeColor(resp.theme.toLowerCase());
+                    if (resp.chatSettings) {
+                        setChatSettings(resp.chatSettings)
+                    }
                 }
             } catch (error) {
                 console.error(error)
@@ -41,10 +51,10 @@ const UISettingsContextProvider = ({ children }) => {
     }, [user])
 
     return (
-        <UISettingsContext.Provider value={settingsObject}>
+        <SettingsContext.Provider value={settingsObject}>
             {children}
-        </UISettingsContext.Provider>
+        </SettingsContext.Provider>
     )
 }
 
-export default UISettingsContextProvider;
+export default SettingsContextProvider;

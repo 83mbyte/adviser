@@ -1,14 +1,14 @@
 'use client'
 
 import { useAuthContext } from "@/src/context/AuthContextProvider";
-import UISettingsContextProvider from "@/src/context/UISettingsContext";
 
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-import PredefinedDataContextProvider from "@/src/context/PredefinedDataContextProvider";
+
 import Workspace from "@/src/site_pages/WorkspacePage/Workspace";
+import PredefinedDataContextProvider from "@/src/context/PredefinedDataContextProvider";
 import HistoryContextProvider from "@/src/context/HistoryContextProvider";
-import SettingsChatContextProvider from "@/src/context/ChatSettingsContext";
+import SettingsContextProvider from "@/src/context/SettingsContext";
 
 export default function WorkspacePage() {
     const user = useAuthContext();
@@ -40,15 +40,13 @@ export default function WorkspacePage() {
                     </div>
                     :
                     <PredefinedDataContextProvider>
-                        <SettingsChatContextProvider>
-                            <HistoryContextProvider>
-                                <UISettingsContextProvider>
+                        <HistoryContextProvider>
+                            <SettingsContextProvider>
 
-                                    <Workspace />
+                                <Workspace />
 
-                                </UISettingsContextProvider>
-                            </HistoryContextProvider>
-                        </SettingsChatContextProvider>
+                            </SettingsContextProvider>
+                        </HistoryContextProvider>
                     </PredefinedDataContextProvider>
             }
         </>

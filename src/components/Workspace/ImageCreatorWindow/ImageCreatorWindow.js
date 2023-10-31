@@ -3,7 +3,7 @@ import { Box, Card, CardBody, VStack, Text } from '@chakra-ui/react';
 import { animationProps } from "@/src/lib/animationProps";
 
 import ImageCreatorFooter from './ImageCreatorFooter';
-import { useUISettingsContext } from '@/src/context/UISettingsContext';
+import { useSettingsContext } from '@/src/context/SettingsContext';
 import { getReplyFromAssistant } from '@/src/lib/fetchingData';
 import { AnimatePresence, motion } from 'framer-motion';
 
@@ -13,7 +13,7 @@ import IdeasList from './Ideas/IdeasList';
 
 const ImageCreatorWindow = () => {
     // contexts
-    const { themeColor } = useUISettingsContext().userThemeColor;
+    const { themeColor } = useSettingsContext().userThemeColor;
 
     // states
     const [isLoadingBtn, setIsLoadingBtn] = useState(false); //to show loading button
