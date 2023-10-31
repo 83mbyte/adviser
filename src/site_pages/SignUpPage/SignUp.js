@@ -20,7 +20,7 @@ import {
     InputRightElement,
     IconButton,
     Icon,
-    VStack, Divider, Portal,
+    Portal,
     Modal,
     ModalOverlay,
     ModalContent,
@@ -36,6 +36,7 @@ import { FcGoogle } from 'react-icons/fc';
 import { authAPI } from '@/src/lib/authAPI';
 import * as DOMPurify from 'dompurify';
 import Footer from '../../components/PagesFooter/Footer';
+import AlternativeSignInUpForm from '@/src/components/AlternativeSignInUpForm/AlternativeSignInUpForm';
 
 const emailPattern = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
 
@@ -141,9 +142,10 @@ const SignUp = () => {
             try {
                 signInResp = await authAPI.signInAfterRedirect();
 
-                if (signInResp && signInResp.user.uid && signInResp.user.uid !== '') {
+                if (signInResp && signInResp.status === 'ok' && signInResp.user.uid && signInResp.user.uid !== '') {
+                    router.prefetch('/workspace');
                     setIsLoadingGoogle(false);
-                    router.push(`/chat`);
+                    router.push(`/workspace`);
                 } else {
                     setIsLoadingGoogle(false);
                     console.error('No response');
@@ -177,13 +179,13 @@ const SignUp = () => {
             <Box
                 as='main'
                 className={styles.main}
-                bottom={['25px', '35px']}
+            //bottom={['20px', '23px']}
             >
-                <Stack minH={'100vh'} maxH={'100vh'} h={'100%'} direction={{ base: 'column', md: 'row' }}>
+                <Stack h='100%' maxH={'100%'} direction={{ base: 'column', md: 'row' }}  >
 
-                    <Flex p={8} flex={1} align={'center'} justify={'center'}>
-                        <Stack spacing={4} w={'full'} maxW={'md'}>
-                            <Box bg='' mb={[2, 6]}>
+                    <Flex p={8} flex={1} align={'center'} justify={'center'}  >
+                        <Stack spacing={[1, 4]} w={'full'} maxW={'md'} >
+                            <Box bg='' mb={[4, 6]}>
                                 <Link href='/'>
                                     <Heading as={'h2'} size={'3xl'} color={`green.500`}>Helpi</Heading>
                                 </Link>
@@ -244,12 +246,13 @@ const SignUp = () => {
                                     <Button colorScheme={'green'} variant={'solid'} onClick={(e) => onSubmit(e)} type={'submit'}
                                         isLoading={isLoading}
                                         isDisabled={isValidEmail !== true || isValidPass !== true}
+                                        size={['sm', 'md']}
                                     >
                                         Sign Up
                                     </Button>
                                 </Stack>
                             </form>
-                            <AlternativeSignInForm>
+                            <AlternativeSignInUpForm>
                                 <Button
                                     onClick={signUpWithGoogleHandler}
                                     w={'full'}
@@ -259,11 +262,12 @@ const SignUp = () => {
                                     isLoading={isLoadingGoogle}
                                     leftIcon={<FcGoogle />}
                                     _hover={{ backgroundColor: 'white' }}
+                                    size={['sm', 'md']}
                                 >
                                     <Text>Sign Up with {'Google'}</Text>
                                 </Button>
-                            </AlternativeSignInForm>
-                            <Stack pt={1} direction={{ base: 'column', md: 'row' }} alignItems={'center'} justifyContent={'center'}>
+                            </AlternativeSignInUpForm>
+                            <Stack pt={1} direction={'row'} alignItems={'center'} justifyContent={'center'} fontSize={['sm', 'md']}>
                                 <Text>Already registered?</Text>
                                 <Link href={{
                                     pathname: '/login',
@@ -271,19 +275,14 @@ const SignUp = () => {
                                     <Text color='green'>Login</Text>
                                 </Link>
                             </Stack>
-
-
                         </Stack>
                     </Flex>
-                    <Flex flex={1}>
+                    <Flex flex={1} display={{ base: 'none', sm: 'flex' }}>
                         <Image
                             alt={'Login Image'}
                             objectFit={'cover'}
                             style={{ filter: 'blur(10px) sepia(10%) opacity(25%)' }}
                             src={'./sign_img.jpg'}
-                        // src={
-                        //     'https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=1352&q=80'
-                        // }
                         />
                     </Flex>
                 </Stack>
@@ -296,31 +295,12 @@ const SignUp = () => {
             <Portal>
                 <ModalNotification isOpen={isOpenModal} setIsOpen={setIsOpenModal} router={router} />
             </Portal>
-        </React.Fragment>
+        </React.Fragment >
 
     )
 }
-
 export default SignUp;
 
-
-const AlternativeSignInForm = ({ children }) => {
-
-    return (
-        <Box w='full'>
-            <VStack spacing={[3, 4]} >
-                <HStack w={'full'} justifyContent={'space-between'}>
-                    <Divider w={'full'} />
-                    <Text backgroundColor={''} textAlign={'center'} px={1} w={10} fontSize={'xs'}>or</Text>
-                    <Divider w={'full'} />
-                </HStack>
-                <Box w='full' bg=''>
-                    {children}
-                </Box>
-            </VStack >
-        </Box >
-    )
-}
 
 const ModalNotification = ({ isOpen, setIsOpen, router }) => {
     const onClose = () => {

@@ -14,9 +14,6 @@ import {
     InputRightElement,
     Stack,
     Image,
-    VStack,
-    HStack,
-    Divider,
     useToast,
 } from '@chakra-ui/react'
 
@@ -30,6 +27,7 @@ import { FaEyeSlash, FaEye } from 'react-icons/fa';
 
 import Link from 'next/link';
 import Footer from '../../components/PagesFooter/Footer';
+import AlternativeSignInUpForm from '@/src/components/AlternativeSignInUpForm/AlternativeSignInUpForm';
 
 
 
@@ -78,6 +76,7 @@ export default function Login() {
                         (signInResp.status === 'ok' && signInResp.user.emailVerified === true) || (signInResp.status === 'ok' && signInResp.user.email === process.env.NEXT_PUBLIC_DEV_EMAIL)
                     ) {
                         setIsLoading(false);
+                        router.refresh();
                         router.push(`/workspace`);
                     }
                     else if (signInResp.status === 'ok' && signInResp.user.emailVerified === false) {
@@ -112,6 +111,7 @@ export default function Login() {
                 signInResp = await authAPI.signInAfterRedirect();
 
                 if (signInResp) {
+                    router.prefetch('/workspace');
                     if (signInResp.status === 'ok' && signInResp.user.uid && signInResp.user.uid !== '') {
                         setIsLoadingGoogle(false);
                         router.push(`/workspace`);
@@ -145,16 +145,14 @@ export default function Login() {
             <Box
                 as='main'
                 className={styles.main}
-                bottom={['25px', '35px']}
             >
-                <Stack minH={'100vh'} maxH={'100vh'} h={'100%'} direction={{ base: 'column', md: 'row' }}>
+                <Stack h='100%' maxH={'100%'} direction={{ base: 'column', md: 'row' }}   >
 
-                    <Flex p={8} flex={1} align={'center'} justify={'center'}>
-                        <Stack spacing={4} w={'full'} maxW={'md'}>
+                    <Flex p={8} flex={1} align={'center'} justify={'center'} >
+                        <Stack spacing={[1, 4]} w={'full'} maxW={'md'}>
                             <Box bg='' mb={[2, 6]} >
                                 <Link href={'/'}>
                                     <Heading as={'h2'} size={'3xl'} color={`green.500`}
-
                                     >Helpi</Heading>
                                 </Link>
 
@@ -189,12 +187,14 @@ export default function Login() {
                                     <Box></Box>
                                     <Button colorScheme={'green'} variant={'solid'} onClick={(e) => onSubmit(e)} type={'submit'}
                                         isLoading={isLoading}
+                                        size={['sm', 'md']}
                                     >
                                         Sign In
                                     </Button>
                                 </Stack>
                             </form>
-                            <AlternativeSignInForm>
+
+                            <AlternativeSignInUpForm>
                                 <Button
                                     onClick={signInWithGoogleHandler}
                                     w={'full'}
@@ -203,11 +203,13 @@ export default function Login() {
                                     isLoading={isLoadingGoogle}
                                     leftIcon={<FcGoogle />}
                                     _hover={{ backgroundColor: 'white' }}
+                                    size={['sm', 'md']}
                                 >
                                     <Text>Sign In with {'Google'}</Text>
                                 </Button>
-                            </AlternativeSignInForm>
-                            <Stack pt={6} direction={{ base: 'column', md: 'row' }} alignItems={'center'} justifyContent={'center'}>
+                            </AlternativeSignInUpForm>
+
+                            <Stack pt={1} direction={'row'} alignItems={'center'} justifyContent={'center'} fontSize={['sm', 'md']}>
                                 <Text>Not registered yet?</Text>
 
                                 <Link href={{
@@ -218,15 +220,12 @@ export default function Login() {
                             </Stack>
                         </Stack>
                     </Flex>
-                    <Flex flex={1}>
+                    <Flex flex={1} display={{ base: 'none', sm: 'flex' }} >
                         <Image
                             alt={'Login Image'}
                             objectFit={'cover'}
                             style={{ filter: 'blur(10px) sepia(10%) opacity(25%)' }}
                             src={'./sign_img.jpg'}
-                        // src={
-                        //     'https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=1352&q=80'
-                        // }
                         />
                     </Flex>
                 </Stack>
@@ -242,19 +241,3 @@ export default function Login() {
 }
 
 
-const AlternativeSignInForm = ({ children }) => {
-    return (
-        <Box w='full'>
-            <VStack spacing={[3, 4]} >
-                <HStack w={'full'} justifyContent={'space-between'}>
-                    <Divider w={'full'} />
-                    <Text backgroundColor={''} textAlign={'center'} px={1} w={10} fontSize={'xs'}>else</Text>
-                    <Divider w={'full'} />
-                </HStack>
-                <Box w='full' bg=''>
-                    {children}
-                </Box>
-            </VStack >
-        </Box >
-    )
-}
