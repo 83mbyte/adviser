@@ -1,26 +1,16 @@
 'use client'
-import React from 'react';
 import { Box, Text } from '@chakra-ui/react';
 
 import { motion } from 'framer-motion';
-const Footer = () => {
-    const [isVisible, setIsVisible] = React.useState(false);
-
-    React.useEffect(() => {
-        if (!isVisible) {
-            setIsVisible(true)
-        }
-    }, [isVisible]);
+const Footer = ({ type = null }) => {
 
     return (
-
-        <Box bg='gray.500' display={'flex'} flexDirection={'row'} justifyContent={'center'} alignItems={'center'}
+        <Box bg={type ? 'gray.500' : 'gray.300'} display={'flex'} flexDirection={'row'} justifyContent={'center'} alignItems={'center'}
             as={'footer'}
             h={['20px', '23px']}
-            color={'gray.200'}
+            color={'gray.50'}
         >
-            <Text fontSize={'xs'} as={motion.p} initial={{ y: '100px' }} animate={{ y: '0px', transition: { delay: 1, duration: 0.8, } }}>© 2023 Helpi AI-Bot. All rights reserved.</Text>
-
+            <Text fontSize={'xs'} as={motion.p} initial={{ opacity: 0 }} animate={{ opacity: 1, transition: { delay: 1, duration: 0.8, } }}>© 2023 Helpi AI-Bot. All rights reserved.</Text>
         </Box>
     );
 };
