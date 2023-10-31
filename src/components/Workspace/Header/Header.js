@@ -6,6 +6,7 @@ import {
   Heading,
   IconButton,
   HStack,
+  Text,
   useBreakpointValue,
 } from "@chakra-ui/react";
 import { AnimatePresence, motion } from "framer-motion";
@@ -93,14 +94,34 @@ const Header = () => {
           <MainWrapper direction='row' >
 
             {/* Logo */}
-            <Box bg="" as={motion.div}
-              initial={{ opacity: 0, x: -150 }}
-              animate={{ opacity: 1, x: 0, transition: { delay: 0.5, duration: 0.8 } }}
-            >
-              <Heading as={"h5"} color={`${themeColor}.500`}>
-                Helpi
-              </Heading>
-            </Box>
+            {
+              themeColor &&
+              <Box bg="" as={motion.div}
+                key={'onlinemode'}
+                initial={{ opacity: 0, x: -150 }}
+                animate={{ opacity: 1, x: 0, transition: { delay: 0.5, duration: 0.8 } }}
+              >
+                <Heading as={"h5"} color={`${themeColor}.500`}>
+                  Helpi
+                </Heading>
+              </Box>
+            }
+            {
+              !themeColor &&
+              <Box bg="" as={motion.div}
+                key={'offlinemode'}
+                initial={{ opacity: 0, }}
+                animate={{ opacity: 1, transition: { delay: 1.3, duration: 0.4 } }}
+                exit={{ opacity: 0, x: -150 }}
+              >
+                <HStack>
+                  <Heading as={"h5"} >
+                    Helpi
+                  </Heading>
+                  <Text fontSize='sm'>offline</Text>
+                </HStack>
+              </Box>
+            }
 
             {/* Header buttons  */}
             <Box
