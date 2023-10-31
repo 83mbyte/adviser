@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
-import { Box, Card, CardBody, VStack, } from '@chakra-ui/react';
+import { Box, Card, CardBody, VStack, Text } from '@chakra-ui/react';
 import { animationProps } from "@/src/lib/animationProps";
 
 import ImageCreatorFooter from './ImageCreatorFooter';
@@ -175,6 +175,17 @@ const ImageCreatorWindow = () => {
 
 
                                 <AnimatePresence mode='wait'>
+                                    {(!themeColor && showIdeas !== true) &&
+                                        <motion.div
+                                            key={'noint'}
+                                            initial={{ opacity: 0 }}
+                                            animate={{ opacity: 1, transition: { delay: 1.5, duration: 0.8 } }}
+                                            exit={{ opacity: 0, transition: { duration: 0.1, delay: 0 } }}
+                                            style={{ width: '100%', display: 'flex', flexDirection: 'column', padding: '1px 1px', overflow: 'auto' }}
+                                        >
+                                            <Text textAlign={'center'}>No internet connection. The application will operate in offline mode until it is able to successfully connect to the backend. Please try again later. </Text>
+                                        </motion.div>
+                                    }
                                     {
                                         showIdeas == true &&
                                         <motion.div

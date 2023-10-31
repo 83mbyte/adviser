@@ -1,7 +1,7 @@
 'use client'
 import { useEffect, useRef, useState } from "react";
 
-import { Box, Card, CardBody, VStack } from "@chakra-ui/react";
+import { Box, Card, CardBody, Text, VStack } from "@chakra-ui/react";
 
 import { useUISettingsContext } from "@/src/context/UISettingsContext";
 import { usePredefinedDataContext } from "@/src/context/PredefinedDataContextProvider";
@@ -293,6 +293,23 @@ const ChatWindow = () => {
                                 // justifyContent={'flex-end'}
                                 >
                                     <AnimatePresence mode='wait'>
+                                        {
+                                            ((!themeColor || !predefinedData || !historyContext) && showTopics !== true && showTopicQuestions !== true && showChatSettings !== true && showHistoryScreen !== true) &&
+                                            <motion.div
+                                                key={'noint'}
+                                                // variants={animationProps.chatWindowScreens.opacity}
+                                                // initial={'hidden'}
+                                                // animate={'show'}
+                                                //exit={'exit'}
+                                                initial={{ opacity: 0 }}
+                                                animate={{ opacity: 1, transition: { delay: 1.5, duration: 0.8 } }}
+                                                exit={{ opacity: 0, transition: { duration: 0.1, delay: 0 } }}
+                                                style={{ height: '100%', width: '100%', display: 'flex', justifyContent: 'flex-end', flexDirection: 'column', padding: '0px 1px', overflow: 'auto', }}
+                                            >
+                                                <Text textAlign={'center'}>Your device does not have a healthy Internet connection at the moment. The client will operate in offline mode until it is able to successfully connect to the backend. You may try to refresh the page now or visit it later. </Text>
+                                            </motion.div>
+
+                                        }
 
                                         {/* Select a topic */}
                                         {
