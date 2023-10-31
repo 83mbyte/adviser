@@ -56,8 +56,8 @@ const FeaturesSection = ({ features }) => {
                                 <Box color={'green.400'} mt={1} px={1} display={'flex'} alignItems={'flex-start'}>
                                     <Icon as={FaCheckCircle} boxSize={4} />
                                 </Box>
-                                <VStack align={'start'}>
-                                    <Text fontWeight={600}>{feature.title}</Text>
+                                <VStack align={'start'} >
+                                    <Heading pt={'2px'} as={'h4'} fontSize={'16px'} fontWeight={600}>{feature.title}</Heading>
                                     <Text color={'gray.600'}>{feature.text}</Text>
                                 </VStack>
                             </HStack>
