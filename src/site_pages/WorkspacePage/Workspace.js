@@ -45,7 +45,7 @@ const Workspace = () => {
 
             {/* footer */}
             <Box as='footer' className={styles.footer}>
-                <Footer />
+                <Footer type={'workspace'} />
             </Box>
             <Portal>
                 <MotionModalSignOut
