@@ -86,12 +86,13 @@ const ImageCreatorFooter = forwardRef(function ImageCreatorFooterRef({ themeColo
                     alignItems={'center'}
                     w='full'
                     columnGap={2}
+                    rowGap={2}
                 >
                     <Textarea
                         ref={ref}
                         resize={'none'}
                         rows={1}
-                        marginBottom={{ base: '10px', sm: '0px' }}
+                        marginBottom={{ base: '0', sm: '0px' }}
                         borderColor={`${themeColor}.200`}
                         _hover={{ borderColor: `${themeColor}.600` }}
                         _focusVisible={{ borderColor: `${themeColor}.600` }}
@@ -105,13 +106,13 @@ const ImageCreatorFooter = forwardRef(function ImageCreatorFooterRef({ themeColo
                         animate={changeHeight ? 'multiRows' : 'oneRow'}
                         layout
                     />
-                    <Box display={'flex'} flexDirection={'row'} gap={2}>
+                    <Box display={'flex'} flexDirection={'row'} columnGap={2}>
                         <AdjustImageMenu themeColor={themeColor} size={imgSize} setSize={setImgSize} />
                         <Button
                             w={['full', 'min']}
                             colorScheme={themeColor}
                             isLoading={isLoadingBtn}
-                            size={{ base: 'sm', md: 'md' }}
+                            size={{ base: 'sm', sm: 'md' }}
                             onClick={() => submitButtonHandler()}
                         >Create</Button>
                     </Box>
