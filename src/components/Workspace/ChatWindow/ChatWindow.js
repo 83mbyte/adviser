@@ -21,6 +21,7 @@ import ChatAllHistory from "./ChatAllHistory/ChatAllHistory";
 
 import { getReplyFromAssistant } from "@/src/lib/fetchingData";
 import { dbAPI } from "@/src/lib/dbAPI";
+import { promptTemplatesAPI } from "@/src/lib/promptsAPI";
 
 const ChatWindow = () => {
     let dataToUpload;
@@ -154,15 +155,15 @@ const ChatWindow = () => {
         setIsBtnLoadingBtn(true);
         closeBackToChat();
 
+        // one EXAMPLE of a system message..
+        // const systemMessage  = {
+        //     role: 'system',
+        //     content: `You are a helpful assistant. The reply must be from 5 to 10 words.` 
+        // }
+        //
+        const systemMessage = promptTemplatesAPI.dafault({ replyTone, replyLength, replyStyle });
+
         const provideDiscussionContext = (arrayHistory) => ({ role: 'assistant', content: arrayHistory[arrayHistory.length - 1].assistant.content });
-
-        let systemMessage = {
-            role: 'system',
-            content: `You are as helpful assistant. Answer the user question in a ${replyTone ? replyTone.toLowerCase() : 'professional'} manner. Write from 5 to ${replyLength} maximum ${replyStyle && `and provide a ${replyStyle.toLowerCase()} reply`}.`
-
-            // content: `You are a helpful assistant. Act as an educated professional and reply with a bit of humor. The reply must be from 5 to 10 words.`
-        }
-        //console.log('PROMPT::: ', systemMessage.content)
 
         let messagesArray;
         if (chatHistory[chatId] && chatHistory[chatId].length > 0) {
@@ -227,7 +228,7 @@ const ChatWindow = () => {
         let generatedId = Date.now();
         if (generatedId) {
             setChatId(generatedId);
-            // console.log(generatedId); 
+            console.log(generatedId);
         } else {
             alert(`something wrong.. a new chat can't be created`);
         }

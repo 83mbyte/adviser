@@ -35,11 +35,10 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
  
-src/components/Settings/settingsDefaults.js
-src/lib/promptsDefaults.js
 firebase-debug.log
 .firebase/*
 firebase.json
 .firebaserc
 ui-debug.log
 functions/.env
+src/lib/promptsAPI.js
