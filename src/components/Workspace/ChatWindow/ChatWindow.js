@@ -161,7 +161,7 @@ const ChatWindow = () => {
         //     content: `You are a helpful assistant. The reply must be from 5 to 10 words.` 
         // }
         //
-        const systemMessage = promptTemplatesAPI.dafault({ replyTone, replyLength, replyStyle });
+        const systemMessage = promptTemplatesAPI.default({ replyTone, replyLength, replyStyle });
 
         const provideDiscussionContext = (arrayHistory) => ({ role: 'assistant', content: arrayHistory[arrayHistory.length - 1].assistant.content });
 
