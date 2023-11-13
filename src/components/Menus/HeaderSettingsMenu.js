@@ -22,10 +22,12 @@ import { MdMenu, MdChat, MdImage } from "react-icons/md";
 import { dbAPI } from '@/src/lib/dbAPI';
 import { useAuthContext } from '@/src/context/AuthContextProvider';
 import { useSettingsContext } from '@/src/context/SettingsContext';
+import { useRouter } from 'next/navigation';
 
 const colors = ['green', 'teal', 'orange', 'purple', 'pink']
 
 const HeaderSettingsMenu = ({ setThemeColor, themeColor, }) => {
+    const router = useRouter();
 
     const userSettings = useSettingsContext();
     const showModalSettings = userSettings.showModalWindow;
@@ -84,6 +86,13 @@ const HeaderSettingsMenu = ({ setThemeColor, themeColor, }) => {
 
                                         </Box>
                                         <Box>
+                                            <Text mb={'2'}>Subscription</Text>
+                                            <VStack alignItems={'flex-start'}>
+
+                                                <Button leftIcon={<MdChat />} size='sm' variant={'ghost'} colorScheme={themeColor} onClick={() => { openNewWindowHandler('subscription'); onClose(); }}>Manage</Button>
+                                            </VStack>
+                                        </Box>
+                                        <Box>
                                             <Text mb={'2'}>Accent color</Text>
                                             <HStack spacing={'2'} bg='' alignItems={'center'} justifyContent={'center'} >
                                                 {
@@ -105,7 +114,8 @@ const HeaderSettingsMenu = ({ setThemeColor, themeColor, }) => {
                                                 }
                                             </HStack>
                                         </Box>
-                                        <Button size='sm' variant={'outline'} colorScheme='red' onClick={() => showModalSettings.setShowModal({ isShow: true, type: 'SignOut' })}>Sign out</Button>
+                                        <Button size='sm' variant={'outline'} colorScheme='red'
+                                            onClick={() => showModalSettings.setShowModal({ isShow: true, type: 'SignOut' })}>Sign out</Button>
                                     </Stack>
                                 </PopoverBody>
                             </PopoverContent>
