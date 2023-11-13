@@ -104,7 +104,6 @@ const ImageCreatorWindow = () => {
     const openImageCreator = () => {
         let generatedId = Date.now();
         if (generatedId) {
-            console.log('creatorID: ', generatedId)
             setImgCreatorId(generatedId);
         } else {
             alert(`something wrong.. a new image can't be created`);
