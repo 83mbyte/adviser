@@ -14,20 +14,28 @@ const SettingsContextProvider = ({ children }) => {
     const [themeColor, setThemeColor] = React.useState(null);
     const [showModal, setShowModal] = React.useState({ isShow: false, type: '' });
     const [workspaceType, setWorkspaceType] = React.useState('chat');
+    const [plansPrices, setPlansPrices] = React.useState({
+        Basic: { currency: 'usd', price: 50, period: '6 month', },
+        Premium: { currency: 'usd', price: 80, period: '1 year', }
+    })
 
     const [chatSettings, setChatSettings] = React.useState({
         replyLength: '100 words',
         replyStyle: 'Facts only',
         replyTone: 'Casual'
-    })
+    });
+
+
 
     const user = useAuthContext();
 
-    const settingsObject = {
+    let settingsObject = {
         userThemeColor: { themeColor, setThemeColor },
         showModalWindow: { showModal, setShowModal },
         userWorkspaceType: { workspaceType, setWorkspaceType },
         chatSettings: { chatSettings, setChatSettings },
+
+        paidPlans: plansPrices
     }
 
     React.useEffect(() => {
@@ -45,8 +53,25 @@ const SettingsContextProvider = ({ children }) => {
             }
         }
 
+        const getPaidPlansDetails = async () => {
+            try {
+                let resp = await dbAPI.getSectionData('plans');
+                if (resp) {
+                    setPlansPrices(resp);
+
+                    settingsObject = {
+                        ...settingsObject,
+                        paidPlans: plansPrices
+                    }
+                }
+            } catch (error) {
+
+            }
+        }
+
         if (user?.uid) {
             getUserUISettings();
+            getPaidPlansDetails();
         }
     }, [user])
 
