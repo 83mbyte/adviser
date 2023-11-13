@@ -105,18 +105,19 @@ export default function Login() {
 
     React.useEffect(() => {
         const signInAfterRedirect = async () => {
-            setIsLoadingGoogle(true)
-            let signInResp;
+            setIsLoadingGoogle(true);
+
             try {
-                signInResp = await authAPI.signInAfterRedirect();
+                let signInResp = await authAPI.signInAfterRedirect();
 
                 if (signInResp) {
-                    router.prefetch('/workspace');
                     if (signInResp.status === 'ok' && signInResp.user.uid && signInResp.user.uid !== '') {
+                        router.prefetch('/workspace');
                         setIsLoadingGoogle(false);
                         router.push(`/workspace`);
                     } else if (signInResp.status === 'error') {
-                        throw new Error(`Unsuccessful sign in. ${signInResp.errorCode}`)
+
+                        throw new Error(`Unsuccessful sign in. ${signInResp.errorMessage}`)
                     }
                 }
                 else {
@@ -126,7 +127,7 @@ export default function Login() {
                 console.error(error);
                 toast({
                     title: `Error!`,
-                    description: error,
+                    description: error.message,
                 })
             }
             finally {
