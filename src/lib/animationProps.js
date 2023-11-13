@@ -124,6 +124,21 @@ export const animationProps = {
                     duration: 0.4
                 }
             }
+        },
+        opacityDelayed: {
+            hidden: {
+                opacity: 0
+            },
+            show: {
+                opacity: 1,
+                transition: { delay: 0.8, duration: 0.8 }
+            },
+            exit: {
+                opacity: 0,
+                transition: {
+                    duration: 0.4
+                }
+            }
         }
     },
     listLikeItems: {
