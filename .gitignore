@@ -42,3 +42,4 @@ firebase.json
 ui-debug.log
 functions/.env
 src/lib/promptsAPI.js
+functions/.secret.local
