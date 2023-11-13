@@ -37,7 +37,7 @@ exports.getExchangeRates = onRequest(
         if (req.method !== 'POST') {
             resp.status(400).json({ error: 'Bad request.' });
         };
-        const ratesData = await fetch(`https://api.currencyfreaks.com/v2.0/rates/latest?apikey=${process.env.SECRET_KEY_CURRENCY_RATES}&symbols=EUR,BGN`);
+        const ratesData = await fetch(`https://api.currencyfreaks.com/v2.0/rates/latest?apikey=${process.env.SECRET_KEY_CURRENCY_RATES}&symbols=EUR,BGN,GBP,CHF,JPY,ZAR,CNY`);
         if (!ratesData) {
             resp.status(500).json({ error: 'Internal Server Error.' });
         }
