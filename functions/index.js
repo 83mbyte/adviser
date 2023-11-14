@@ -289,7 +289,7 @@ const createUserInDB = async (userId) => {
     const start = timeStamp.toMillis();
     const period = start + 259200000;
     await chatsUserDoc.set({}, { merge: true });
-    await usersUserDoc.set({ theme: 'green', plan: { period, type: 'trial' } }, { merge: true });
+    await usersUserDoc.set({ theme: 'green', plan: { period, type: 'Trial' } }, { merge: true });
 
     return `Document created.`
 }

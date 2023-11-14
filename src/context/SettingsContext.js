@@ -14,6 +14,7 @@ const SettingsContextProvider = ({ children }) => {
     const [themeColor, setThemeColor] = React.useState(null);
     const [showModal, setShowModal] = React.useState({ isShow: false, type: '' });
     const [workspaceType, setWorkspaceType] = React.useState('chat');
+    const [subscription, setSubscription] = React.useState(null);
     const [plansPrices, setPlansPrices] = React.useState({
         Basic: { currency: 'usd', price: 50, period: '6 month', },
         Premium: { currency: 'usd', price: 80, period: '1 year', }
@@ -34,6 +35,7 @@ const SettingsContextProvider = ({ children }) => {
         showModalWindow: { showModal, setShowModal },
         userWorkspaceType: { workspaceType, setWorkspaceType },
         chatSettings: { chatSettings, setChatSettings },
+        userSubscription: { subscription, setSubscription },
 
         paidPlans: plansPrices
     }
@@ -46,6 +48,9 @@ const SettingsContextProvider = ({ children }) => {
                     setThemeColor(resp.theme.toLowerCase());
                     if (resp.chatSettings) {
                         setChatSettings(resp.chatSettings)
+                    }
+                    if (resp.plan) {
+                        setSubscription(resp.plan)
                     }
                 }
             } catch (error) {

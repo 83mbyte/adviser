@@ -1,10 +1,10 @@
-import { Box, Button, Card, CardBody, CardFooter, CardHeader, Heading, Highlight, Text, VStack, HStack, Stack, Menu, MenuButton, MenuList, MenuOptionGroup, MenuItemOption } from '@chakra-ui/react';
+import { Box, Button, Card, CardBody, CardFooter, CardHeader, Heading, Highlight, Text, VStack, HStack, Stack, Menu, MenuButton, MenuList, MenuOptionGroup, MenuItemOption, Divider } from '@chakra-ui/react';
 
 import { createCheckoutSession, getExchangeRates } from '@/src/lib/fetchingData';
 import { useRouter } from 'next/navigation';
 import { useAuthContext } from '@/src/context/AuthContextProvider';
 
-import { MdOutlineShoppingCart, MdExpandMore, MdChevronRight } from "react-icons/md";
+import { MdOutlineShoppingCart, MdChevronRight } from "react-icons/md";
 import { useSettingsContext } from '@/src/context/SettingsContext';
 import { AnimatePresence, motion } from 'framer-motion';
 
@@ -24,7 +24,7 @@ const ManageSubscription = () => {
     const { themeColor } = settingsContext.userThemeColor;
     const originalPlans = settingsContext.paidPlans;
     const [paidPlans, setPaidPlans] = useState(originalPlans);
-
+    const { subscription } = settingsContext.userSubscription;
 
 
     const submitHandler = async (period, price) => {
@@ -59,16 +59,14 @@ const ManageSubscription = () => {
         const getCurrencyRates = async () => {
             const resp = await getExchangeRates();
             if (resp) {
-                setExchangeRates({
-                    BGN: Number(resp.rates.BGN).toFixed(3),
-                    EUR: Number(resp.rates.EUR).toFixed(3),
-                    GBP: Number(resp.rates.GBP).toFixed(3),
-                    CHF: Number(resp.rates.CHF).toFixed(3),
-                    JPY: Number(resp.rates.JPY).toFixed(3),
-                    CNY: Number(resp.rates.CNY).toFixed(3),
-                    ZAR: Number(resp.rates.ZAR).toFixed(3),
-                    USD: '1.0'
-                })
+                let ratesObj = { USD: 1.0 };
+                ['BGN', 'EUR', 'GBP', 'CHF', 'CNY', 'JPY', 'ZAR'].forEach((item, index) => {
+                    ratesObj = {
+                        ...ratesObj,
+                        [item]: Number(resp.rates[item]).toFixed(3),
+                    }
+                });
+                setExchangeRates(ratesObj);
             }
         }
         getCurrencyRates();
@@ -110,6 +108,7 @@ const ManageSubscription = () => {
                         overflowY={'scroll'}
                     // justifyContent={'flex-end'}
                     >
+
                         <AnimatePresence mode='wait'>
                             {
                                 <motion.div
@@ -121,26 +120,47 @@ const ManageSubscription = () => {
                                     h='100%'
                                     bg=''
                                 >
-                                    <Stack my={4} spacing={0} direction={'row'} alignItems={'center'} justifyContent={'flex-end'}>
+                                    <Card mt={['4', '6']} mx={4}>
+                                        <CardBody>
+                                            <Stack direction={['column', 'row']} rowGap={'0'} mb={['2', '0']} alignItems={'center'}>
+                                                <Text fontSize={['sm', 'md']}>Your current plan:</Text>
+                                                <Text color={themeColor} fontWeight={'bold'} fontSize={['sm', 'md']}>{`"${subscription.type}"`}</Text>
+                                            </Stack>
+                                            <Stack direction={['column', 'row']} rowGap={'0'} alignItems={'center'}>
+                                                <Text fontSize={['sm', 'md']}>Subscription end on:</Text>
+                                                <Text color={themeColor} fontWeight={'bold'} fontSize={['sm', 'md']}>{new Date(subscription.period).toLocaleDateString()}</Text>
+                                            </Stack>
+                                        </CardBody>
+                                    </Card>
+                                    <HStack w={'full'} justifyContent={'space-between'} mt={['4', '6']} mb={['2', '4']} px={4}>
+                                        <Divider w={'full'} />
+                                        <Text backgroundColor={''} textAlign={'center'} py={1} px={1} fontSize={'sm'} whiteSpace={'nowrap'}>Available plans</Text>
+                                        <Divider w={'full'} />
+                                    </HStack>
+
+                                    <Stack mt={0} mb={'4'} spacing={0} direction={'row'} alignItems={'center'} justifyContent={'flex-end'}>
 
                                         {
                                             exchangeRates &&
                                             <>
-                                                <Text >Select preferred currency:</Text>
+                                                <Text>
+                                                    Select preferred currency:
+                                                </Text>
 
-                                                <Box ml={1} maxWidth='10%' minW={'80px'}  >
+                                                <Box ml={1} maxWidth='10%' minW={'80px'} bg='' display={'flex'} alignItems={'flex-start'}>
 
                                                     <Menu placement={'bottom'} autoSelect={false}
                                                         onOpen={changeIconMenu}
                                                         onClose={changeIconMenu}
-
                                                     >
                                                         <MenuButton
                                                             m={0}
+                                                            mt={'4px'}
                                                             p={0}
+                                                            gap={0}
                                                             as={Button}
-                                                            aria-label='Options'
-                                                            leftIcon={iconCurr ? <MdChevronRight fontSize={'16px'} /> : <MdExpandMore fontSize={'16px'} />}
+                                                            aria-label='currencies'
+                                                            leftIcon={<MdChevronRight fontSize={'16px'} style={iconCurr ? { transform: 'rotate(0)', transition: 'transform 0.2s' } : { transform: 'rotate(90deg)', transition: 'transform 0.2s' }} />}
                                                             variant='link'
                                                             colorScheme={themeColor}
                                                             size={{ base: 'sm', md: 'min' }}
@@ -164,7 +184,9 @@ const ManageSubscription = () => {
                                             </>
                                         }
                                     </Stack>
-                                    <Stack bg='' direction={['column', 'row']} justifyContent={'space-around'} alignItems={'center'} p={'2'} spacing={'8'}>
+
+
+                                    <Stack bg='' direction={['column', 'row']} justifyContent={'space-around'} alignItems={'center'} px={'2'} spacing={'8'}>
                                         {
                                             Object.keys(paidPlans).sort().map((planName, index) => {
                                                 return (

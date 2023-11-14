@@ -18,7 +18,7 @@ import {
 } from '@chakra-ui/react';
 
 import { motion } from 'framer-motion';
-import { MdMenu, MdChat, MdImage } from "react-icons/md";
+import { MdMenu, MdChat, MdImage, MdAttachMoney } from "react-icons/md";
 import { dbAPI } from '@/src/lib/dbAPI';
 import { useAuthContext } from '@/src/context/AuthContextProvider';
 import { useSettingsContext } from '@/src/context/SettingsContext';
@@ -89,7 +89,7 @@ const HeaderSettingsMenu = ({ setThemeColor, themeColor, }) => {
                                             <Text mb={'2'}>Subscription</Text>
                                             <VStack alignItems={'flex-start'}>
 
-                                                <Button leftIcon={<MdChat />} size='sm' variant={'ghost'} colorScheme={themeColor} onClick={() => { openNewWindowHandler('subscription'); onClose(); }}>Manage</Button>
+                                                <Button leftIcon={<MdAttachMoney />} size='sm' variant={'ghost'} colorScheme={themeColor} onClick={() => { openNewWindowHandler('subscription'); onClose(); }}>Manage</Button>
                                             </VStack>
                                         </Box>
                                         <Box>
