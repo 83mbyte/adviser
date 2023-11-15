@@ -63,7 +63,6 @@ const SettingsContextProvider = ({ children }) => {
                 let resp = await dbAPI.getSectionData('plans');
                 if (resp) {
                     setPlansPrices(resp);
-
                     settingsObject = {
                         ...settingsObject,
                         paidPlans: plansPrices

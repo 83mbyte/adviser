@@ -14,12 +14,14 @@ import SignOutModal from '@/src/components/Modal/SignOutModal';
 import ZoomImgModal from '@/src/components/Modal/ZoomImgModal';
 
 import CheckoutResultModal from '@/src/components/Modal/CheckoutResultModal';
+import SubscriptionNoticeModal from '@/src/components/Modal/SubscriptionNoticeModal';
 
 const Workspace = () => {
 
-    const userUISettings = useSettingsContext();
-    const showModalSettings = userUISettings.showModalWindow;
-    const userWorkspaceType = userUISettings.userWorkspaceType;
+    const settingsContext = useSettingsContext();
+    const showModalSettings = settingsContext.showModalWindow;
+    const userWorkspaceType = settingsContext.userWorkspaceType;
+    const { subscription } = settingsContext.userSubscription;
 
     const params = useSearchParams();
 
@@ -38,6 +40,13 @@ const Workspace = () => {
             showModalSettings.setShowModal({ isShow: true, type: 'CheckoutResult', body: params.get('checkout') });
         }
     }, [])
+    useEffect(() => {
+        if (subscription) {
+            if (subscription.period < Date.now()) {
+                showModalSettings.setShowModal({ isShow: true, type: 'SubscriptionNotice', body: null });
+            }
+        }
+    }, [subscription])
 
     return (
         <>
@@ -74,7 +83,7 @@ const Workspace = () => {
                     {
                         showModalSettings.showModal.isShow == true &&
                         <motion.div
-                            onClick={closeModal}
+                            //onClick={closeModal}
                             key={'backdrop'}
                             style={{ zIndex: 3001, position: 'absolute', top: 0, left: 0, height: '100%', width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.7)' }}
                             variants={animationProps.opacity}
@@ -91,6 +100,10 @@ const Workspace = () => {
                             >
 
                                 {
+                                    showModalSettings.showModal.type === 'SubscriptionNotice' &&
+                                    <SubscriptionNoticeModal handleClose={closeModal} renewCheckout={gotoCheckout} />
+                                }
+                                {
                                     showModalSettings.showModal.type === 'SignOut' &&
                                     <SignOutModal handleClose={closeModal} />
                                 }
@@ -105,7 +118,6 @@ const Workspace = () => {
                         </motion.div>
                     }
                 </AnimatePresence>
-
             </Portal>
         </>
     )
