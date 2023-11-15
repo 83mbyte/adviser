@@ -161,7 +161,7 @@ const ChatWindow = () => {
         //     content: `You are a helpful assistant. The reply must be from 5 to 10 words.` 
         // }
         //
-        const systemMessage = promptTemplatesAPI.dafault({ replyTone, replyLength, replyStyle });
+        const systemMessage = promptTemplatesAPI.default({ replyTone, replyLength, replyStyle });
 
         const provideDiscussionContext = (arrayHistory) => ({ role: 'assistant', content: arrayHistory[arrayHistory.length - 1].assistant.content });
 
@@ -228,7 +228,6 @@ const ChatWindow = () => {
         let generatedId = Date.now();
         if (generatedId) {
             setChatId(generatedId);
-            console.log(generatedId);
         } else {
             alert(`something wrong.. a new chat can't be created`);
         }
@@ -299,7 +298,7 @@ const ChatWindow = () => {
                                 >
                                     <AnimatePresence mode='wait'>
                                         {
-                                            ((!themeColor || !predefinedData || !historyContext) && showTopics !== true && showTopicQuestions !== true && showChatSettings !== true && showHistoryScreen !== true) &&
+                                            ((!themeColor || !predefinedData || !historyContext) && showTopics !== true && showTopicQuestions !== true && showChatSettings !== true && showHistoryScreen !== true && Object.keys(chatHistory).length < 1) &&
                                             <motion.div
                                                 key={'noint'}
                                                 // variants={animationProps.chatWindowScreens.opacity}

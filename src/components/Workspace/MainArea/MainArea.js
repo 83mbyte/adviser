@@ -4,8 +4,11 @@ import ChatWindow from "../ChatWindow/ChatWindow";
 import ImageCreatorWindow from "../ImageCreatorWindow/ImageCreatorWindow";
 import { AnimatePresence, motion } from "framer-motion";
 import { animationProps } from "@/src/lib/animationProps";
+import ManageSubscription from "../ManageSubscription/ManageSubscription";
 
 const MainArea = ({ workspaceType }) => {
+
+
 
   return (
 
@@ -33,6 +36,18 @@ const MainArea = ({ workspaceType }) => {
             exit={'exit'}
           >
             <ImageCreatorWindow />
+          </motion.div>
+        }
+        {
+          workspaceType == 'subscription' &&
+          <motion.div key={'manageSubscription'}
+            style={{ width: '100%', height: '100%' }}
+            variants={animationProps.slideFromTop}
+            initial={'hidden'}
+            animate={'visible'}
+            exit={'exit'}
+          >
+            <ManageSubscription />
           </motion.div>
         }
       </AnimatePresence>

@@ -23,14 +23,14 @@ export const authAPI = {
 
     signInGoogle: async () => {
         const provider = new GoogleAuthProvider();
-        const auth = getAuth(app);
+        const auth = getAuth();
         auth.useDeviceLanguage();
         await signInWithRedirect(auth, provider);
     },
 
     signInAfterRedirect: async () => {
-        const auth = getAuth(app);
-        return getRedirectResult(auth)
+        const auth = getAuth();
+        return await getRedirectResult(auth)
             .then((result) => {
                 // This gives you a Google Access Token. You can use it to access Google APIs.
                 //const credential = GoogleAuthProvider.credentialFromResult(result);
@@ -48,7 +48,7 @@ export const authAPI = {
                 // The email of the user's account used.
                 //const email = error.customData.email;
                 // The AuthCredential type that was used.
-                const credential = GoogleAuthProvider.credentialFromError(error);
+                //const credential = GoogleAuthProvider.credentialFromError(error);
                 // ...
                 return ({ status: 'error', errorCode, errorMessage })
             });
