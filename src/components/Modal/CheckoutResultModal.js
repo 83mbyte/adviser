@@ -24,7 +24,7 @@ const CheckoutResultModal = ({ handleClose, result, renewCheckout }) => {
                     <HStack bg='' w='full' justifyContent={'center'}>
                         {
                             isSuccess
-                                ? <Button size={['xs', 'sm']} colorScheme={themeColor} variant='solid'>Close</Button>
+                                ? <Button size={['xs', 'sm']} colorScheme={themeColor} variant='solid' onClick={handleClose}>Close</Button>
                                 :
                                 <>
                                     <Button size={['xs', 'sm']} colorScheme={themeColor} variant='solid' onClick={renewCheckout}>Try again</Button>
