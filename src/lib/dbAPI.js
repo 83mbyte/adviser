@@ -17,38 +17,56 @@ export const dbAPI = {
     },
 
     getData: async (userId) => {
-        const docRef = doc(db, 'chats', userId);
-
+        const docChatsRef = doc(db, 'chats', userId);
+        // const docImagesRef = doc(db, 'images', userId);
+        let returnObject = { chats: null, images: null };
 
         try {
-            const docSnap = await getDoc(docRef);
-            if (docSnap.exists()) {
-                // console.log("Document data:", docSnap.data());
-                return docSnap.data()
-            } else {
-                // docSnap.data() will be undefined in this case
-                console.log("No such document!");
-                return null
+            const docChatsSnap = await getDoc(docChatsRef);
+            //for images snap
+            // const docImagesSnap = await getDoc(docImagesRef);
+            if (docChatsSnap.exists()) {
+                returnObject = {
+                    ...returnObject,
+                    chats: docChatsSnap.data()
+                }
             }
+            // if (docImagesSnap.exists()) {
+            //     returnObject = {
+            //         ...returnObject,
+            //         images: docImagesSnap.data()
+            //     }
+            // }
+            return returnObject;
+
+            //old
+            // if (docChatsSnap.exists()) {
+            //     // console.log("Document data:", docChatsSnap.data());
+            //     return docChatsSnap.data()
+            // } else {
+            //     // docChatsSnap.data() will be undefined in this case
+            //     console.log("No such document!");
+            //     return null
+            // }
         } catch (error) {
             console.error(error)
         }
     },
 
-    updateData: async (userId, chatId, data) => {
-        const docRef = doc(db, 'chats', userId);
+    updateData: async (path, userId, id, data) => {
+        const docRef = doc(db, path, userId);
 
         let res = await updateDoc(docRef,
             {
-                [chatId]: data
+                [id]: data
             },
             { merge: true });
 
     },
-    deleteChat: async (userId, chatId) => {
-        const docRef = doc(db, 'chats', userId);
+    deleteDocument: async (path, userId, id) => {
+        const docRef = doc(db, path, userId);
         await updateDoc(docRef, {
-            [chatId]: deleteField()
+            [id]: deleteField()
         })
         return 'chat removed'
     },
