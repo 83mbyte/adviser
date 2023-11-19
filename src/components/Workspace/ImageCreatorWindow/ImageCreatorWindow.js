@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
-import { Box, Card, CardBody, VStack, Text } from '@chakra-ui/react';
+import { Box, Card, CardBody, VStack, Text, IconButton, Highlight } from '@chakra-ui/react';
 import { animationProps } from "@/src/lib/animationProps";
 
 import ImageCreatorFooter from './ImageCreatorFooter';
@@ -11,19 +11,27 @@ import ImageResult from './ImageResult';
 import ImageCreatorHeader from './ImageCreatorHeader';
 import IdeasList from './Ideas/IdeasList';
 
+import { useAuthContext } from '@/src/context/AuthContextProvider';
+import { MdClose } from "react-icons/md";
+
+
+
 const ImageCreatorWindow = () => {
     // contexts
     const { themeColor } = useSettingsContext().userThemeColor;
+    const user = useAuthContext();
 
     // states
     const [isLoadingBtn, setIsLoadingBtn] = useState(false); //to show loading button
     const textAreaRef = useRef(null); //textarea 
+    const [noticeAboutImages, setNoticeAboutImages] = useState(true);
 
     const [imgCreatorId, setImgCreatorId] = useState(null);
-    const [imgSize, setImgSize] = useState('256'); //default Img size
-    const [imgHistory, setImgHistory] = useState(null);
+    const [imgSize, setImgSize] = useState('A'); //default Img size
+    const [imgHistory, setImgHistory] = useState({});
 
     const [showHeaderReturnPanel, setShowHeaderReturnPanel] = useState({ state: false, title: '' });
+    const [showHistoryScreen, setShowHistoryScreen] = useState(false);
 
     const [showIdeas, setShowIdeas] = useState(false);
     const [selectedIdea, setSelectedIdea] = useState(null);
@@ -34,11 +42,13 @@ const ImageCreatorWindow = () => {
     // 
     const submitButtonHandler = async () => {
         setIsLoadingBtn(true);
+        closeBackToChat();
+        let dataToUpload;
         try {
 
             let resp = await getReplyFromAssistant({ size: imgSize, request: textAreaRef.current.value }, 'image');
             if (resp) {
-                console.log(resp.content);
+
 
                 let imgRequestAndReplyItem = {
                     user: { content: textAreaRef.current.value },
@@ -54,13 +64,23 @@ const ImageCreatorWindow = () => {
                             ...imgHistory[imgCreatorId],
                             imgRequestAndReplyItem
                         ]
-                    })
+                    });
+                    // dataToUpload = [
+                    //     ...imgHistory[imgCreatorId],
+                    //     imgRequestAndReplyItem
+                    // ]
                 } else {
-                    console.log('history  NO ID')
+
                     setImgHistory({
                         [imgCreatorId]: [imgRequestAndReplyItem]
-                    })
+                    });
+                    // dataToUpload = [
+                    //     imgRequestAndReplyItem
+                    // ]
                 }
+
+                //save file on server
+                //await dbAPI.updateData('images', user.uid, imgCreatorId, dataToUpload)
             }
         } catch (error) {
             console.error(error)
@@ -78,7 +98,7 @@ const ImageCreatorWindow = () => {
             title: ''
         });
         setShowIdeas(false);
-
+        setShowHistoryScreen(false);
     }
 
     const headerReturnPanelToggler = (titleText) => {
@@ -89,7 +109,7 @@ const ImageCreatorWindow = () => {
     }
 
     const headerBackButtonHandler = () => {
-        closeBackToChat()
+        closeBackToChat();
     }
     const ideaBtnHandler = () => {
         headerReturnPanelToggler('Drawing ideas')
@@ -112,10 +132,11 @@ const ImageCreatorWindow = () => {
 
     useEffect(() => {
         openImageCreator();
-    }, [])
+    }, []);
+
+
     return (
         <>
-
             {/* Image Creator Window */}
             {
                 imgCreatorId &&
@@ -131,7 +152,6 @@ const ImageCreatorWindow = () => {
                         >
                             {/* window header */}
                             <Box bg={''}
-                                // bg={'#FAFAFA'}
                                 w={'full'}
                                 p={0}
                                 borderTopRadius={'10px'}
@@ -139,18 +159,65 @@ const ImageCreatorWindow = () => {
                                 borderBottomColor={'gray.200'}
                                 overflowX={'hidden'}
                                 height={'55px'}
-                                minH={'43px'}
+                                minH={'52px'}
                                 display={'flex'}
                                 flexDirection={'row'}
+                                zIndex={1205}
                             >
-
                                 <ImageCreatorHeader
+
                                     themeColor={themeColor}
                                     showHeaderReturnPanel={showHeaderReturnPanel}
                                     ideaBtnHandler={ideaBtnHandler}
                                     headerBackButtonHandler={headerBackButtonHandler}
                                 />
                             </Box>
+                            <AnimatePresence>
+                                {
+                                    noticeAboutImages &&
+                                    <Box bg={`${themeColor}.50`} w='100%'
+                                        px={1}
+                                        borderBottomWidth={'1px'}
+                                        borderBottomColor={'gray.200'}
+                                        display={'flex'}
+                                        flexDir={'row'}
+                                        as={motion.div}
+                                        alignItems={'center'}
+                                        key={'ttlImagesNotice'}
+                                        style={{ willChange: 'height' }}
+                                        layout
+                                        initial={{ y: -40, opacity: 0 }}
+                                        animate={{
+                                            y: 0,
+                                            opacity: 1,
+                                            transition: {
+                                                opacity: { delay: 0.8, duration: 0.5 },
+                                                y: { delay: 0.8, duration: 0.5 }
+                                            }
+                                        }}
+                                        exit={{
+                                            opacity: 0,
+                                            y: -40,
+                                            transition: {
+                                                opacity: { duration: 0.5 },
+                                                y: { delay: 0.1, duration: 0.5 }
+                                            }
+                                        }}
+                                    >
+                                        <Text textAlign={'center'} px={2} fontSize={['xs', 'sm']} >
+                                            <Highlight
+                                                query={['Please note', 'the images will no longer be accessible']}
+                                                styles={{ px: '0', py: '0', rounded: 'sm', fontWeight: 'bold' }}
+                                            >
+                                                Please note that we do not store images on our server. If you leave the Create Image screen or refresh your browser tab, the images will no longer be accessible. However, you have the option to download and save them to your local storage.
+                                            </Highlight>
+                                        </Text>
+                                        <IconButton colorScheme={themeColor} size={'sm'} variant='ghost' icon={<MdClose />}
+                                            onClick={() => setNoticeAboutImages(false)}
+                                        />
+                                    </Box>
+                                }
+                            </AnimatePresence>
 
                             {/* render images */}
                             <Box w={'full'}
@@ -186,7 +253,7 @@ const ImageCreatorWindow = () => {
                                         </motion.div>
                                     }
                                     {
-                                        showIdeas == true &&
+                                        showIdeas === true &&
                                         <motion.div
                                             key={'showIdeas'}
                                             variants={animationProps.chatWindowScreens.slideFromLeft}
@@ -198,8 +265,9 @@ const ImageCreatorWindow = () => {
                                             <IdeasList themeColor={themeColor} selectIdeaHandler={selectIdeaHandler} />
                                         </motion.div>
                                     }
+
                                     {
-                                        showIdeas === false &&
+                                        showIdeas === false && showHistoryScreen === false &&
                                         <motion.div
                                             key={'imageResult'}
                                             variants={animationProps.chatWindowScreens.opacity}

@@ -1,36 +1,38 @@
-import { Box, Text, IconButton, Tooltip, Skeleton, Image, Stack, Card, CardBody, CardFooter, CardHeader } from "@chakra-ui/react";
+import { Box, Text, IconButton, Tooltip, Skeleton, Stack, Card, Image, CardBody, CardFooter, CardHeader } from "@chakra-ui/react";
 import { useRef, useEffect } from 'react';
 
-import { MdZoomOutMap, MdSaveAlt } from "react-icons/md";
+import { MdSaveAlt, MdZoomIn } from "react-icons/md";
 import { useSettingsContext } from "@/src/context/SettingsContext";
 const ImageResult = ({ currentChat, themeColor, isLoadingBtn, }) => {
 
     const chatHistoryRef = useRef(null);
     const showModalSettings = useSettingsContext().showModalWindow;
 
-    const saveImageCreateBlob = async (url) => {
-        if (url) {
-            const fetchRes = await fetch(url, { method: 'GET', mode: 'cors', headers: {} });
-            const blob = await fetchRes.blob();
-            return new Promise((resolve) => {
-                const reader = new FileReader();
-                reader.readAsDataURL(blob);
-                reader.onloadend = () => {
-                    const base64data = reader.result;
-                    resolve({ img: base64data, type: blob.type });
-                }
-            })
+
+    const save64toFile = async (base64String, fileNameSuffix) => {
+        try {
+            // TODO switch image type based on model dall-e-2 OR dall-e-3
+            // const response = await fetch(`data:image/png;base64,${base64String}`); //dall-e-2 result
+            const response = await fetch(`data:image/webp;base64,${base64String}`); //dall-e-3 result
+            if (response.ok) {
+                const blob = await response.blob();
+                createSaveLink(blob, blob.type.split('/')[1], fileNameSuffix)
+            }
+        } catch (error) {
+            console.error('Error while download: ', error)
         }
+
     }
 
-    const createSaveLink = (img, ext) => {
-        const FILE_NAME = `generated_image.${ext}`;
+    const createSaveLink = (imgBlob, ext, fileNameSuffix) => {
+
+        const FILE_NAME = `IMG_${fileNameSuffix}.${ext}`;
 
         const savelink = document.createElement("a");
         savelink.style.opacity = '0';
         savelink.style.height = '0';
 
-        savelink.href = img;
+        savelink.href = URL.createObjectURL(imgBlob);
         savelink.download = FILE_NAME;
 
         document.body.appendChild(savelink);
@@ -38,17 +40,10 @@ const ImageResult = ({ currentChat, themeColor, isLoadingBtn, }) => {
         document.body.removeChild(savelink);
     }
 
-    const saveImage = (url) => {
-
-        saveImageCreateBlob(url).then((data) => {
-            createSaveLink(data.img, data.type.split('/')[1])
-        });
-    }
 
     useEffect(() => {
         if (isLoadingBtn || (!isLoadingBtn && currentChat && currentChat.length > 0)) {
             let lastChild = chatHistoryRef?.current?.lastElementChild;
-            console.log('last item? --> ', lastChild)
             lastChild.scrollIntoView({ behavior: 'smooth', block: 'end' });
         }
     }, [isLoadingBtn]);
@@ -56,53 +51,25 @@ const ImageResult = ({ currentChat, themeColor, isLoadingBtn, }) => {
     return (
         <Box bg='' display={'block'} overflow='auto' p={0} pb={1}>
 
-
-            {/* // dev mode */}
-            {/* <Card w={{ base: 'full', sm: '48%' }} key={'index'} m={'0 auto'}>
-                <CardHeader my={0} pt={1} pb={2} bg=''  >
-                    <Text w='100%' textAlign={'center'} >{`chatItem['user'].content`}</Text>
-                </CardHeader>
-                <CardBody bg='' display={'flex'} alignItems={'center'} justifyContent={'center'} my={0} pt={0} pb={0} overflow={'hidden'}>
-                    <Image src={'https://lh3.googleusercontent.com/p/AF1QipNmYgl7ZpzblRTs6arXzEQSQTiUkQBEfPLLDSAm=s1360-w1360-h1020'} w='256px' h={'256px'} borderRadius={'md'} />
-                </CardBody>
-                <CardFooter bg='' my={0} pt={0} pb={2}>
-                    <Stack direction={'row'} bg='' w='full' justifyContent={'space-around'}>
-                        <Tooltip label='Expand' hasArrow bg={`${themeColor}.500`}>
-                            <IconButton
-                                colorScheme={themeColor}
-                                variant={'ghost'}
-                                fontSize='18px'
-                                icon={<MdZoomOutMap />}
-                                onClick={() => showModalSettings.setShowModal({ isShow: true, type: 'ZoomImgModal', body: 'https://lh3.googleusercontent.com/p/AF1QipPtHnqAZEbYLsGVpVP3CCY8K32CktQa7D3bmW2R=s1360-w1360-h1020' })}
-                            />
-                        </Tooltip>
-                        <Tooltip label='Download' hasArrow bg={`${themeColor}.500`}>
-                            <IconButton
-                                colorScheme={themeColor}
-                                variant={'ghost'}
-                                fontSize='20px'
-                                icon={<MdSaveAlt />}
-                                onClick={() => saveImage(chatItem['assistant'].content)}
-                            />
-                        </Tooltip>
-                    </Stack>
-                </CardFooter>
-            </Card> */}
-
-            {/* ------- prod----- */}
             <Stack ref={chatHistoryRef} direction={['column', 'row']} wrap={'wrap'}>
+
                 {
                     currentChat && currentChat.length > 0 &&
                     currentChat.map((chatItem, index) => {
+
+                        let fileNameSuffix = Date.now().toString().substring(5);
                         return (
 
                             <Card w={{ base: 'full', sm: '48%' }} key={index}>
                                 <CardHeader my={0} pt={1} pb={2} bg=''  >
-                                    <Text w='100%' textAlign={'center'} >{`chatItem['user'].content`}</Text>
+                                    <Text w='100%' textAlign={'center'} fontSize={['sm', 'md']}>{`${(chatItem['user'].content).substring(0, 35)}..`}</Text>
                                 </CardHeader>
                                 <CardBody bg='' display={'flex'} alignItems={'center'} justifyContent={'center'} my={0} pt={0} pb={0} overflow={'hidden'}>
-                                    {/* <Box w='100%' minH={'256px'} maxH='260px' backgroundRepeat={'no-repeat'} backgroundPosition={'center'} backgroundSize={'cover'} backgroundImage={'url(https://lh3.googleusercontent.com/p/AF1QipNmYgl7ZpzblRTs6arXzEQSQTiUkQBEfPLLDSAm=s1360-w1360-h1020)'}></Box> */}
-                                    <Image src={chatItem['assistant'].content} w='256px' h={'256px'} borderRadius={'md'} alt={`img_${index}`} />
+                                    {/* render b64 */}
+                                    <Image src={`data:image/webp;base64, ${chatItem['assistant'].content}`} w='256px' h={'256px'} borderRadius={'md'} alt={`img_${index}`} />
+                                    {/* <Image src={`data: image/png;base64, ${chatItem['assistant'].content}`} w='256px' h={'256px'} borderRadius={'md'} alt={`img_${index}`} /> */}
+                                    <div id='imgContainer'>
+                                    </div>
                                 </CardBody>
                                 <CardFooter bg='' my={0} pt={0} pb={2}>
                                     <Stack direction={'row'} bg='' w='full' justifyContent={'space-around'}>
@@ -111,7 +78,7 @@ const ImageResult = ({ currentChat, themeColor, isLoadingBtn, }) => {
                                                 colorScheme={themeColor}
                                                 variant={'ghost'}
                                                 fontSize='18px'
-                                                icon={<MdZoomOutMap />}
+                                                icon={<MdZoomIn />}
                                                 onClick={() => showModalSettings.setShowModal({ isShow: true, type: 'ZoomImgModal', body: chatItem['assistant'].content })}
                                             />
                                         </Tooltip>
@@ -121,7 +88,7 @@ const ImageResult = ({ currentChat, themeColor, isLoadingBtn, }) => {
                                                 variant={'ghost'}
                                                 fontSize='20px'
                                                 icon={<MdSaveAlt />}
-                                                onClick={() => saveImage(chatItem['assistant'].content)}
+                                                onClick={() => save64toFile(chatItem['assistant'].content, (fileNameSuffix + '_' + index))}
                                             />
                                         </Tooltip>
                                     </Stack>

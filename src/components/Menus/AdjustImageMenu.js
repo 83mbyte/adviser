@@ -18,14 +18,14 @@ const AdjustImageMenu = ({ themeColor, size, setSize }) => {
                 icon={<MdSettings fontSize={'20px'} />}
                 variant='outline'
                 colorScheme={themeColor}
-                size={{ base: 'sm', md: '' }}
+                size={['sm', 'md']}
                 px={'2'}
             />
             <MenuList  >
                 <MenuOptionGroup defaultValue={size} title='Image Size' type='radio' onChange={setSize} >
-                    <MenuItemOption value='256' fontSize={'sm'} _hover={{ backgroundColor: `${themeColor}.50` }}>256x256 pixels</MenuItemOption>
-                    <MenuItemOption value='512' fontSize={'sm'} _hover={{ backgroundColor: `${themeColor}.50` }}>512x512 pixels</MenuItemOption>
-                    <MenuItemOption value='1024' fontSize={'sm'} _hover={{ backgroundColor: `${themeColor}.50` }}>1024x1024 pixels</MenuItemOption>
+                    <MenuItemOption value='A' fontSize={'sm'} _hover={{ backgroundColor: `${themeColor}.50` }}>1024x1024 pixels</MenuItemOption>
+                    <MenuItemOption isDisabled={true} value='B' fontSize={'sm'} _hover={{ backgroundColor: `${themeColor}.50` }}>1792x1024 pixels</MenuItemOption>
+                    <MenuItemOption isDisabled={true} value='C' fontSize={'sm'} _hover={{ backgroundColor: `${themeColor}.50` }}>1024x1792 pixels</MenuItemOption>
                 </MenuOptionGroup>
             </MenuList>
         </Menu >

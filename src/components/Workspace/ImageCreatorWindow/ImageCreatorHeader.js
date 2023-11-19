@@ -9,9 +9,9 @@ import { MdChevronLeft } from 'react-icons/md';
 
 
 
-const ImageCreatorHeader = ({ themeColor, showHeaderReturnPanel, ideaBtnHandler, headerBackButtonHandler }) => {
+const ImageCreatorHeader = ({ themeColor, showHeaderReturnPanel, ideaBtnHandler, headerBackButtonHandler, }) => {
     return (
-        <Box w='full' bg='' display={'flex'} flexDirection={'column'} alignItems={'center'} h={'auto'}>
+        <Box w='full' bg='#FAFAFA' display={'flex'} flexDirection={'column'} alignItems={'center'} h={'auto'} zIndex={1203}>
             <ImageCreatorHeaderPanel themeColor={themeColor} showHeaderReturnPanel={showHeaderReturnPanel} ideaBtnHandler={ideaBtnHandler} headerBackButtonHandler={headerBackButtonHandler} />
         </Box>
     );
@@ -20,7 +20,7 @@ const ImageCreatorHeader = ({ themeColor, showHeaderReturnPanel, ideaBtnHandler,
 export default ImageCreatorHeader;
 
 
-const ImageCreatorHeaderPanel = ({ themeColor, showHeaderReturnPanel, ideaBtnHandler, headerBackButtonHandler }) => {
+const ImageCreatorHeaderPanel = ({ themeColor, showHeaderReturnPanel, ideaBtnHandler, headerBackButtonHandler, }) => {
     return (
         <HStack w='full' h='100%' px={2}>
             <Box flex={1}>
@@ -32,26 +32,45 @@ const ImageCreatorHeaderPanel = ({ themeColor, showHeaderReturnPanel, ideaBtnHan
                 />
             </Box>
             <Box flex={3}>
-                {
-                    showHeaderReturnPanel.state == true &&
-                    <motion.div
-                        key={'titleTwo'}
-                        variants={animationProps.text.scale}
-                        initial={'hidden'}
-                        animate={'visible'}
-                        exit={'exit'}
-                    >
-                        <Box>
-                            <Text textAlign={'center'} lineHeight={'1'}>{showHeaderReturnPanel.title}</Text>
-                            {/* <Text textAlign={'center'} lineHeight={'1'}>{currentTopic}</Text> */}
-                        </Box>
-                    </motion.div>
-                }
+                <AnimatePresence mode='wait'>
+
+                    {
+                        showHeaderReturnPanel.state == true &&
+                        <motion.div
+                            key={'titleReturnPanel'}
+                            variants={animationProps.text.scale}
+                            initial={'hidden'}
+                            animate={'visible'}
+                            exit={'exit'}
+                        >
+                            <Box>
+                                <Text textAlign={'center'} lineHeight={'1'}>{showHeaderReturnPanel.title}</Text>
+                            </Box>
+                        </motion.div>
+                    }
+                    {
+                        showHeaderReturnPanel.state == false &&
+                        <motion.div
+                            key={'titlePanel'}
+                            variants={animationProps.text.scale}
+                            initial={'hidden'}
+                            animate={'visible'}
+                            exit={'exit'}
+                        >
+                            <Box>
+                                <Text textAlign={'center'} lineHeight={'1'}>{'Create image'}</Text>
+                            </Box>
+                        </motion.div>
+                    }
+                </AnimatePresence>
             </Box>
-            <Box flex={1}></Box>
+            <Box flex={1}>
+            </Box>
         </HStack>
     )
 }
+
+
 
 const ImageCreatorLeftSideButtons = ({ themeColor, showHeaderReturnPanel, ideaBtnHandler, headerBackButtonHandler }) => {
     return (

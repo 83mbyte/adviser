@@ -1,5 +1,5 @@
 'use client'
-import { VStack, Box, Button, Text, StackDivider, Divider, Stack, SimpleGrid, Icon, HStack } from '@chakra-ui/react';
+import { VStack, Box, Button, Text, StackDivider, Divider, Stack, Icon, HStack } from '@chakra-ui/react';
 import { AnimatePresence, motion } from 'framer-motion';
 
 import { Fragment, useEffect, useState } from 'react';
@@ -36,16 +36,16 @@ const settingsArray = [
             }
         ]
     },
-    {
-        title: 'Chat settings',
-        data: [
-            {
-                subTitle: 'Clear chat',
-                buttons: ['Clear chat']
+    // {
+    //     title: 'Chat settings',
+    //     data: [
+    //         {
+    //             subTitle: 'Clear chat',
+    //             buttons: ['Clear chat']
 
-            }
-        ]
-    },
+    //         }
+    //     ]
+    // },
 ]
 
 const ChatSettings = ({ themeColor }) => {
@@ -67,7 +67,7 @@ const ChatSettings = ({ themeColor }) => {
     return (
         <>
             <Box m={4} p={4} border={'1px dashed red'} display={'flex'} justifyContent={'center'}>
-                Hi. This page is still under construction..
+                This page is still under construction.. but it WORKS.
             </Box>
             {/* <SimpleGrid columns={{ base: 1, sm: 1, }} spacing={'20px'}> */}
             <Stack direction={['column', 'row']} p={['0', 4]}>

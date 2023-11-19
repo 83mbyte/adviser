@@ -27,9 +27,10 @@ exports.getExchangeRates = onRequest(
 
     {
         // DEV
-        cors: true,
+        //cors: true,
+
         //PROD
-        // cors: [process.env.APP_DOMAIN_MAIN, process.env.APP_DOMAIN_SECOND],
+        cors: [process.env.APP_DOMAIN_MAIN, process.env.APP_DOMAIN_SECOND],
         secrets: ['SECRET_KEY_CURRENCY_RATES',]
     },
     async (req, resp) => {
@@ -48,8 +49,9 @@ exports.getExchangeRates = onRequest(
 
 exports.webhookStrp = onRequest(
     {
-        cors: true,
-        // secrets: ['STRIPE_WHSEC'] //uncomment to production
+        // cors: true,
+        cors: ['/stripe\.com$/'],
+        secrets: ['STRIPE_WHSEC'] //uncomment to production
     },
 
     async (req, resp) => {
@@ -70,7 +72,7 @@ exports.webhookStrp = onRequest(
         try {
             event = stripe.webhooks.constructEvent(payload, sig, endpointSecret);
         } catch (err) {
-            console.log('EROOR for event: ', err.message)
+            // console.log('ERROR for event: ', err.message)
             return resp.status(400).send(`Event.object Error: ${err.message}`);
         }
         if (!event) {
@@ -112,14 +114,14 @@ exports.webhookStrp = onRequest(
 
 exports.createSubscription = onRequest(
     {
-        cors: ['http://127.0.0.1', 'http://localhost'], //dev
-        // cors: [process.env.APP_DOMAIN_MAIN, process.env.APP_DOMAIN_SECOND,] //prod 
+        // cors: ['http://127.0.0.1', 'http://localhost'], //dev
+        cors: [process.env.APP_DOMAIN_MAIN, process.env.APP_DOMAIN_SECOND,] //prod 
     },
     async (req, resp) => {
         //DEV domain
-        const APP_DOMAIN = 'http://127.0.0.1:5000';
+        // const APP_DOMAIN = 'http://127.0.0.1:5000';
         //PROD domain
-        // const APP_DOMAIN = process.env.APP_DOMAIN_MAIN;
+        const APP_DOMAIN = process.env.APP_DOMAIN_MAIN;
 
         if (req.method !== 'POST') {
             resp.status(400).json({ error: 'Bad request.' });
@@ -222,6 +224,9 @@ const createCompletions = async (dataJSON) => {
 
 exports.requestToAssistantWithImage = onRequest(
     {
+        //DEV
+        // cors: true,
+        //PROD
         cors: [process.env.APP_DOMAIN_MAIN, process.env.APP_DOMAIN_SECOND],
         secrets: ['SECRET_KEY_OPENAI']
     },
@@ -245,6 +250,27 @@ exports.requestToAssistantWithImage = onRequest(
             }
         };
 
+        const generateImage_dall_e_3_64 = async (request, size = '1024x1024') => {
+            const openai = new OpenAI({
+
+                apiKey: process.env.SECRET_KEY_OPENAI,
+            });
+
+            try {
+                const image = await openai.images.generate({
+                    model: 'dall-e-3', prompt: request, size, style: 'natural', response_format: 'b64_json'
+                });
+                if (image?.data) {
+
+                    return image.data[0].b64_json
+                } else {
+                    return null
+                }
+            } catch (error) {
+                return null
+            }
+        };
+
         if (req.method !== 'POST') {
             resp.status(400).json({ error: 'Bad request.' });
         }
@@ -253,10 +279,15 @@ exports.requestToAssistantWithImage = onRequest(
             if (req.body) {
 
                 const { request, size } = { ...JSON.parse(req.body) };
-                let imageUrl = await generateImage(request, `${size}x${size}`);
+                const imgSize = {
+                    A: '1024x1024',
+                    B: '11792x1024',
+                    C: '1024x1792',
+                }
+                let imageData64 = await generateImage_dall_e_3_64(request, `${imgSize[size]}`); //return base64
 
-                if (imageUrl) {
-                    resp.status(200).json({ content: imageUrl })
+                if (imageData64) {
+                    resp.status(200).json({ content: imageData64 })
                 } else {
                     resp.status(500).json({ error: 'Internal Server Error.' });
                 }
@@ -280,15 +311,18 @@ exports.userDeleted = functions.auth.user().onDelete((user) => {
     return Promise.resolve();
 })
 
+
 const createUserInDB = async (userId) => {
 
     // create initial db documents for a new  user //
     const chatsUserDoc = db.collection('chats').doc(userId);
     const usersUserDoc = db.collection('users').doc(userId);
+    const imagesUserDoc = db.collection('images').doc(userId);
     const timeStamp = Timestamp.now();
     const start = timeStamp.toMillis();
     const period = start + 259200000;
     await chatsUserDoc.set({}, { merge: true });
+    await imagesUserDoc.set({}, { merge: true });
     await usersUserDoc.set({ theme: 'green', plan: { period, type: 'Trial' } }, { merge: true });
 
     return `Document created.`
@@ -298,8 +332,10 @@ const deleteUserInDB = async (userId) => {
 
     const chatsUserDoc = db.collection('chats').doc(userId);
     const usersUserDoc = db.collection('users').doc(userId);
+    const imagesUserDoc = db.collection('images').doc(userId);
 
     await chatsUserDoc.delete();
     await usersUserDoc.delete();
+    await imagesUserDoc.delete();
     return `User (${userId}) deleted from DataBase.`
 }

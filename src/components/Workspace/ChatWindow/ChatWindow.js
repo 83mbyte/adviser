@@ -33,7 +33,7 @@ const ChatWindow = () => {
     const { themeColor } = SettingsContext.userThemeColor;
     const { replyLength, replyStyle, replyTone } = SettingsContext.chatSettings.chatSettings;
     const predefinedData = usePredefinedDataContext();
-    const historyContext = useHistoryContext();
+    const historyContext = useHistoryContext().chats;
 
     // states
     const [showHeaderReturnPanel, setShowHeaderReturnPanel] = useState({ state: false, title: '' });
@@ -138,7 +138,7 @@ const ChatWindow = () => {
     }
 
     const clearChatFromHistory = async (chatId) => {
-        let res = await dbAPI.deleteChat(user.uid, chatId);
+        let res = await dbAPI.deleteDocument('chats', user.uid, chatId);
         if (res) {
             const { [chatId]: removedData, ...restHistory } = chatHistory;
             setChatHistory(restHistory);
@@ -210,7 +210,7 @@ const ChatWindow = () => {
                         chatQuestionAndReplyItem
                     ]
                 }
-                await dbAPI.updateData(user.uid, chatId, dataToUpload)
+                await dbAPI.updateData('chats', user.uid, chatId, dataToUpload)
             }
         } catch (error) {
             console.error(error);
@@ -301,10 +301,7 @@ const ChatWindow = () => {
                                             ((!themeColor || !predefinedData || !historyContext) && showTopics !== true && showTopicQuestions !== true && showChatSettings !== true && showHistoryScreen !== true && Object.keys(chatHistory).length < 1) &&
                                             <motion.div
                                                 key={'noint'}
-                                                // variants={animationProps.chatWindowScreens.opacity}
-                                                // initial={'hidden'}
-                                                // animate={'show'}
-                                                //exit={'exit'}
+
                                                 initial={{ opacity: 0 }}
                                                 animate={{ opacity: 1, transition: { delay: 1.5, duration: 0.8 } }}
                                                 exit={{ opacity: 0, transition: { duration: 0.1, delay: 0 } }}
