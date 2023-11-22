@@ -67,7 +67,7 @@ const ChatSettings = ({ themeColor }) => {
     return (
         <>
             <Box m={4} p={4} border={'1px dashed red'} display={'flex'} justifyContent={'center'}>
-                This page is still under construction.. but it WORKS.
+                New options will be added SOON.
             </Box>
             {/* <SimpleGrid columns={{ base: 1, sm: 1, }} spacing={'20px'}> */}
             <Stack direction={['column', 'row']} p={['0', 4]}>

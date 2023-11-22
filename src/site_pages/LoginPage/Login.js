@@ -162,7 +162,7 @@ export default function Login() {
                             <form ref={formRef} onSubmit={onSubmit}>
                                 <FormControl id="email">
                                     <FormLabel>Email address</FormLabel>
-                                    <Input type="email" placeholder={'email@example.com'} defaultValue={process.env.NEXT_PUBLIC_DEV_EMAIL} name={'email'} />
+                                    <Input type="email" placeholder={'your_email@example.com'} name={'email'} />
                                 </FormControl>
                                 <FormControl id="password" isRequired mb={2}>
                                     <FormLabel>Password</FormLabel>

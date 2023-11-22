@@ -2,7 +2,7 @@
 const functions = require("firebase-functions");
 const { onRequest } = require("firebase-functions/v2/https");
 const { setGlobalOptions } = require("firebase-functions/v2/options");
-const { defineSecret } = require('firebase-functions/params');
+// const { defineSecret } = require('firebase-functions/params');
 
 const { initializeApp } = require("firebase-admin/app");
 const { getFirestore, Timestamp } = require("firebase-admin/firestore");
@@ -10,12 +10,12 @@ const { getFirestore, Timestamp } = require("firebase-admin/firestore");
 const { OpenAI } = require("openai");
 
 // DEV stripe key 
-const DEV_SECRET = process.env.STRIPE_API_KEY_DEV;
-const stripe = require('stripe')(DEV_SECRET);
+// const DEV_SECRET = process.env.STRIPE_API_KEY_DEV;
+// const stripe = require('stripe')(DEV_SECRET);
 
 // PROD stripe
-//const STRIPE_SECRET = defineSecret('SECRET_KEY_STRIPE_API');
-// const stripe = require('stripe')(STRIPE_SECRET.value()); 
+// const STRIPE_SECRET = defineSecret('SECRET_KEY_STRIPE_API');
+const stripe = require('stripe')(process.env.SECRET_KEY_STRIPE_API);
 
 setGlobalOptions({ maxInstances: 5 });
 
@@ -56,10 +56,10 @@ exports.webhookStrp = onRequest(
 
     async (req, resp) => {
         // DEV mode key
-        const endpointSecret = process.env.STRIPE_WHSEC_DEV;
+        // const endpointSecret = process.env.STRIPE_WHSEC_DEV;
 
         // PRODuction key
-        // const endpointSecret = process.env.STRIPE_WHSEC;
+        const endpointSecret = process.env.STRIPE_WHSEC;
 
         if (req.method !== 'POST') {
             resp.status(400).json({ error: 'Bad request.' });

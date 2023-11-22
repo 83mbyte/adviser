@@ -33,6 +33,7 @@ const Workspace = () => {
 
     const gotoCheckout = () => {
         userWorkspaceType.setWorkspaceType('subscription');
+        closeModal();
     }
 
     useEffect(() => {

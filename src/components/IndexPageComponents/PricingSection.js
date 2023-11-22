@@ -118,8 +118,10 @@ export default function PricingSection({ pricing }) {
                                                 <Text fontWeight="500" fontSize={["lg", "2xl"]} textAlign={['center', 'left']}>
                                                     {plan.title}
                                                 </Text>
+
+
                                                 <HStack justifyContent="center" spacing={1}>
-                                                    <Text fontSize={{ base: 'xs', md: 'xl' }} fontWeight="600">€</Text>
+                                                    <Text fontSize={{ base: 'xs', md: 'xl' }} fontWeight="600">$</Text>
                                                     <Text fontSize={{ base: 'lg', md: '3xl' }} fontWeight="900" color={'green.800'}>
                                                         {plan.price}
                                                     </Text>
