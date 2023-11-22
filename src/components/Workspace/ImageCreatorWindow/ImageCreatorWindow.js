@@ -44,7 +44,6 @@ const ImageCreatorWindow = () => {
     const submitButtonHandler = async () => {
         setIsLoadingBtn(true);
         closeBackToChat();
-        let dataToUpload;
         try {
 
             let resp = await getReplyFromAssistant({ size: imgSize, request: textAreaRef.current.value }, 'image');
@@ -66,22 +65,13 @@ const ImageCreatorWindow = () => {
                             imgRequestAndReplyItem
                         ]
                     });
-                    // dataToUpload = [
-                    //     ...imgHistory[imgCreatorId],
-                    //     imgRequestAndReplyItem
-                    // ]
+
                 } else {
 
                     setImgHistory({
                         [imgCreatorId]: [imgRequestAndReplyItem]
                     });
-                    // dataToUpload = [
-                    //     imgRequestAndReplyItem
-                    // ]
                 }
-
-                //save file on server
-                //await dbAPI.updateData('images', user.uid, imgCreatorId, dataToUpload)
             }
         } catch (error) {
             console.error(error)
