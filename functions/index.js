@@ -30,7 +30,7 @@ exports.getExchangeRates = onRequest(
         //cors: true,
 
         //PROD
-        cors: [process.env.APP_DOMAIN_MAIN, process.env.APP_DOMAIN_SECOND],
+        cors: [process.env.APP_DOMAIN_MAIN, process.env.APP_DOMAIN_SECOND, process.env.APP_DOMAIN_CUSTOM],
         secrets: ['SECRET_KEY_CURRENCY_RATES',]
     },
     async (req, resp) => {
@@ -176,7 +176,7 @@ exports.createSubscription = onRequest(
 
 exports.requestToAssistant = onRequest(
     {
-        cors: [process.env.APP_DOMAIN_MAIN, process.env.APP_DOMAIN_SECOND],
+        cors: [process.env.APP_DOMAIN_MAIN, process.env.APP_DOMAIN_SECOND, process.env.APP_DOMAIN_CUSTOM],
         secrets: ['SECRET_KEY_OPENAI']
     },
     async (req, resp) => {
@@ -227,7 +227,7 @@ exports.requestToAssistantWithImage = onRequest(
         //DEV
         // cors: true,
         //PROD
-        cors: [process.env.APP_DOMAIN_MAIN, process.env.APP_DOMAIN_SECOND],
+        cors: [process.env.APP_DOMAIN_MAIN, process.env.APP_DOMAIN_SECOND, process.env.APP_DOMAIN_CUSTOM],
         secrets: ['SECRET_KEY_OPENAI']
     },
     async (req, resp) => {
