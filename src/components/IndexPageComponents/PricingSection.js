@@ -136,7 +136,7 @@ export default function PricingSection({ pricing }) {
                                                 borderBottomRadius={'xl'}>
                                                 <List spacing={3} textAlign="start" px={12}>
                                                     {
-                                                        plan.options.incl.map((item, index) => {
+                                                        plan.options.incl && plan.options.incl.map((item, index) => {
                                                             return (
                                                                 <ListItem key={index} fontSize={['sm', 'md']}>
                                                                     <ListIcon as={FaCheckCircle} color="green.400" />
