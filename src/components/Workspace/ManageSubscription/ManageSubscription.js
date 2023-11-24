@@ -27,11 +27,11 @@ const ManageSubscription = () => {
     const { subscription } = settingsContext.userSubscription;
 
 
-    const submitHandler = async (period, price) => {
-        setIsLoading(true)
+    const submitHandler = async (period, price, planName) => {
+        setIsLoading({ status: true, plan: planName })
         let data = await createCheckoutSession(user.email, user.uid, currency.toLocaleLowerCase(), period, price);
         if (data?.url) {
-            setIsLoading(false)
+            setIsLoading({ status: false, plan: null })
             router.push(data.url);
         }
     };
@@ -190,7 +190,7 @@ const ManageSubscription = () => {
                                         {
                                             Object.keys(paidPlans).sort().map((planName, index) => {
                                                 return (
-                                                    <PlanCard key={`pl_${index}`} isLoading={isLoading} title={planName} themeColor={themeColor} period={paidPlans[planName].period} price={paidPlans[planName].price} currency={paidPlans[planName].currency} submitHandler={() => submitHandler(paidPlans[planName].period, paidPlans[planName].price)} />
+                                                    <PlanCard key={`pl_${index}`} isLoading={isLoading} title={planName} themeColor={themeColor} period={paidPlans[planName].period} price={paidPlans[planName].price} currency={paidPlans[planName].currency} submitHandler={() => submitHandler(paidPlans[planName].period, paidPlans[planName].price, planName)} />
                                                 )
                                             })
                                         }
@@ -212,7 +212,7 @@ export default ManageSubscription;
 
 const PlanCard = ({ themeColor, title, price, period, currency, isLoading, submitHandler }) => {
 
-
+    const priceToShow = Math.ceil(price);
 
     return (
         <Card w={['85%', '45%']} variant={'elevated'}>
@@ -221,13 +221,14 @@ const PlanCard = ({ themeColor, title, price, period, currency, isLoading, submi
             </CardHeader>
             <CardBody bg='' py={0}>
                 <Box w='full' my={0}>
-                    <Text fontSize={'sm'} textAlign={'center'}>{currency}<Highlight query={price + ''} styles={{ px: '1', py: '1', fontSize: '28px', fontWeight: 'bold' }}>{price + ''}</Highlight></Text>
+                    <Text fontSize={'sm'} textAlign={'center'}>{currency}<Highlight query={priceToShow + ''} styles={{ px: '1', py: '1', fontSize: '28px', fontWeight: 'bold' }}>{priceToShow + ''}</Highlight></Text>
                     <Text textAlign={['end', 'center']} fontSize={'sm'}>for {period}</Text>
                 </Box>
             </CardBody>
             <CardFooter justifyContent={'center'}>
                 <Button
-                    isLoading={isLoading}
+                    isLoading={isLoading.status === true && isLoading.plan === title}
+                    isDisabled={isLoading.status === true && isLoading.plan !== title}
                     colorScheme={themeColor}
                     leftIcon={<MdOutlineShoppingCart />}
                     onClick={submitHandler}
