@@ -1,6 +1,7 @@
-import { deleteField, getFirestore, updateDoc, doc, getDoc } from 'firebase/firestore'
+import { deleteField, getFirestore, updateDoc, doc, getDoc, initializeFirestore } from 'firebase/firestore'
 import { app } from '../_f_i_r_e_base/_f_i_r_e_base';
-const db = getFirestore(app);
+// const db = getFirestore(app);
+const db = initializeFirestore(app, { experimentalForceLongPolling: true })  //to solve a problem with db because of slow connection
 export const dbAPI = {
     getSectionData: async (sectionName) => {
         const docRef = doc(db, 'serviceData', sectionName);
