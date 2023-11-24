@@ -122,6 +122,7 @@ exports.createSubscription = onRequest(
         // const APP_DOMAIN = 'http://127.0.0.1:5000';
         //PROD domain
         const APP_DOMAIN = process.env.APP_DOMAIN_MAIN;
+        const APP_DOMAIN_CUSTOM = process.env.APP_DOMAIN_CUSTOM;
 
         if (req.method !== 'POST') {
             resp.status(400).json({ error: 'Bad request.' });
@@ -159,8 +160,8 @@ exports.createSubscription = onRequest(
                 metadata: { uid: userId, period },
                 customer_email: userEmail,
                 mode: 'payment',
-                success_url: `${APP_DOMAIN}/workspace?checkout=complete`,
-                cancel_url: `${APP_DOMAIN}/workspace?checkout=cancel`,
+                success_url: `${APP_DOMAIN_CUSTOM}/workspace?checkout=complete`,
+                cancel_url: `${APP_DOMAIN_CUSTOM}/workspace?checkout=cancel`,
                 automatic_tax: { enabled: true },
             });
             //stripe-hosted page

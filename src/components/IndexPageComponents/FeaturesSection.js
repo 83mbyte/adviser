@@ -11,7 +11,6 @@ import {
     HStack,
     VStack,
     Highlight,
-    Skeleton,
     SkeletonText,
 } from '@chakra-ui/react';
 
