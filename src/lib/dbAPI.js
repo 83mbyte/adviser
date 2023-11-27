@@ -1,7 +1,7 @@
-import { deleteField, getFirestore, updateDoc, doc, getDoc, initializeFirestore } from 'firebase/firestore'
-import { app } from '../_f_i_r_e_base/_f_i_r_e_base';
+import { deleteField, updateDoc, doc, getDoc } from 'firebase/firestore'
+import { db } from '../_f_i_r_e_base/_f_i_r_e_base';
 // const db = getFirestore(app);
-const db = initializeFirestore(app, { experimentalForceLongPolling: true })  //to solve a problem with db because of slow connection
+// const db = initializeFirestore(app, { experimentalForceLongPolling: true }) ; //to solve a problem with db because of slow connection
 export const dbAPI = {
     getSectionData: async (sectionName) => {
         const docRef = doc(db, 'serviceData', sectionName);
@@ -40,15 +40,7 @@ export const dbAPI = {
             // }
             return returnObject;
 
-            //old
-            // if (docChatsSnap.exists()) {
-            //     // console.log("Document data:", docChatsSnap.data());
-            //     return docChatsSnap.data()
-            // } else {
-            //     // docChatsSnap.data() will be undefined in this case
-            //     console.log("No such document!");
-            //     return null
-            // }
+
         } catch (error) {
             console.error(error)
         }
