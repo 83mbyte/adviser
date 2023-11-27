@@ -31,7 +31,7 @@ const ManageSubscription = () => {
         setIsLoading({ status: true, plan: planName })
         let data = await createCheckoutSession(user.email, user.uid, currency.toLocaleLowerCase(), period, price);
         if (data?.url) {
-            setIsLoading({ status: false, plan: null })
+            setIsLoading({ status: false, plan: null });
             router.push(data.url);
         }
     };
@@ -111,6 +111,7 @@ const ManageSubscription = () => {
 
                         <AnimatePresence mode='wait'>
                             {
+                                themeColor && subscription &&
                                 <motion.div
                                     key={'subscriptionsPlans'}
                                     variants={animationProps.chatWindowScreens.opacityDelayed}
@@ -189,8 +190,9 @@ const ManageSubscription = () => {
                                     <Stack bg='' direction={['column', 'row']} justifyContent={'space-around'} alignItems={'center'} px={'2'} spacing={'8'}>
                                         {
                                             Object.keys(paidPlans).sort().map((planName, index) => {
+                                                let price = Math.ceil(paidPlans[planName].price);
                                                 return (
-                                                    <PlanCard key={`pl_${index}`} isLoading={isLoading} title={planName} themeColor={themeColor} period={paidPlans[planName].period} price={paidPlans[planName].price} currency={paidPlans[planName].currency} submitHandler={() => submitHandler(paidPlans[planName].period, paidPlans[planName].price, planName)} />
+                                                    <PlanCard key={`pl_${index}`} isLoading={isLoading} title={planName} themeColor={themeColor} period={paidPlans[planName].period} price={price} currency={paidPlans[planName].currency} submitHandler={() => submitHandler(paidPlans[planName].period, price, planName)} />
                                                 )
                                             })
                                         }
@@ -199,11 +201,25 @@ const ManageSubscription = () => {
 
                                 </motion.div>
                             }
+                            {themeColor == null && subscription == null &&
+                                <motion.div
+                                    key={'subscriptionsPlansNoConnect'}
+                                    variants={animationProps.chatWindowScreens.opacityDelayed}
+                                    initial={'hidden'}
+                                    animate={'show'}
+                                    exit={'exit'}
+                                    h='100%'
+                                    bg=''
+                                >
+                                    <Text textAlign={'center'}>Your device does not have a healthy Internet connection at the moment. The client will operate in offline mode until it is able to successfully connect to the backend. You may try to refresh the page now or visit it later. </Text>
+                                </motion.div>
+                            }
                         </AnimatePresence>
                     </Box>
                 </VStack>
             </CardBody>
         </Card >
+
     );
 };
 
@@ -212,8 +228,6 @@ export default ManageSubscription;
 
 const PlanCard = ({ themeColor, title, price, period, currency, isLoading, submitHandler }) => {
 
-    const priceToShow = Math.ceil(price);
-
     return (
         <Card w={['85%', '45%']} variant={'elevated'}>
             <CardHeader bg=''>
@@ -221,7 +235,7 @@ const PlanCard = ({ themeColor, title, price, period, currency, isLoading, submi
             </CardHeader>
             <CardBody bg='' py={0}>
                 <Box w='full' my={0}>
-                    <Text fontSize={'sm'} textAlign={'center'}>{currency}<Highlight query={priceToShow + ''} styles={{ px: '1', py: '1', fontSize: '28px', fontWeight: 'bold' }}>{priceToShow + ''}</Highlight></Text>
+                    <Text fontSize={'sm'} textAlign={'center'}>{currency}<Highlight query={price + ''} styles={{ px: '1', py: '1', fontSize: '28px', fontWeight: 'bold' }}>{price + ''}</Highlight></Text>
                     <Text textAlign={['end', 'center']} fontSize={'sm'}>for {period}</Text>
                 </Box>
             </CardBody>
