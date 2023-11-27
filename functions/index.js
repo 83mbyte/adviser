@@ -114,14 +114,14 @@ exports.webhookStrp = onRequest(
 
 exports.createSubscription = onRequest(
     {
-        // cors: ['http://127.0.0.1', 'http://localhost'], //dev
-        cors: [process.env.APP_DOMAIN_MAIN, process.env.APP_DOMAIN_SECOND,] //prod 
+        // cors: true //dev
+        cors: [process.env.APP_DOMAIN_MAIN, process.env.APP_DOMAIN_CUSTOM, process.env.APP_DOMAIN_SECOND,] //prod
     },
     async (req, resp) => {
         //DEV domain
         // const APP_DOMAIN = 'http://127.0.0.1:5000';
         //PROD domain
-        const APP_DOMAIN = process.env.APP_DOMAIN_MAIN;
+        // const APP_DOMAIN = process.env.APP_DOMAIN_MAIN;
         const APP_DOMAIN_CUSTOM = process.env.APP_DOMAIN_CUSTOM;
 
         if (req.method !== 'POST') {

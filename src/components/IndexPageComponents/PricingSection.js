@@ -146,7 +146,8 @@ export default function PricingSection({ pricing }) {
                                                         })
                                                     }
                                                     {
-                                                        plan.options.excl && plan.options.excl.map((item, index) => {
+                                                        plan.options.excl !== undefined && plan.options.excl.map((item, index) => {
+
                                                             return (
                                                                 <ListItem key={index} fontSize={['sm', 'md']} color="gray.400">
                                                                     <ListIcon as={FaRegTimesCircle} />
