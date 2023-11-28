@@ -177,6 +177,7 @@ exports.createSubscription = onRequest(
 
 exports.requestToAssistant = onRequest(
     {
+        //cors: true,
         cors: [process.env.APP_DOMAIN_MAIN, process.env.APP_DOMAIN_SECOND, process.env.APP_DOMAIN_CUSTOM],
         secrets: ['SECRET_KEY_OPENAI']
     },
@@ -210,9 +211,22 @@ const createCompletions = async (dataJSON) => {
     const openai = new OpenAI({
         apiKey: process.env.SECRET_KEY_OPENAI,
     });
+    let model = 'gpt-3.5-turbo';
+    if (data.systemVersion) {
+        switch (data.systemVersion) {
+            case 'GPT-3.5':
+                model = 'gpt-3.5-turbo';
+                break;
+            case 'GPT-4':
+                model = 'gpt-4'
+                break;
+            default:
+                model = 'gpt-3.5-turbo';
+        }
+    }
 
     const completion = await openai.chat.completions.create({
-        model: 'gpt-3.5-turbo',
+        model: model,
         max_tokens: data.tokens,
         temperature: 1.2,
         messages: data.messagesArray,
