@@ -9,7 +9,7 @@ import { HiOutlineLightBulb } from "react-icons/hi";
 const ChatWindowHeader = ({ themeColor, currentTopic, showHeaderReturnPanel, showTopicQuestions, headerBackButtonHandler, topicsButtonHandler, promptsButtonHandler, settingsButtonHandler, historyButtonHandler, isChatHistoryExists }) => {
     return (
 
-        <Box w='full' bg='' display={'flex'} flexDirection={'column'} alignItems={'center'} h={'auto'}>
+        <Box w='full' bg='#FAFAFA' display={'flex'} flexDirection={'column'} alignItems={'center'} h={'auto'}>
             <HeaderPanel
                 themeColor={themeColor}
                 currentTopic={currentTopic}

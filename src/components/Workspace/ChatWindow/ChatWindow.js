@@ -1,7 +1,7 @@
 'use client'
 import { useEffect, useRef, useState } from "react";
 
-import { Box, Card, CardBody, Text, VStack } from "@chakra-ui/react";
+import { Box, Card, CardBody, Text, VStack, IconButton, Button, useBreakpointValue, Tooltip } from "@chakra-ui/react";
 
 import { useSettingsContext } from "@/src/context/SettingsContext";
 import { usePredefinedDataContext } from "@/src/context/PredefinedDataContextProvider";
@@ -10,7 +10,7 @@ import { useHistoryContext } from "@/src/context/HistoryContextProvider";
 
 import { AnimatePresence, motion } from "framer-motion";
 import { animationProps } from "@/src/lib/animationProps";
-
+import { MdClose, MdOutlineShoppingCart } from "react-icons/md";
 import SelectTopics from "./TopicsAndQuestions/SelectTopics";
 import ChatWindowHeader from "./ChatWindowHeader";
 import ChatWindowFooter from "./ChatWindowFooter";
@@ -24,18 +24,26 @@ import { dbAPI } from "@/src/lib/dbAPI";
 import { promptTemplatesAPI } from "@/src/lib/promptsAPI";
 
 const ChatWindow = () => {
+    const variant = useBreakpointValue(
+        {
+            base: 'IconButton',
+            sm: 'Button',
+        })
     let dataToUpload;
     const textAreaRef = useRef(null);
 
     //contexts
     const user = useAuthContext()
-    const SettingsContext = useSettingsContext();
-    const { themeColor } = SettingsContext.userThemeColor;
-    const { replyLength, replyStyle, replyTone } = SettingsContext.chatSettings.chatSettings;
+    const settingsContext = useSettingsContext();
+    const { subscription } = settingsContext.userSubscription;
+    const { themeColor } = settingsContext.userThemeColor;
+    const { replyLength, replyStyle, replyTone, systemVersion } = settingsContext.chatSettings.chatSettings;
+    const userWorkspaceType = settingsContext.userWorkspaceType;
     const predefinedData = usePredefinedDataContext();
     const historyContext = useHistoryContext().chats;
 
     // states
+    const [showTrialWarning, setShowTrialWarning] = useState(false);
     const [showHeaderReturnPanel, setShowHeaderReturnPanel] = useState({ state: false, title: '' });
     const [showFooter, setShowFooter] = useState(true);
 
@@ -61,6 +69,9 @@ const ChatWindow = () => {
     const [isLoadingBtn, setIsBtnLoadingBtn] = useState(false);
 
     //handlers
+    const gotoCheckout = () => {
+        userWorkspaceType.setWorkspaceType('subscription');
+    }
     const headerReturnPanelToggler = (titleText) => {
         // setShowHeaderReturnPanel(!showHeaderReturnPanel)
         setShowHeaderReturnPanel({
@@ -175,7 +186,8 @@ const ChatWindow = () => {
 
         try {
             // dev mode... uncomment await getReplyFromAssistant to prod..
-            let resp = await getReplyFromAssistant({ messagesArray, tokens: 1800 }, 'chat');
+
+            let resp = await getReplyFromAssistant({ messagesArray, tokens: 1800, systemVersion }, 'chat');
             if (resp) {
                 // Deve mode test
                 // console.log('reply from assist for DEVELOPER mode:: ', resp.content);
@@ -210,7 +222,11 @@ const ChatWindow = () => {
                         chatQuestionAndReplyItem
                     ]
                 }
-                await dbAPI.updateData('chats', user.uid, chatId, dataToUpload)
+                if (subscription?.type) {
+                    if (subscription.type == 'Premium' || subscription.type == 'Basic') {
+                        await dbAPI.updateData('chats', user.uid, chatId, dataToUpload)
+                    }
+                }
             }
         } catch (error) {
             console.error(error);
@@ -226,8 +242,10 @@ const ChatWindow = () => {
     // initializing chat area
     const openChatWindow = () => {
         let generatedId = Date.now();
+
         if (generatedId) {
             setChatId(generatedId);
+
         } else {
             alert(`something wrong.. a new chat can't be created`);
         }
@@ -236,6 +254,15 @@ const ChatWindow = () => {
     useEffect(() => {
         openChatWindow();
     }, [])
+
+    useEffect(() => {
+
+        if (subscription?.type) {
+            if (subscription.type !== 'Premium' && subscription.type !== 'Basic') {
+                setShowTrialWarning(true)
+            }
+        }
+    }, [subscription])
 
     useEffect(() => {
         if (historyContext) {
@@ -266,9 +293,10 @@ const ChatWindow = () => {
                                     borderBottomColor={'gray.200'}
                                     overflowX={'hidden'}
                                     height={'55px'}
-                                    minH={'43px'}
+                                    minH={'52px'}
                                     display={'flex'}
                                     flexDirection={'row'}
+                                    zIndex={1005}
                                 >
                                     <ChatWindowHeader
                                         key={'chatHeader'}
@@ -284,6 +312,73 @@ const ChatWindow = () => {
                                         isChatHistoryExists={Object.keys(chatHistory).length > 0}
                                     />
                                 </Box>
+                                {/* warnings div */}
+                                <AnimatePresence>
+                                    {
+                                        showTrialWarning == true && showTopics !== true && showTopicQuestions !== true && showChatSettings !== true && showHistoryScreen !== true &&
+                                        <Box bg={`${themeColor}.50`} w='100%'
+                                            px={1}
+                                            borderBottomWidth={'1px'}
+                                            borderBottomColor={'gray.200'}
+                                            display={'flex'}
+                                            flexDir={'row'}
+                                            as={motion.div}
+                                            alignItems={'center'}
+                                            key={'ttlImagesNotice'}
+                                            style={{ willChange: 'height' }}
+                                            layout
+                                            zIndex={1002}
+                                            initial={{ y: -40, opacity: 0 }}
+                                            animate={{
+                                                y: 0,
+                                                opacity: 1,
+                                                transition: {
+                                                    opacity: { delay: 0.8, duration: 0.5 },
+                                                    y: { delay: 0.8, duration: 0.5 }
+                                                }
+                                            }}
+                                            exit={{
+                                                opacity: 0,
+                                                y: -40,
+                                                transition: {
+                                                    opacity: { duration: 0.5 },
+                                                    y: { delay: 0.1, duration: 0.5 }
+                                                }
+                                            }}
+                                        >
+                                            <Text textAlign={'center'} px={2} fontSize={['xs', 'sm']} w='full' >
+                                                Please be aware that the chat history cannot be stored while you are using the Trial plan. Kindly upgrade to either the Basic or Premium plan to ensure the storage of your chat history.
+                                            </Text>
+                                            {/* <Text textAlign={'center'} px={2} fontSize={['xs', 'sm']} w='full' >
+                                                Please note the chats history can't be stored while your are using Trial plan. Please upgrade your plan to Basic or Premium.
+                                            </Text> */}
+                                            <Box p={0} m={0} mr={1}>
+
+                                                {
+                                                    variant == 'Button'
+                                                        ? <Button variant={'outline'} colorScheme={themeColor} size={'xs'} onClick={gotoCheckout}>upgrade</Button>
+                                                        :
+                                                        <Tooltip label='Upgrade' hasArrow bg={`${themeColor}.500`}><IconButton colorScheme={themeColor} size={'sm'} variant='outline' icon={<MdOutlineShoppingCart />}
+                                                            onClick={gotoCheckout}
+                                                        /></Tooltip>
+
+                                                }
+
+                                            </Box>
+                                            <Box p={0} m={0}>
+                                                <Tooltip label='Hide' hasArrow bg={`${themeColor}.500`}>
+                                                    <IconButton colorScheme={themeColor} size={'sm'} variant='link' icon={<MdClose />}
+                                                        onClick={() => setShowTrialWarning(false)}
+                                                    /></Tooltip>
+                                            </Box>
+
+
+                                        </Box>
+                                    }
+                                </AnimatePresence>
+                                {/* warnings div end */}
+
+
                                 <Box
                                     w={'full'}
                                     bg=''

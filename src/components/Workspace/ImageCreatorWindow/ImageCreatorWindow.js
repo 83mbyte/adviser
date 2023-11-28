@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
-import { Box, Card, CardBody, VStack, Text, IconButton, Highlight, HStack } from '@chakra-ui/react';
+import { Box, Card, CardBody, VStack, Text, IconButton, Highlight, Tooltip } from '@chakra-ui/react';
 import { animationProps } from "@/src/lib/animationProps";
 
 import ImageCreatorFooter from './ImageCreatorFooter';
@@ -294,9 +294,11 @@ const ImageCreatorWindow = () => {
                                             </Highlight>
                                         </Text>
                                         <Box p={0} m={0}>
-                                            <IconButton colorScheme={themeColor} size={'sm'} variant='link' icon={<MdClose />}
-                                                onClick={() => setNoticeAboutImages(false)}
-                                            />
+                                            <Tooltip label='Hide' hasArrow bg={`${themeColor}.500`}>
+                                                <IconButton colorScheme={themeColor} size={'sm'} variant='link' icon={<MdClose />}
+                                                    onClick={() => setNoticeAboutImages(false)}
+                                                />
+                                            </Tooltip>
                                         </Box>
                                     </Box>
                                 }
@@ -351,11 +353,14 @@ const ImageCreatorWindow = () => {
                                                     styles={{ px: '0', py: '0', fontWeight: 'bold', color: '#FFF', textDecoration: 'underline' }}>
                                                     Your operating system is not compatible with displaying images in Safari browser. To properly view images, we recommend switching to a different browser such as Firefox, Chrome, Opera, or any other compatible browser.
                                                 </Highlight>
-                                            </Text>}
+                                            </Text>
+                                        }
                                         <Box p={0} m={0}>
-                                            <IconButton color={'white'} variant='link' size={'sm'} icon={<MdClose />}
-                                                onClick={() => setNoticeAboutBrowser({ status: false, type: null })}
-                                            />
+                                            <Tooltip label='Hide' hasArrow bg={`${themeColor}.500`}>
+                                                <IconButton color={'white'} variant='link' size={'sm'} icon={<MdClose />}
+                                                    onClick={() => setNoticeAboutBrowser({ status: false, type: null })}
+                                                />
+                                            </Tooltip>
                                         </Box>
                                     </Box>
                                 }
@@ -372,15 +377,6 @@ const ImageCreatorWindow = () => {
                                 overflowX={'hidden'}
                                 overflowY={'scroll'}
                             >
-
-                                {/* dev */}
-                                {/* <ImageResult
-                                    currentChat={imgHistory ? imgHistory[imgCreatorId] : []}
-                                    themeColor={themeColor}
-                                    isLoadingBtn={isLoadingBtn} /> */}
-                                {/* dev */}
-
-
 
                                 <AnimatePresence mode='wait'>
                                     {(!themeColor && showIdeas !== true) &&

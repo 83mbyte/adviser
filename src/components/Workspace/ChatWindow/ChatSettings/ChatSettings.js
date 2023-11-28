@@ -1,5 +1,5 @@
 'use client'
-import { VStack, Box, Button, Text, StackDivider, Divider, Stack, Icon, HStack } from '@chakra-ui/react';
+import { VStack, Box, Button, Text, StackDivider, Divider, Stack, Icon, HStack, } from '@chakra-ui/react';
 import { AnimatePresence, motion } from 'framer-motion';
 
 import { Fragment, useEffect, useState } from 'react';
@@ -9,10 +9,27 @@ import { MdRule } from "react-icons/md";
 
 import { RiSpeakLine } from "react-icons/ri";
 import { AiFillEdit } from "react-icons/ai";
+import { BiSolidNetworkChart } from "react-icons/bi";
 import { dbAPI } from '@/src/lib/dbAPI';
 import { useAuthContext } from '@/src/context/AuthContextProvider';
 import { useSettingsContext } from '@/src/context/SettingsContext';
 const settingsArray = [
+    {
+        title: 'AI system',
+        data: [
+            {
+                subTitle: 'Select version',
+                key: 'systemVersion',
+                buttons: ['GPT-3.5', 'GPT-4'],
+                icon: BiSolidNetworkChart,
+                descr: {
+                    0: 'GPT-3.5 model can understand and generate natural language or code. The GPT-3.5 model has been optimized for chat using.',
+                    1: 'GPT-4 is a large multimodal model that can solve difficult problems with greater accuracy, thanks to its broader general knowledge and advanced reasoning capabilities.',
+                }
+
+            }
+        ]
+    },
     {
         title: `Assistant's adjustment`,
         data: [
@@ -49,7 +66,9 @@ const settingsArray = [
 ]
 
 const ChatSettings = ({ themeColor }) => {
-    const { chatSettings, setChatSettings } = useSettingsContext().chatSettings;
+    const settingsContext = useSettingsContext();
+    const { chatSettings, setChatSettings } = settingsContext.chatSettings;
+    const { subscription } = settingsContext.userSubscription;
     const [settingsUpdated, setSettingsUpdated] = useState(false);
     const user = useAuthContext();
 
@@ -90,41 +109,58 @@ const ChatSettings = ({ themeColor }) => {
                                                         {
                                                             el.buttons.map((btn, btnIndex) => {
                                                                 return (
-                                                                    <Button
-                                                                        key={btnIndex}
-                                                                        leftIcon={
-                                                                            chatSettings[el.key] === btn ? <CheckIcon color='green' show={true} /> : <CheckIcon color='green' show={false} />
+                                                                    <Fragment key={btnIndex}>
+                                                                        <Button
 
+                                                                            leftIcon={
+                                                                                chatSettings[el.key] === btn ? <CheckIcon color='green' show={true} /> : <CheckIcon color='green' show={false} />
+
+                                                                            }
+                                                                            colorScheme={themeColor}
+                                                                            variant={'ghost'}
+                                                                            size={['xs', 'md']}
+                                                                            py={['2', '3']}
+                                                                            isDisabled={subscription?.type && subscription.type !== 'Premium' && btn == 'GPT-4'}
+                                                                            onClick={() => {
+
+                                                                                setChatSettings({
+                                                                                    ...chatSettings,
+                                                                                    [el.key]: btn
+                                                                                });
+                                                                                setSettingsUpdated(true);
+                                                                            }}
+                                                                        >{btn}</Button>
+                                                                        {
+                                                                            subscription?.type && subscription.type !== 'Premium' && btn == 'GPT-4' && <Box>
+                                                                                <Box borderWidth='1px' borderColor={'yellow.400'} p={'1px 3px'} mx={0} borderRadius={'3px'} >
+                                                                                    <Text color='yellow.600' fontSize={['2xs', 'xs']} fontWeight={'semibold'}>Premium plan required</Text>
+                                                                                </Box>
+                                                                            </Box>
                                                                         }
-                                                                        colorScheme={themeColor}
-                                                                        variant={'ghost'}
-                                                                        size={['xs', 'md']}
-                                                                        py={['2', '3']}
 
-                                                                        onClick={() => {
-
-                                                                            setChatSettings({
-                                                                                ...chatSettings,
-                                                                                [el.key]: btn
-                                                                            });
-                                                                            setSettingsUpdated(true);
-                                                                        }}
-                                                                    >{btn}</Button>
+                                                                        {
+                                                                            el.descr &&
+                                                                            <Box display={'flex'} justifyContent={'center'} mb={[2, 5]}>
+                                                                                <Text fontSize={['xs', 'sm']}>{el.descr[btnIndex]}</Text>
+                                                                            </Box>
+                                                                        }
+                                                                    </Fragment>
                                                                 )
                                                             })
                                                         }
                                                     </Stack>
+
                                                 </Fragment>
                                             )
                                         })
                                     }
                                 </VStack>
-                            </SettingsBlock>
+                            </SettingsBlock >
                         )
                     })
                 }
 
-            </Stack>
+            </Stack >
             {/* </SimpleGrid> */}
 
         </>

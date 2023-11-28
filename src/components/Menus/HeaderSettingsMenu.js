@@ -22,16 +22,15 @@ import { MdMenu, MdChat, MdImage, MdAttachMoney } from "react-icons/md";
 import { dbAPI } from '@/src/lib/dbAPI';
 import { useAuthContext } from '@/src/context/AuthContextProvider';
 import { useSettingsContext } from '@/src/context/SettingsContext';
-import { useRouter } from 'next/navigation';
 
 const colors = ['green', 'teal', 'orange', 'purple', 'pink']
 
 const HeaderSettingsMenu = ({ setThemeColor, themeColor, }) => {
-    const router = useRouter();
 
     const userSettings = useSettingsContext();
     const showModalSettings = userSettings.showModalWindow;
     const userWorkspaceType = userSettings.userWorkspaceType;
+    const { subscription } = userSettings.userSubscription;
 
     const user = useAuthContext();
 
@@ -62,7 +61,7 @@ const HeaderSettingsMenu = ({ setThemeColor, themeColor, }) => {
     return (
         <Popover placement='bottom-end' bg='transparent' border={'none'} onClose={saveColorScheme}>
             {
-                ({ isOpen, onClose }) => (
+                ({ onClose }) => (
                     <>
                         <PopoverTrigger>
                             <IconButton
@@ -80,8 +79,8 @@ const HeaderSettingsMenu = ({ setThemeColor, themeColor, }) => {
                                         <Box>
                                             <Text mb={'2'}>Model</Text>
                                             <VStack alignItems={'flex-start'}>
-                                                <Button leftIcon={<MdChat />} size='sm' variant={'ghost'} colorScheme={themeColor} onClick={() => { openNewWindowHandler('chat'); onClose(); }}>Start chat</Button>
-                                                <Button leftIcon={<MdImage />} size='sm' variant={'ghost'} colorScheme={themeColor} onClick={() => { openNewWindowHandler('image'); onClose() }}>Create image</Button>
+                                                <Button isDisabled={subscription?.period && subscription.period < Date.now()} leftIcon={<MdChat />} size='sm' variant={'ghost'} colorScheme={themeColor} onClick={() => { openNewWindowHandler('chat'); onClose(); }}>Start chat</Button>
+                                                <Button leftIcon={<MdImage />} isDisabled={subscription?.period && subscription.period < Date.now()} size='sm' variant={'ghost'} colorScheme={themeColor} onClick={() => { openNewWindowHandler('image'); onClose() }}>Create image</Button>
                                             </VStack>
 
                                         </Box>

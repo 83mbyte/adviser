@@ -102,7 +102,7 @@ const Workspace = () => {
 
                                 {
                                     showModalSettings.showModal.type === 'SubscriptionNotice' &&
-                                    <SubscriptionNoticeModal handleClose={closeModal} renewCheckout={gotoCheckout} />
+                                    <SubscriptionNoticeModal renewCheckout={gotoCheckout} />
                                 }
                                 {
                                     showModalSettings.showModal.type === 'SignOut' &&

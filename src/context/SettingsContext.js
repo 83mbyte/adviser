@@ -23,7 +23,8 @@ const SettingsContextProvider = ({ children }) => {
     const [chatSettings, setChatSettings] = React.useState({
         replyLength: '100 words',
         replyStyle: 'Facts only',
-        replyTone: 'Casual'
+        replyTone: 'Casual',
+        systemVersion: 'GPT-3.5'
     });
 
 
