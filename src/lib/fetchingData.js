@@ -40,7 +40,7 @@ export const createCheckoutSession = async (email, userId, currency, period, pri
     resp = await fetch(process.env.NEXT_PUBLIC_FUNC_SUBSCRIPTION_PROD_URL, options);
 
     if (resp) {
-        return await resp.json()
+        return await resp.json();
     } else {
         return null
     }
@@ -49,7 +49,7 @@ export const createCheckoutSession = async (email, userId, currency, period, pri
 
 export const getExchangeRates = async () => {
     // DEV
-    //const resp = await fetch(process.env.NEXT_PUBLIC_FUNC_GETEXCHANGERATES_DEV_URL, { method: 'POST' });
+    // const resp = await fetch(process.env.NEXT_PUBLIC_FUNC_GETEXCHANGERATES_DEV_URL, { method: 'POST' });
     // PROD
     const resp = await fetch(process.env.NEXT_PUBLIC_FUNC_GETEXCHANGERATES_PROD_URL, { method: 'POST' });
 
