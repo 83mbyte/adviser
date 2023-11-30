@@ -34,7 +34,7 @@ import styles from './SignUpStyle.module.css';
 import { FaEyeSlash, FaEye, FaCheckCircle, FaRegTimesCircle } from 'react-icons/fa'
 import { FcGoogle } from 'react-icons/fc';
 import { authAPI } from '@/src/lib/authAPI';
-import * as DOMPurify from 'dompurify';
+import { sanitize } from "isomorphic-dompurify";
 import Footer from '../../components/PagesFooter/Footer';
 import AlternativeSignInUpForm from '@/src/components/AlternativeSignInUpForm/AlternativeSignInUpForm';
 
@@ -86,7 +86,7 @@ const SignUp = () => {
         }
     }
     const sanitizeString = (dirtyString) => {
-        return DOMPurify.sanitize(dirtyString, { USE_PROFILES: { html: true } });
+        return sanitize(dirtyString);
     }
 
     const onSubmit = async (e) => {
@@ -169,7 +169,7 @@ const SignUp = () => {
     }, []);
     React.useEffect(() => {
         if (plan) {
-            sessionStorage.setItem('planToSubscribe', `${plan}`)
+            sessionStorage.setItem('planToSubscribe', `${sanitize(plan)}`)
         }
     }, [plan])
 
