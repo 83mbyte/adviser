@@ -27,8 +27,6 @@ const SettingsContextProvider = ({ children }) => {
         systemVersion: 'GPT-3.5'
     });
 
-
-
     const user = useAuthContext();
 
     let settingsObject = {
@@ -37,11 +35,11 @@ const SettingsContextProvider = ({ children }) => {
         userWorkspaceType: { workspaceType, setWorkspaceType },
         chatSettings: { chatSettings, setChatSettings },
         userSubscription: { subscription, setSubscription },
-
         paidPlans: plansPrices
     }
 
     React.useEffect(() => {
+
         const getUserUISettings = async () => {
             try {
                 let resp = await dbAPI.getUserData(user.uid);
@@ -64,10 +62,6 @@ const SettingsContextProvider = ({ children }) => {
                 let resp = await dbAPI.getSectionData('plans');
                 if (resp) {
                     setPlansPrices(resp);
-                    settingsObject = {
-                        ...settingsObject,
-                        paidPlans: plansPrices
-                    }
                 }
             } catch (error) {
 
