@@ -1,7 +1,7 @@
 'use client'
 import { useEffect, useRef, useState } from "react";
 
-import { Box, Card, CardBody, Text, VStack, IconButton, Button, useBreakpointValue, Tooltip } from "@chakra-ui/react";
+import { Box, Card, CardBody, Text, VStack, IconButton, Button, useBreakpointValue, Tooltip, Highlight } from "@chakra-ui/react";
 
 import { useSettingsContext } from "@/src/context/SettingsContext";
 import { usePredefinedDataContext } from "@/src/context/PredefinedDataContextProvider";
@@ -402,7 +402,7 @@ const ChatWindow = () => {
                                                 exit={{ opacity: 0, transition: { duration: 0.1, delay: 0 } }}
                                                 style={{ height: '100%', width: '100%', display: 'flex', justifyContent: 'flex-end', flexDirection: 'column', padding: '0px 1px', overflow: 'auto', }}
                                             >
-                                                <Text textAlign={'center'}>Your device does not have a healthy Internet connection at the moment. The client will operate in offline mode until it is able to successfully connect to the backend. You may try to refresh the page now or visit it later. </Text>
+                                                <Text textAlign={'center'}>Your device does not have a healthy Internet connection at the moment. The client will operate in offline mode until it is able to successfully connect to the backend. <Highlight query={'refresh the page'} styles={{ px: '1', py: '1', fontWeight: 'bold' }}>You may try to refresh the page now or visit it later.</Highlight></Text>
                                             </motion.div>
 
                                         }
