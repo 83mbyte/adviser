@@ -80,7 +80,17 @@ const HeaderSettingsMenu = ({ setThemeColor, themeColor, }) => {
                                             <Text mb={'2'}>Model</Text>
                                             <VStack alignItems={'flex-start'}>
                                                 <Button isDisabled={subscription?.period && subscription.period < Date.now()} leftIcon={<MdChat />} size='sm' variant={'ghost'} colorScheme={themeColor} onClick={() => { openNewWindowHandler('chat'); onClose(); }}>Start chat</Button>
-                                                <Button leftIcon={<MdImage />} isDisabled={subscription?.period && subscription.period < Date.now()} size='sm' variant={'ghost'} colorScheme={themeColor} onClick={() => { openNewWindowHandler('image'); onClose() }}>Create image</Button>
+
+                                                <HStack>
+                                                    <Button leftIcon={<MdImage />} isDisabled={subscription?.period && subscription.period < Date.now() || subscription?.type && subscription.type !== 'Premium'} size='sm' variant={'ghost'} colorScheme={themeColor} onClick={() => { openNewWindowHandler('image'); onClose() }}>Create image</Button>
+                                                    {
+                                                        subscription?.type && subscription.type !== 'Premium' && <Box>
+                                                            <Box borderWidth='1px' borderColor={'yellow.400'} p={'1px 3px'} mx={0} borderRadius={'3px'} >
+                                                                <Text color='yellow.600' fontSize={['2xs', 'xs']} fontWeight={'semibold'}>Premium plan required</Text>
+                                                            </Box>
+                                                        </Box>
+                                                    }
+                                                </HStack>
                                             </VStack>
 
                                         </Box>
