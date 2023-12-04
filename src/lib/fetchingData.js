@@ -28,11 +28,11 @@ export const getReplyFromAssistant = async (data, model) => {
     }
 }
 
-export const createCheckoutSession = async (email, userId, currency, period, price) => {
+export const createCheckoutSession = async (email, userId, currency, period, price, upgradePeriod = null) => {
     let resp;
     let options = {
         method: 'POST',
-        body: JSON.stringify({ email: email, uid: userId, currency, period, price })
+        body: JSON.stringify({ email: email, uid: userId, currency, period, price, upgradePeriod })
     }
     //DEV
     // resp = await fetch(process.env.NEXT_PUBLIC_FUNC_SUBSCRIPTION_DEV_URL, options);

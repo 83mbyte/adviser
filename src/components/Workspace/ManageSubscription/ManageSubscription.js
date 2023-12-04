@@ -4,7 +4,7 @@ import { createCheckoutSession, getExchangeRates } from '@/src/lib/fetchingData'
 import { useRouter } from 'next/navigation';
 import { useAuthContext } from '@/src/context/AuthContextProvider';
 
-import { MdOutlineShoppingCart, MdChevronRight } from "react-icons/md";
+import { MdOutlineShoppingCart, MdChevronRight, MdOutlineKeyboardDoubleArrowUp } from "react-icons/md";
 import { useSettingsContext } from '@/src/context/SettingsContext';
 import { AnimatePresence, motion } from 'framer-motion';
 
@@ -26,6 +26,14 @@ const ManageSubscription = () => {
     const [paidPlans, setPaidPlans] = useState(originalPlans);
     const { subscription } = settingsContext.userSubscription;
 
+    const submitUpgradeHandler = async (period, price, planName, upgradePeriod) => {
+        setIsLoading({ status: true, plan: planName });
+        let data = await createCheckoutSession(user.email, user.uid, currency.toLocaleLowerCase(), period, price, upgradePeriod);
+        if (data?.url) {
+            setIsLoading({ status: false, plan: null });
+            router.push(data.url);
+        }
+    }
 
     const submitHandler = async (period, price, planName) => {
         setIsLoading({ status: true, plan: planName })
@@ -106,7 +114,6 @@ const ManageSubscription = () => {
                         maxHeight={'100%'}
                         overflowX={'hidden'}
                         overflowY={'scroll'}
-                    // justifyContent={'flex-end'}
                     >
 
                         <AnimatePresence mode='wait'>
@@ -191,14 +198,24 @@ const ManageSubscription = () => {
                                         {
                                             Object.keys(paidPlans).sort().map((planName, index) => {
                                                 let price = Math.ceil(paidPlans[planName].price);
+                                                if (subscription.type == 'Basic' && planName == 'Premium') {
+
+                                                    let upgradePrice = Math.ceil(paidPlans[planName].price - paidPlans.Basic.price);
+                                                    let upgradePeriod = subscription.period + 15768000000;
+
+                                                    return (
+                                                        <PlanCardUpgrade key={`pl_${index}`} isLoading={isLoading} title={planName} themeColor={themeColor} period={paidPlans[planName].period} upgradePrice={upgradePrice} currency={paidPlans[planName].currency} submitHandler={() => submitUpgradeHandler(paidPlans[planName].period, upgradePrice, planName, upgradePeriod)} />
+                                                    )
+
+                                                }
+
                                                 return (
-                                                    <PlanCard key={`pl_${index}`} isLoading={isLoading} title={planName} themeColor={themeColor} period={paidPlans[planName].period} price={price} currency={paidPlans[planName].currency} submitHandler={() => submitHandler(paidPlans[planName].period, price, planName)} />
+                                                    <PlanCardOriginal key={`pl_${index}`} isLoading={isLoading} currentSubscription={subscription.type} title={planName} themeColor={themeColor} period={paidPlans[planName].period} price={price} currency={paidPlans[planName].currency} submitHandler={() => submitHandler(paidPlans[planName].period, price, planName)} />
                                                 )
                                             })
                                         }
 
                                     </Stack>
-
                                 </motion.div>
                             }
                             {themeColor == null && subscription == null &&
@@ -211,7 +228,7 @@ const ManageSubscription = () => {
                                     h='100%'
                                     bg=''
                                 >
-                                    <Text textAlign={'center'}>Your device does not have a healthy Internet connection at the moment. The client will operate in offline mode until it is able to successfully connect to the backend. You may try to refresh the page now or visit it later. </Text>
+                                    <Text textAlign={'center'}>Your device does not have a healthy Internet connection at the moment. The client will operate in offline mode until it is able to successfully connect to the backend. <Highlight query={'refresh the page'} styles={{ px: '1', py: '1', fontWeight: 'bold' }}>You may try to refresh the page now or visit it later.</Highlight></Text>
                                 </motion.div>
                             }
                         </AnimatePresence>
@@ -225,18 +242,51 @@ const ManageSubscription = () => {
 
 export default ManageSubscription;
 
-
-const PlanCard = ({ themeColor, title, price, period, currency, isLoading, submitHandler }) => {
+const PlanCardOriginal = ({ themeColor, currentSubscription, title, price, period, currency, isLoading, submitHandler }) => {
+    let cardOpacity = '1';
+    if (currentSubscription == 'Basic' && title !== 'Premium' || currentSubscription == 'Premium') {
+        cardOpacity = '0.45';
+    }
 
     return (
-        <Card w={['85%', '45%']} variant={'elevated'}>
-            <CardHeader bg=''>
-                <Heading as='h5' size={['md']} textAlign={'center'} color={themeColor}>{title}</Heading>
+        <Card w={['85%', '45%']} variant={'elevated'} >
+            <CardHeader bg='' mb={0} opacity={cardOpacity}>
+                <Heading as='h5' size={['md']} textAlign={'center'} color={themeColor} >{title}</Heading>
             </CardHeader>
-            <CardBody bg='' py={0}>
+            <CardBody bg='' py={0} opacity={cardOpacity}>
                 <Box w='full' my={0}>
-                    <Text fontSize={'sm'} textAlign={'center'}>{currency}<Highlight query={price + ''} styles={{ px: '1', py: '1', fontSize: '28px', fontWeight: 'bold' }}>{price + ''}</Highlight></Text>
-                    <Text textAlign={['end', 'center']} fontSize={'sm'}>for {period}</Text>
+                    <Text fontSize={'sm'} textAlign={'center'}>{currency}<Highlight query={price + ''} styles={{ px: '1', py: '1', fontSize: '28px', fontWeight: 'bold', opacity: `${cardOpacity}` }}>{price + ''}</Highlight></Text>
+                    <Text textAlign={['center']} fontSize={'sm'}>for {period}</Text>
+                </Box>
+            </CardBody>
+            <CardFooter justifyContent={'center'}>
+                <Button
+                    isLoading={isLoading.status === true && isLoading.plan === title}
+                    isDisabled={isLoading.status === true && isLoading.plan !== title || currentSubscription !== 'Trial'}
+                    colorScheme={themeColor}
+                    leftIcon={<MdOutlineShoppingCart />}
+                    onClick={submitHandler}
+                >
+                    Buy
+                </Button>
+            </CardFooter>
+        </Card>
+    )
+}
+
+const PlanCardUpgrade = ({ themeColor, title, upgradePrice, period, currency, isLoading, submitHandler }) => {
+    let cardOpacity = '1';
+    let price = upgradePrice + '';
+    return (
+        <Card w={['85%', '45%']} variant={'elevated'} >
+            <CardHeader bg='' mb={0} opacity={cardOpacity}>
+                <Heading as='h5' size={['md']} textAlign={'center'} color={themeColor} >{title}</Heading>
+            </CardHeader>
+            <CardBody bg='' py={0} opacity={cardOpacity}>
+                <Box w='full' my={0}>
+                    <Text fontSize={'sm'}>To upgrade your current subscription plan, you need to pay the price difference.</Text>
+                    <Text fontSize={'sm'} textAlign={'center'}>{currency} <Highlight query={`${price}`} styles={{ px: '1', py: '1', fontSize: '28px', fontWeight: 'bold', opacity: `${cardOpacity}` }}>{price}</Highlight></Text>
+                    <Text textAlign={['center']} fontSize={'sm'}>for {period}</Text>
                 </Box>
             </CardBody>
             <CardFooter justifyContent={'center'}>
@@ -244,10 +294,10 @@ const PlanCard = ({ themeColor, title, price, period, currency, isLoading, submi
                     isLoading={isLoading.status === true && isLoading.plan === title}
                     isDisabled={isLoading.status === true && isLoading.plan !== title}
                     colorScheme={themeColor}
-                    leftIcon={<MdOutlineShoppingCart />}
+                    leftIcon={<MdOutlineKeyboardDoubleArrowUp fontSize={'20px'} />}
                     onClick={submitHandler}
                 >
-                    Buy
+                    Upgrade
                 </Button>
             </CardFooter>
         </Card>

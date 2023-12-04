@@ -27,7 +27,7 @@ exports.getExchangeRates = onRequest(
 
     {
         // DEV
-        //cors: true,
+        // cors: true,
 
         //PROD
         cors: [process.env.APP_DOMAIN_MAIN, process.env.APP_DOMAIN_SECOND, process.env.APP_DOMAIN_CUSTOM],
@@ -85,19 +85,24 @@ exports.webhookStrp = onRequest(
 
 
             if (event.data.object.metadata.uid && event.data.object.metadata.uid !== undefined && event.data.object.metadata.period && event.data.object.metadata.period != undefined) {
-
-                const timeStamp = Timestamp.now();
-                const start = timeStamp.toMillis();
-                const year = 31536000000;
-                const halfYear = 15768000000;
                 let subscriptionPeriod;
                 let type;
-                if (event.data.object.metadata.period === '1 year') {
-                    subscriptionPeriod = start + year;
+                if (event.data.object.metadata.upgradePeriod != null || event.data.object.metadata.upgradePeriod != undefined) {
                     type = 'Premium';
+                    subscriptionPeriod = Number(event.data.object.metadata.upgradePeriod);
                 } else {
-                    type = 'Basic';
-                    subscriptionPeriod = start + halfYear;
+                    const timeStamp = Timestamp.now();
+                    const start = timeStamp.toMillis();
+                    const year = 31536000000;
+                    const halfYear = 15768000000;
+
+                    if (event.data.object.metadata.period === '1 year') {
+                        subscriptionPeriod = start + year;
+                        type = 'Premium';
+                    } else {
+                        type = 'Basic';
+                        subscriptionPeriod = start + halfYear;
+                    }
                 }
 
                 try {
@@ -119,7 +124,7 @@ exports.createSubscription = onRequest(
     },
     async (req, resp) => {
         //DEV domain
-        // const APP_DOMAIN = 'http://127.0.0.1:5000';
+        // const APP_DOMAIN_CUSTOM = 'http://127.0.0.1:5000';
         //PROD domain
         // const APP_DOMAIN = process.env.APP_DOMAIN_MAIN;
         const APP_DOMAIN_CUSTOM = process.env.APP_DOMAIN_CUSTOM;
@@ -136,34 +141,59 @@ exports.createSubscription = onRequest(
             const price = payloadReceived.price;
 
             const period = payloadReceived.period;
+            const upgradePeriod = payloadReceived.upgradePeriod;
 
+            const customer_email = userEmail;
+            const mode = 'payment';
+            const success_url = `${APP_DOMAIN_CUSTOM}/workspace?checkout=complete`;
+            const cancel_url = `${APP_DOMAIN_CUSTOM}/workspace?checkout=cancel`;
+            const automatic_tax = { enabled: true };
 
             if (!period || !currency) {
                 resp.status(500).json({ error: 'Internal Server Error.' })
             };
 
-            const session = await stripe.checkout.sessions.create({
+            let session = null;
 
-                // create a product
-                line_items: [
-                    {
-                        price_data: {
-                            currency: currency,
-                            product_data: {
-                                name: `Helpi subscription for ${period}.`,
+            let objectToCreateSession = (isUpgrade) => {
+                let DESCRIPTION_STRING = `Helpi subscription for ${period}.`;
+                let METADATA_TO_ADD = { uid: userId, period };
+
+                if (isUpgrade == true) {
+                    DESCRIPTION_STRING = `Helpi subscription upgrade to Premium.`;
+                    METADATA_TO_ADD = { uid: userId, period, upgradePeriod }
+                }
+                return ({
+                    line_items: [
+                        {
+                            price_data: {
+                                currency: currency,
+                                product_data: {
+                                    name: DESCRIPTION_STRING,
+                                },
+                                unit_amount: Math.trunc(price * 100),
                             },
-                            unit_amount: Math.trunc(price * 100),
+                            quantity: 1,
                         },
-                        quantity: 1,
-                    },
-                ],
-                metadata: { uid: userId, period },
-                customer_email: userEmail,
-                mode: 'payment',
-                success_url: `${APP_DOMAIN_CUSTOM}/workspace?checkout=complete`,
-                cancel_url: `${APP_DOMAIN_CUSTOM}/workspace?checkout=cancel`,
-                automatic_tax: { enabled: true },
-            });
+                    ],
+                    metadata: { ...METADATA_TO_ADD },
+                    customer_email,
+                    mode,
+                    success_url,
+                    cancel_url,
+                    automatic_tax
+                })
+            }
+
+            if (upgradePeriod != null || upgradePeriod != undefined) {
+                // upgrade a plan
+                session = await stripe.checkout.sessions.create(objectToCreateSession(true))
+
+            } else {
+                // crete a new subscription
+                session = await stripe.checkout.sessions.create(objectToCreateSession(false))
+            }
+
             //stripe-hosted page
             if (session?.url) {
                 resp.status(200).json({ url: session.url })
