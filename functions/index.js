@@ -242,6 +242,10 @@ const createCompletions = async (dataJSON) => {
         apiKey: process.env.SECRET_KEY_OPENAI,
     });
     let model = 'gpt-3.5-turbo';
+    let presence_p = data.presence_p || 0;
+    let frequency_p = data.frequency_p || 0;
+    let temperature = data.temperature || 1;
+
     if (data.systemVersion) {
         switch (data.systemVersion) {
             case 'GPT-3.5':
@@ -256,9 +260,11 @@ const createCompletions = async (dataJSON) => {
     }
 
     const completion = await openai.chat.completions.create({
-        model: model,
+        model,
+        temperature,
+        presence_penalty: presence_p,
+        frequency_penalty: frequency_p,
         max_tokens: data.tokens,
-        temperature: 1.2,
         messages: data.messagesArray,
     });
 
@@ -326,7 +332,7 @@ exports.requestToAssistantWithImage = onRequest(
                 const { request, size } = { ...JSON.parse(req.body) };
                 const imgSize = {
                     A: '1024x1024',
-                    B: '11792x1024',
+                    B: '1792x1024',
                     C: '1024x1792',
                 }
                 let imageData64 = await generateImage_dall_e_3_64(request, `${imgSize[size]}`); //return base64

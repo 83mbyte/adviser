@@ -37,7 +37,7 @@ const ChatWindow = () => {
     const settingsContext = useSettingsContext();
     const { subscription } = settingsContext.userSubscription;
     const { themeColor } = settingsContext.userThemeColor;
-    const { replyLength, replyStyle, replyTone, systemVersion } = settingsContext.chatSettings.chatSettings;
+    const { replyLength, replyStyle, replyTone, systemVersion, temperature, frequency_p, presence_p } = settingsContext.chatSettings.chatSettings;
     const userWorkspaceType = settingsContext.userWorkspaceType;
     const predefinedData = usePredefinedDataContext();
     const historyContext = useHistoryContext().chats;
@@ -132,6 +132,7 @@ const ChatWindow = () => {
             if (topic == 'Blank') {
                 headerReturnPanelToggler();
                 setShowTopicQuestions(false);
+                openChatWindow();
             } else {
                 setShowTopicQuestions(true);
             }
@@ -187,7 +188,7 @@ const ChatWindow = () => {
         try {
             // dev mode... uncomment await getReplyFromAssistant to prod..
 
-            let resp = await getReplyFromAssistant({ messagesArray, tokens: 1800, systemVersion }, 'chat');
+            let resp = await getReplyFromAssistant({ messagesArray, tokens: 1800, systemVersion, temperature, frequency_p, presence_p }, 'chat');
             if (resp) {
                 // Deve mode test
                 // console.log('reply from assist for DEVELOPER mode:: ', resp.content);

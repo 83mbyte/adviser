@@ -24,7 +24,10 @@ const SettingsContextProvider = ({ children }) => {
         replyLength: '100 words',
         replyStyle: 'Facts only',
         replyTone: 'Casual',
-        systemVersion: 'GPT-3.5'
+        systemVersion: 'GPT-3.5',
+        temperature: 1,
+        frequency_p: 0,
+        presence_p: 0
     });
 
     const user = useAuthContext();

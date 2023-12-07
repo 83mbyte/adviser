@@ -4,15 +4,17 @@ import { AnimatePresence, motion } from 'framer-motion';
 
 import { Fragment, useEffect, useState } from 'react';
 
-
 import { MdRule } from "react-icons/md";
-
 import { RiSpeakLine } from "react-icons/ri";
 import { AiFillEdit } from "react-icons/ai";
 import { BiSolidNetworkChart } from "react-icons/bi";
+import { RxSlider } from "react-icons/rx";
+
 import { dbAPI } from '@/src/lib/dbAPI';
 import { useAuthContext } from '@/src/context/AuthContextProvider';
 import { useSettingsContext } from '@/src/context/SettingsContext';
+import SliderTemplate from '@/src/components/Slider/SliderTemplate';
+
 const settingsArray = [
     {
         title: 'AI system',
@@ -20,6 +22,7 @@ const settingsArray = [
             {
                 subTitle: 'Select version',
                 key: 'systemVersion',
+                uiElement: 'buttons',
                 buttons: ['GPT-3.5', 'GPT-4'],
                 icon: BiSolidNetworkChart,
                 descr: {
@@ -31,28 +34,57 @@ const settingsArray = [
         ]
     },
     {
+        title: `AI behavior`,
+        data: [
+            {
+                subTitle: 'Creativity control',
+                key: 'temperature',
+                uiElement: 'slider',
+                icon: RxSlider,
+            },
+            {
+                subTitle: `The same words' frequency`,
+                // subTitle: 'A level of repeating the same words frequently',
+                key: 'frequency_p',
+                uiElement: 'slider',
+                icon: RxSlider,
+            },
+            {
+                // subTitle: 'Vocabulary',
+                subTitle: 'Vocabulary (a variety of words)',
+                key: 'presence_p',
+                uiElement: 'slider',
+                icon: RxSlider,
+            },
+        ]
+    },
+    {
         title: `Assistant's adjustment`,
         data: [
             {
                 subTitle: 'Set reply length (as max)',
                 key: 'replyLength',
+                uiElement: 'buttons',
                 buttons: ['100 words', '300 words', '500 words'],
                 icon: AiFillEdit,
             },
             {
                 subTitle: 'Set reply style',
                 key: 'replyStyle',
+                uiElement: 'buttons',
                 buttons: ['Detailed', 'Facts only'],
                 icon: MdRule,
             },
             {
                 subTitle: 'Set reply tone',
                 key: 'replyTone',
+                uiElement: 'buttons',
                 buttons: ['Funny', 'Casual', 'Philosophical', 'Professional'],
                 icon: RiSpeakLine,
             }
         ]
     },
+
     // {
     //     title: 'Chat settings',
     //     data: [
@@ -72,6 +104,15 @@ const ChatSettings = ({ themeColor }) => {
     const [settingsUpdated, setSettingsUpdated] = useState(false);
     const user = useAuthContext();
 
+    const updateSliderValue = (val, el) => {
+
+        setChatSettings({
+            ...chatSettings,
+            [el.key]: val
+        });
+        setSettingsUpdated(true);
+
+    }
     useEffect(() => {
         const onExitSave = async () => {
             if (settingsUpdated === true) {
@@ -85,11 +126,7 @@ const ChatSettings = ({ themeColor }) => {
 
     return (
         <>
-            <Box m={4} p={4} border={'1px dashed red'} display={'flex'} justifyContent={'center'}>
-                New options will be added SOON.
-            </Box>
-            {/* <SimpleGrid columns={{ base: 1, sm: 1, }} spacing={'20px'}> */}
-            <Stack direction={['column', 'row']} p={['0', 4]}>
+            <Stack direction={['column', 'row']} p={['0', 4]} flexWrap={'wrap'}>
                 {
                     settingsArray.map((item, index) => {
                         return (
@@ -101,54 +138,76 @@ const ChatSettings = ({ themeColor }) => {
 
                                             return (
                                                 <Fragment key={elIndex}>
-                                                    <HStack  >
+                                                    <HStack mt={0} mb={2} bg=''>
                                                         {el.icon && <Icon as={el.icon} color={`${themeColor}.600`} boxSize={'1em'} />}
-                                                        <Text fontSize={['2xs', 'md']} color={`${themeColor}.700`}>{el.subTitle}:</Text>
+                                                        <Text fontSize={['xs', 'md']} color={`${themeColor}.700`}>{el.subTitle}:</Text>
                                                     </HStack>
-                                                    <Stack flexWrap={'wrap'} flexDirection={'row'} mb={1}>
-                                                        {
-                                                            el.buttons.map((btn, btnIndex) => {
-                                                                return (
-                                                                    <Fragment key={btnIndex}>
-                                                                        <Button
+                                                    {
+                                                        el.uiElement == 'buttons' &&
+                                                        <Stack flexWrap={'wrap'} flexDirection={'row'} mb={1}  >
+                                                            {
 
-                                                                            leftIcon={
-                                                                                chatSettings[el.key] === btn ? <CheckIcon color='green' show={true} /> : <CheckIcon color='green' show={false} />
+                                                                el.buttons.map((btn, btnIndex) => {
+                                                                    return (
+                                                                        <Fragment key={btnIndex}>
+                                                                            <Button
 
-                                                                            }
-                                                                            colorScheme={themeColor}
-                                                                            variant={'ghost'}
-                                                                            size={['xs', 'md']}
-                                                                            py={['2', '3']}
-                                                                            isDisabled={subscription?.type && subscription.type !== 'Premium' && btn == 'GPT-4'}
-                                                                            onClick={() => {
+                                                                                leftIcon={
+                                                                                    chatSettings[el.key] === btn ? <CheckIcon color='green' show={true} /> : <CheckIcon color='green' show={false} />
 
-                                                                                setChatSettings({
-                                                                                    ...chatSettings,
-                                                                                    [el.key]: btn
-                                                                                });
-                                                                                setSettingsUpdated(true);
-                                                                            }}
-                                                                        >{btn}</Button>
-                                                                        {
-                                                                            subscription?.type && subscription.type !== 'Premium' && btn == 'GPT-4' && <Box>
-                                                                                <Box borderWidth='1px' borderColor={'yellow.400'} p={'1px 3px'} mx={0} borderRadius={'3px'} >
-                                                                                    <Text color='yellow.600' fontSize={['2xs', 'xs']} fontWeight={'semibold'}>Premium plan required</Text>
+                                                                                }
+                                                                                colorScheme={themeColor}
+                                                                                variant={'ghost'}
+                                                                                size={['xs', 'md']}
+                                                                                py={['2', '3']}
+                                                                                isDisabled={subscription?.type && subscription.type !== 'Premium' && btn == 'GPT-4'}
+                                                                                onClick={() => {
+
+                                                                                    setChatSettings({
+                                                                                        ...chatSettings,
+                                                                                        [el.key]: btn
+                                                                                    });
+                                                                                    setSettingsUpdated(true);
+                                                                                }}
+                                                                            >{btn}</Button>
+                                                                            {
+                                                                                subscription?.type && subscription.type !== 'Premium' && btn == 'GPT-4' && <Box>
+                                                                                    <Box borderWidth='1px' borderColor={'yellow.400'} p={'1px 3px'} mx={0} borderRadius={'3px'} >
+                                                                                        <Text color='yellow.600' fontSize={['2xs', 'xs']} fontWeight={'semibold'}>Premium plan required</Text>
+                                                                                    </Box>
                                                                                 </Box>
-                                                                            </Box>
-                                                                        }
+                                                                            }
 
-                                                                        {
-                                                                            el.descr &&
-                                                                            <Box display={'flex'} justifyContent={'center'} mb={[2, 5]}>
-                                                                                <Text fontSize={['xs', 'sm']}>{el.descr[btnIndex]}</Text>
-                                                                            </Box>
-                                                                        }
-                                                                    </Fragment>
-                                                                )
-                                                            })
-                                                        }
-                                                    </Stack>
+                                                                            {
+                                                                                el.descr &&
+                                                                                <Box display={'flex'} justifyContent={'center'} mb={[2, 5]}>
+                                                                                    <Text fontSize={['xs', 'sm']}>{el.descr[btnIndex]}</Text>
+                                                                                </Box>
+                                                                            }
+                                                                        </Fragment>
+                                                                    )
+                                                                })
+                                                            }
+
+                                                        </Stack>
+                                                    }
+                                                    {
+                                                        el.uiElement == 'slider' &&
+                                                        <Box w='100%' px={4} mt={0} mb={4} bg='' h={'45px'} overflowY={'visible'}>
+                                                            {
+                                                                el.key == 'temperature' &&
+                                                                <SliderTemplate themeColor={themeColor} value={chatSettings.temperature} callback={(val) => updateSliderValue(val, el)} labels={['Strict', 'Default', 'Creative']} valuesSettings={{ min: 0, max: 2, step: 0.1 }} defaultTooltipValue={1} arialLabel='temperature' />
+                                                            }
+                                                            {
+                                                                el.key == 'frequency_p' &&
+                                                                <SliderTemplate themeColor={themeColor} value={chatSettings.frequency_p} callback={(val) => updateSliderValue(val, el)} labels={['Low', 'Default', 'High']} valuesSettings={{ min: -1.6, max: 1.6, step: 0.1 }} defaultTooltipValue={0} arialLabel='frequency' />
+                                                            }
+                                                            {
+                                                                el.key == 'presence_p' &&
+                                                                <SliderTemplate themeColor={themeColor} value={chatSettings.presence_p} callback={(val) => updateSliderValue(val, el)} labels={['Limited', 'Default', 'Wide']} valuesSettings={{ min: -1.6, max: 1.6, step: 0.1 }} defaultTooltipValue={0} arialLabel='presence' />
+                                                            }
+                                                        </Box>
+                                                    }
 
                                                 </Fragment>
                                             )
