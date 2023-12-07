@@ -385,9 +385,9 @@ const ImageCreatorWindow = () => {
                                             initial={{ opacity: 0 }}
                                             animate={{ opacity: 1, transition: { delay: 1.5, duration: 0.8 } }}
                                             exit={{ opacity: 0, transition: { duration: 0.1, delay: 0 } }}
-                                            style={{ width: '100%', display: 'flex', flexDirection: 'column', padding: '1px 1px', overflow: 'auto' }}
+                                            style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', padding: '1px 1px', overflow: 'auto', justifyContent: 'flex-end' }}
                                         >
-                                            <Text textAlign={'center'}>No internet connection. The application will operate in offline mode until it is able to successfully connect to the backend. Please try again later. </Text>
+                                            <Text textAlign={'center'}>No internet connection. The application will operate in offline mode until it is able to successfully connect to the backend. <Highlight query={'refresh the page'} styles={{ px: '0', py: '0', rounded: 'sm', fontWeight: 'bold' }}>Please refresh the page or try again later.</Highlight> </Text>
                                         </motion.div>
                                     }
                                     {
@@ -426,15 +426,16 @@ const ImageCreatorWindow = () => {
                             </Box>
                         </VStack>
                     </CardBody>
-                    <ImageCreatorFooter
-                        themeColor={themeColor}
-                        isLoadingBtn={isLoadingBtn}
-                        submitButtonHandler={submitButtonHandler}
-                        ref={textAreaRef}
-                        imgSize={imgSize}
-                        setImgSize={setImgSize}
-                        selectedIdea={selectedIdea}
-                    />
+                    {(themeColor) &&
+                        < ImageCreatorFooter
+                            themeColor={themeColor}
+                            isLoadingBtn={isLoadingBtn}
+                            submitButtonHandler={submitButtonHandler}
+                            ref={textAreaRef}
+                            imgSize={imgSize}
+                            setImgSize={setImgSize}
+                            selectedIdea={selectedIdea}
+                        />}
                 </Card>
             }
 
