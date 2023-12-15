@@ -28,6 +28,21 @@ export const getReplyFromAssistant = async (data, model) => {
     }
 }
 
+export const transcribeToText = async (url) => {
+    //DEV url
+    const URL = process.env.NEXT_PUBLIC_FUNC_TRANSCRIBE_DEV_URL;
+
+    //PROD url
+    //const URL = process.env.NEXT_PUBLIC_FUNC_TRANSCRIBE_PROD_URL;
+    return await fetch(URL, {
+        method: 'POST',
+        body: url
+    })
+        .then((resp) => {
+            return resp.json();
+        })
+}
+
 export const createCheckoutSession = async (email, userId, currency, period, price, upgradePeriod = null) => {
     let resp;
     let options = {

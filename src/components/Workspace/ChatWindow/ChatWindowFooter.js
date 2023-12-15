@@ -1,7 +1,9 @@
-import { Box, Button, CardFooter, Textarea, VStack, useBreakpointValue } from '@chakra-ui/react';
-import { motion } from 'framer-motion';
+import { Box, Button, CardFooter, IconButton, Textarea, Tooltip, VStack, useBreakpointValue } from '@chakra-ui/react';
+import { AnimatePresence, motion } from 'framer-motion';
 import { forwardRef, useEffect, useState } from 'react';
 
+import { FaMicrophone } from "react-icons/fa";
+import { useSettingsContext } from '@/src/context/SettingsContext';
 
 const textAreaAnimation = {
     oneRow: { height: 'auto', minHeight: '40px' },
@@ -43,8 +45,11 @@ const footerVisibilityAnimation = {
 }
 
 
-const ChatWindowFooter = forwardRef(function ChatWindowFooterRef({ themeColor, selectedQuestion, isLoadingBtn, submitButtonHandler }, ref) {
+const ChatWindowFooter = forwardRef(function ChatWindowFooterRef({ themeColor, selectedQuestion, isLoadingBtn, submitButtonHandler, showFooter }, ref) {
 
+    const userSettings = useSettingsContext();
+
+    const showModalSettings = userSettings.showModalWindow;
     const [changeHeight, setChangeHeight] = useState(false);
     const footerHeightVariant = useBreakpointValue(
         {
@@ -53,14 +58,31 @@ const ChatWindowFooter = forwardRef(function ChatWindowFooterRef({ themeColor, s
         }
     );
 
-    const checkInputHeight = (e) => {
+    //setup mic
+    const [showMic, setShowMic] = useState(false);
 
-        if (e.target.scrollHeight > 39 && e.target.value !== '') {
+    const toggleMic = () => {
+        console.log('click mic');
+        showModalSettings.setShowModal({ isShow: true, type: 'VoiceRecording' });
+
+    }
+
+    // setup mic end
+
+    const checkInputHeight = (e) => {
+        if (e.target.scrollHeight > 49 && e.target.value !== '') {
             setChangeHeight(true);
         } else if (e.target.value == '' || e.target.value.length < 20) {
             setChangeHeight(false);
         }
     }
+
+    useEffect(() => {
+        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+            setShowMic(true);
+        }
+    }, [])
+
 
     useEffect(() => {
         if (selectedQuestion && (selectedQuestion !== '' || selectedQuestion !== undefined)) {
@@ -71,29 +93,32 @@ const ChatWindowFooter = forwardRef(function ChatWindowFooterRef({ themeColor, s
     }, [selectedQuestion, ref])
 
     return (
-        <CardFooter bg='' py={1} px={[2, 3]}
-            key={'footerContainer'}
-            layout
-            as={motion.div}
-            variants={footerVisibilityAnimation}
-            initial={'hidden'}
-            animate={'visible'}
-            exit={'hidden'}
-            custom={footerHeightVariant}
-            style={{ willChange: 'height' }}
-        >
-            <VStack w={'full'} spacing={0} >
-                <Box bg={`${themeColor}.300`} w={'full'} h={'1px'} >
-                </Box>
-                <Box bg=''
-                    my={3}
-                    display={'flex'}
-                    flexDirection={['column', 'row']}
-                    alignItems={'center'}
-                    w='full'
-                    columnGap={2}
+        <AnimatePresence mode='wait'>
+            {
+                showFooter &&
+                <CardFooter bg='' py={1} px={[2, 3]}
+                    key={'footerContainer'}
+                    layout
+                    as={motion.div}
+                    variants={footerVisibilityAnimation}
+                    initial={'hidden'}
+                    animate={'visible'}
+                    exit={'hidden'}
+                    custom={footerHeightVariant}
+                    style={{ willChange: 'height' }}
                 >
-                    <Textarea
+                    <VStack w={'full'} spacing={0} >
+                        <Box bg={`${themeColor}.300`} w={'full'} h={'1px'} >
+                        </Box>
+                        <Box bg=''
+                            my={3}
+                            display={'flex'}
+                            flexDirection={['column', 'row']}
+                            alignItems={'center'}
+                            w='full'
+                            columnGap={2}
+                        >
+                            {/* <Textarea
 
                         ref={ref}
                         resize={'none'}
@@ -111,15 +136,61 @@ const ChatWindowFooter = forwardRef(function ChatWindowFooterRef({ themeColor, s
                         initial={'oneRow'}
                         animate={changeHeight ? 'multiRows' : 'oneRow'}
                         layout
-                    />
+                    /> */}
 
-                    <Button colorScheme={themeColor} w={['full', 'min']}
-                        isLoading={isLoadingBtn}
-                        onClick={() => submitButtonHandler()}
-                    >Send</Button>
-                </Box>
-            </VStack>
-        </CardFooter>
+                            <Box
+                                borderWidth={'1px'}
+                                borderRadius={'8px'}
+                                borderColor={`${themeColor}.200`}
+                                w='full'
+                                px={0}
+                                display={'flex'}
+                                alignItems={'center'}
+                                marginBottom={{ base: '10px', sm: '0px' }}>
+                                <Textarea
+
+                                    ref={ref}
+                                    resize={'none'}
+                                    rows={1}
+                                    border={'none'}
+                                    // marginBottom={{ base: '10px', sm: '0px' }}
+                                    // borderColor={`${themeColor}.200`}
+                                    // borderColor={`red.200`}
+                                    // _hover={{ borderColor: `${themeColor}.600` }}
+                                    _focusVisible={{ borderColor: `${themeColor}.900` }}
+                                    placeholder={'ask me.. or use a predefined prompt'}
+                                    onChange={(e) => checkInputHeight(e)}
+                                    onFocus={(e) => { checkInputHeight(e); e.target.setSelectionRange(e.target.value.length, e.target.value.length) }}
+                                    defaultValue={selectedQuestion}
+                                    as={motion.textarea}
+                                    variants={textAreaAnimation}
+                                    initial={'oneRow'}
+                                    fontSize={{ base: 'xs', sm: 'md' }}
+                                    animate={changeHeight ? 'multiRows' : 'oneRow'}
+                                    layout
+                                />
+                                {
+                                    showMic &&
+                                    <Tooltip label='Use your voice' hasArrow bg={`${themeColor}.500`} placement='auto'>
+                                        <IconButton
+                                            aria-label='microphone'
+                                            icon={<FaMicrophone />}
+                                            variant={'ghost'}
+                                            colorScheme={themeColor}
+                                            onClick={() => toggleMic()}
+                                        />
+                                    </Tooltip>}
+                            </Box>
+
+                            <Button colorScheme={themeColor} w={['full', 'min']}
+                                isLoading={isLoadingBtn}
+                                onClick={() => submitButtonHandler()}
+                            >Send</Button>
+                        </Box>
+                    </VStack>
+                </CardFooter>
+            }
+        </AnimatePresence>
     );
 });
 

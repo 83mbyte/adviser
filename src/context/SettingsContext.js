@@ -15,6 +15,7 @@ const SettingsContextProvider = ({ children }) => {
     const [showModal, setShowModal] = React.useState({ isShow: false, type: '' });
     const [workspaceType, setWorkspaceType] = React.useState('chat');
     const [subscription, setSubscription] = React.useState(null);
+    const [transcribedText, setTranscribedText] = React.useState(null)
     const [plansPrices, setPlansPrices] = React.useState({
         Basic: { currency: 'usd', price: 50, period: '6 month', },
         Premium: { currency: 'usd', price: 80, period: '1 year', }
@@ -37,6 +38,7 @@ const SettingsContextProvider = ({ children }) => {
         showModalWindow: { showModal, setShowModal },
         userWorkspaceType: { workspaceType, setWorkspaceType },
         chatSettings: { chatSettings, setChatSettings },
+        transcribedTextData: { transcribedText, setTranscribedText },
         userSubscription: { subscription, setSubscription },
         paidPlans: plansPrices
     }

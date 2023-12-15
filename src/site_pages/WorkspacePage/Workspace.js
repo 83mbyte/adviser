@@ -2,6 +2,7 @@
 import { useSearchParams } from 'next/navigation';
 import { useEffect } from 'react';
 import { Box, Portal } from '@chakra-ui/react';
+import { sanitize } from "isomorphic-dompurify";
 
 import styles from './WorkspaceStyles.module.css';
 import Header from '../../components/Workspace/Header/Header';
@@ -15,6 +16,7 @@ import ZoomImgModal from '@/src/components/Modal/ZoomImgModal';
 
 import CheckoutResultModal from '@/src/components/Modal/CheckoutResultModal';
 import SubscriptionNoticeModal from '@/src/components/Modal/SubscriptionNoticeModal';
+import VoiceRecordingModal from '@/src/components/Modal/VoiceRecordingModal';
 
 const Workspace = () => {
 
@@ -24,6 +26,10 @@ const Workspace = () => {
     const { subscription } = settingsContext.userSubscription;
 
     const params = useSearchParams();
+
+    const sanitizeString = (dirtyString) => {
+        return sanitize(dirtyString);
+    }
 
     const closeModal = () => {
         showModalSettings.setShowModal({ isShow: false, type: null, body: null });
@@ -38,7 +44,8 @@ const Workspace = () => {
 
     useEffect(() => {
         if (params.has('checkout')) {
-            showModalSettings.setShowModal({ isShow: true, type: 'CheckoutResult', body: params.get('checkout') });
+            let bodyString = sanitizeString(params.get('checkout'));
+            showModalSettings.setShowModal({ isShow: true, type: 'CheckoutResult', body: bodyString });
         }
     }, [])
     useEffect(() => {
@@ -114,6 +121,10 @@ const Workspace = () => {
                                 {
                                     showModalSettings.showModal.type === 'CheckoutResult' &&
                                     <CheckoutResultModal handleClose={closeModal} result={showModalSettings.showModal.body} renewCheckout={gotoCheckout} />
+                                }
+                                {
+                                    showModalSettings.showModal.type === 'VoiceRecording' &&
+                                    <VoiceRecordingModal handleClose={closeModal} />
                                 }
                             </motion.div>
                         </motion.div>

@@ -23,6 +23,67 @@ setGlobalOptions({ maxInstances: 5 });
 initializeApp();
 const db = getFirestore();
 
+
+
+exports.requestToTranscribe = onRequest(
+    {
+        // DEV
+        //cors: true,
+
+        //PROD
+        cors: [process.env.APP_DOMAIN_MAIN, process.env.APP_DOMAIN_SECOND, process.env.APP_DOMAIN_CUSTOM],
+        secrets: ['SECRET_KEY_OPENAI']
+    },
+
+    async (req, resp) => {
+        if (req.method !== 'POST') {
+            resp.status(400).json({ error: 'Bad request.' });
+        }
+        else {
+
+            if (req.body) {
+
+                const fileUrl = req.body;
+                const file = await fetch(fileUrl);
+                const blob = await file.blob();
+
+                const formData = new FormData();
+                formData.append('model', 'whisper-1');
+                formData.append('file', blob, { filename: 'transcribe.mp3', contentType: 'audio/mp3' })
+
+                let transcribeReply =
+                    await fetch('https://api.openai.com/v1/audio/transcriptions', {
+                        method: 'POST',
+                        headers: {
+                            "Authorization": `Bearer ${process.env.SECRET_KEY_OPENAI}`,
+                            // "Content-Type": "multipart/form-data"
+                        },
+                        body: formData
+                    })
+                        .then((resp) => {
+                            return resp.json();
+                        })
+                        .then(respFinal => {
+                            return respFinal
+                        })
+                        .catch(() => resp.status(500).json({ error: 'Internal Server Error. (Error while transcribe operation)' }))
+
+                if (transcribeReply) {
+                    resp.status(200).json(transcribeReply)
+                } else {
+                    resp.status(502).json({ error: 'Bad Gateway. (No reply received)' })
+                }
+
+                resp.end();
+            }
+            else {
+                resp.status(400).json({ error: 'Bad request.' });
+            }
+
+        }
+    }
+);
+
 exports.getExchangeRates = onRequest(
 
     {
@@ -282,24 +343,6 @@ exports.requestToAssistantWithImage = onRequest(
         secrets: ['SECRET_KEY_OPENAI']
     },
     async (req, resp) => {
-        const generateImage = async (request, size = '256x256') => {
-            const openai = new OpenAI({
-                //dev
-                // apiKey: process.env.NEXT_PUBLIC_ASSISTANT_KEY,
-                //prod
-                apiKey: process.env.SECRET_KEY_OPENAI,
-            });
-            try {
-                const image = await openai.images.generate({ prompt: request, size: size });
-                if (image?.data) {
-                    return image.data[0].url
-                } else {
-                    return null
-                }
-            } catch (error) {
-                return null
-            }
-        };
 
         const generateImage_dall_e_3_64 = async (request, size = '1024x1024') => {
             const openai = new OpenAI({

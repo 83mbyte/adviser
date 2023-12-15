@@ -35,6 +35,7 @@ const ChatWindow = () => {
     //contexts
     const user = useAuthContext()
     const settingsContext = useSettingsContext();
+    const { transcribedText, setTranscribedText } = settingsContext.transcribedTextData;
     const { subscription } = settingsContext.userSubscription;
     const { themeColor } = settingsContext.userThemeColor;
     const { replyLength, replyStyle, replyTone, systemVersion, temperature, frequency_p, presence_p } = settingsContext.chatSettings.chatSettings;
@@ -271,6 +272,18 @@ const ChatWindow = () => {
         }
     }, [historyContext]);
 
+    useEffect(() => {
+        if (transcribedText && transcribedText !== undefined && transcribedText.length > 0) {
+            try {
+                textAreaRef.current.value = transcribedText;
+                submitButtonHandler();
+            } catch (error) {
+                console.error(error)
+            } finally {
+                setTranscribedText(null)
+            }
+        }
+    }, [transcribedText])
 
     return (
         <>
@@ -490,12 +503,8 @@ const ChatWindow = () => {
                         </CardBody>
 
                         {/* Card footer */}
-                        <AnimatePresence mode="wait">
-                            {
-                                showFooter &&
-                                <ChatWindowFooter themeColor={themeColor} selectedQuestion={selectedQuestion} isLoadingBtn={isLoadingBtn} submitButtonHandler={submitButtonHandler} ref={textAreaRef} />
-                            }
-                        </AnimatePresence>
+                        <ChatWindowFooter themeColor={themeColor} selectedQuestion={selectedQuestion} isLoadingBtn={isLoadingBtn} submitButtonHandler={submitButtonHandler} ref={textAreaRef} showFooter={showFooter} />
+
                     </Card>
                 </>
             }
