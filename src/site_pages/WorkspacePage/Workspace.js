@@ -1,4 +1,3 @@
-
 import { useSearchParams } from 'next/navigation';
 import { useEffect } from 'react';
 import { Box, Portal } from '@chakra-ui/react';

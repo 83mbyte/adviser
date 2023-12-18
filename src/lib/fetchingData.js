@@ -30,10 +30,10 @@ export const getReplyFromAssistant = async (data, model) => {
 
 export const transcribeToText = async (url) => {
     //DEV url
-    const URL = process.env.NEXT_PUBLIC_FUNC_TRANSCRIBE_DEV_URL;
+    // const URL = process.env.NEXT_PUBLIC_FUNC_TRANSCRIBE_DEV_URL;
 
     //PROD url
-    //const URL = process.env.NEXT_PUBLIC_FUNC_TRANSCRIBE_PROD_URL;
+    const URL = process.env.NEXT_PUBLIC_FUNC_TRANSCRIBE_PROD_URL;
     return await fetch(URL, {
         method: 'POST',
         body: url

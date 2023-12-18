@@ -1,11 +1,13 @@
+'use client'
+
 import {
     Button, Box, Card, CardBody, CardFooter, HStack, Icon, Spinner
 } from '@chakra-ui/react'
 import { useSettingsContext } from '@/src/context/SettingsContext';
 import { FaMicrophone, FaMicrophoneSlash } from "react-icons/fa";
 import { MdOutlineDone } from "react-icons/md";
-import MicRecorder from 'mic-recorder-to-mp3';
-
+// import MicRecorder from 'mic-recorder-to-mp3';
+import MicRecorder from '@jmd01/mic-recorder-to-mp3';
 
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
@@ -134,9 +136,9 @@ const VoiceRecordingModal = ({ handleClose, }) => {
                 <CardFooter pt={0} pb={2}>
                     <HStack w='full' justifyContent={'center'}>
 
-                        <Button leftIcon={<FaMicrophoneSlash />} colorScheme={'red'} size={['xs', 'sm']} variant='outline' onClick={stopRecording}>Stop recording</Button>
+                        <Button leftIcon={<FaMicrophoneSlash />} colorScheme={'red'} size={['xs', 'sm']} variant='solid' onClick={stopRecording}>Stop recording</Button>
 
-                        <Button colorScheme={'red'} size={['xs', 'sm']} variant='outline' onClick={handleClose}>Close</Button>
+                        <Button colorScheme={themeColor} size={['xs', 'sm']} variant='outline' onClick={handleClose}>Close</Button>
                     </HStack>
                 </CardFooter>
             </Card>
