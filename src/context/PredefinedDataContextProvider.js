@@ -1,6 +1,7 @@
+'use client'
 import { useEffect, useContext, createContext, useState } from 'react';
-
 import { dbAPI } from '../lib/dbAPI';
+import LoadingSpinner from '../components/LoadingSpinner/LoadingSpinner';
 
 const PredefinedDataContext = createContext();
 
@@ -10,22 +11,35 @@ export const usePredefinedDataContext = () => {
 
 const PredefinedDataContextProvider = ({ children }) => {
     const [predefinedData, setPredefinedData] = useState(null);
+    const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        const getPredefinedData = async (documentName) => {
+    const getPredefinedData = async (documentName) => {
+        try {
+
             let res = await dbAPI.getPredefinedData(documentName);
             if (res) {
                 setPredefinedData({
                     prompts: res
                 })
+                setLoading(false);
             }
-        }
 
-        getPredefinedData('prompts')
-    }, []);
+        } catch (error) {
+            console.error('Error while getPredefinedData', error)
+        }
+    }
+
+    useEffect(() => {
+        getPredefinedData('prompts');
+    }, [])
+
 
     return <PredefinedDataContext.Provider value={predefinedData}>
-        {children}
+        {
+            loading
+                ? <LoadingSpinner spinnerColor={'orange'} progress={49} />
+                : children
+        }
     </PredefinedDataContext.Provider>
 }
 

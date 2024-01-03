@@ -1,8 +1,8 @@
-
 'use client'
 import React from 'react';
 import { dbAPI } from '../lib/dbAPI';
 import { useAuthContext } from './AuthContextProvider';
+import LoadingSpinner from '../components/LoadingSpinner/LoadingSpinner';
 
 const SettingsContext = React.createContext();
 
@@ -11,6 +11,7 @@ export const useSettingsContext = () => {
 }
 
 const SettingsContextProvider = ({ children }) => {
+    const [loading, setLoading] = React.useState({ userUi: true, plans: true });
     const [themeColor, setThemeColor] = React.useState(null);
     const [showModal, setShowModal] = React.useState({ isShow: false, type: '' });
     const [workspaceType, setWorkspaceType] = React.useState('chat');
@@ -31,7 +32,7 @@ const SettingsContextProvider = ({ children }) => {
         presence_p: 0
     });
 
-    const user = useAuthContext();
+
 
     let settingsObject = {
         userThemeColor: { themeColor, setThemeColor },
@@ -42,46 +43,54 @@ const SettingsContextProvider = ({ children }) => {
         userSubscription: { subscription, setSubscription },
         paidPlans: plansPrices
     }
+    const user = useAuthContext();
 
+    // new
+    const getUserUISettings = async () => {
+
+        try {
+            let resp = await dbAPI.getUserData(user.uid);
+            if (resp) {
+                setThemeColor(resp.theme.toLowerCase());
+                if (resp.chatSettings) {
+                    setChatSettings(resp.chatSettings)
+                }
+                if (resp.plan) {
+                    setSubscription(resp.plan)
+                }
+                setLoading({ ...loading, userUi: false });
+            }
+        } catch (error) {
+            console.error('Error while getUserUISettings', error)
+        }
+    }
+
+    const getPaidPlansDetails = async () => {
+        try {
+            let resp = await dbAPI.getSectionData('plans');
+            if (resp) {
+                setPlansPrices(resp);
+                setLoading({ ...loading, plans: false });
+            }
+        } catch (error) {
+            console.error('Error while getPaidPlansDetails', error)
+
+        }
+    }
     React.useEffect(() => {
-
-        const getUserUISettings = async () => {
-            try {
-                let resp = await dbAPI.getUserData(user.uid);
-                if (resp) {
-                    setThemeColor(resp.theme.toLowerCase());
-                    if (resp.chatSettings) {
-                        setChatSettings(resp.chatSettings)
-                    }
-                    if (resp.plan) {
-                        setSubscription(resp.plan)
-                    }
-                }
-            } catch (error) {
-                console.error(error)
-            }
-        }
-
-        const getPaidPlansDetails = async () => {
-            try {
-                let resp = await dbAPI.getSectionData('plans');
-                if (resp) {
-                    setPlansPrices(resp);
-                }
-            } catch (error) {
-
-            }
-        }
-
-        if (user?.uid) {
+        if (user && user.uid && user.uid !== undefined) {
             getUserUISettings();
             getPaidPlansDetails();
         }
-    }, [user])
+    }, [])
 
     return (
         <SettingsContext.Provider value={settingsObject}>
-            {children}
+            {
+                loading.userUi && loading.plans
+                    ? <LoadingSpinner spinnerColor={'green'} progress={99} />
+                    : children
+            }
         </SettingsContext.Provider>
     )
 }
