@@ -22,7 +22,10 @@ const firebaseConfig = {
 export const app = initializeApp(firebaseConfig);
 
 // Initialize Analytics
-const analytics = getAnalytics(app);
+if (typeof window !== "undefined") {
+    const analytics = getAnalytics(app);
+}
+
 
 // Initialize Firestore
 export const db = initializeFirestore(app, { experimentalAutoDetectLongPolling: false, experimentalForceLongPolling: true });
