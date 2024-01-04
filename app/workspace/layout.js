@@ -1,6 +1,5 @@
 import AuthContextProvider from '@/src/context/AuthContextProvider';
 import { NecessaryProviders } from '@/src/context/providers';
-import React from 'react';
 
 
 export const metadata = {
