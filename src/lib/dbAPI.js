@@ -1,7 +1,6 @@
-import { deleteField, updateDoc, doc, getDoc } from 'firebase/firestore'
+import { deleteField, updateDoc, doc, getDoc, setDoc } from 'firebase/firestore'
 import { db } from '../_f_i_r_e_base/_f_i_r_e_base';
-// const db = getFirestore(app);
-// const db = initializeFirestore(app, { experimentalForceLongPolling: true }) ; //to solve a problem with db because of slow connection
+
 export const dbAPI = {
     getSectionData: async (sectionName) => {
         const docRef = doc(db, 'serviceData', sectionName);
@@ -104,6 +103,20 @@ export const dbAPI = {
         } catch (error) {
             console.error(error)
         }
+    },
+
+    //contact
+    sendContactForm: async ({ id, fullname, email, message }) => {
+        const docRef = doc(db, 'contactForm', id);
+        return await setDoc(docRef, {
+            email, fullname, message
+        }).then(() => {
+            return ({ status: 'ok', message: 'Message sent' })
+        }).catch((error) => {
+            const errorCode = error.code;
+            const errorMessage = error.message;
+            return ({ status: 'error', errorCode, errorMessage })
+        });
     }
 
 }
