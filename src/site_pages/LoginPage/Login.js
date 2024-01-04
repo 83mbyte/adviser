@@ -127,7 +127,7 @@ export default function Login() {
                 console.error(error);
                 toast({
                     title: `Error!`,
-                    description: error.message,
+                    description: `${error.message}`,
                 })
             }
             finally {

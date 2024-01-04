@@ -155,7 +155,7 @@ const SignUp = () => {
                 console.error(error);
                 toast({
                     title: `Error!`,
-                    description: error,
+                    description: `${error}`,
                 })
             }
             finally {
