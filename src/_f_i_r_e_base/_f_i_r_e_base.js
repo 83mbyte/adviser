@@ -2,6 +2,9 @@
 import { initializeApp } from "firebase/app";
 import { initializeFirestore } from "firebase/firestore";
 import { getAnalytics } from "firebase/analytics";
+
+import { initializeAppCheck, ReCaptchaEnterpriseProvider } from "firebase/app-check";
+
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -23,9 +26,14 @@ export const app = initializeApp(firebaseConfig);
 
 // Initialize Analytics
 if (typeof window !== "undefined") {
+
+    const appCheck = initializeAppCheck(app, {
+        provider: new ReCaptchaEnterpriseProvider(process.env.NEXT_PUBLIC_FIREBASE_APP_CHECK),
+        isTokenAutoRefreshEnabled: true // Set to true to allow auto-refresh.
+    });
+
     const analytics = getAnalytics(app);
 }
-
 
 // Initialize Firestore
 export const db = initializeFirestore(app, { experimentalAutoDetectLongPolling: false, experimentalForceLongPolling: true });
