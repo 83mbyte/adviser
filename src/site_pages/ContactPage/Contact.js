@@ -30,7 +30,7 @@ import { FaCheckCircle, FaRegTimesCircle } from 'react-icons/fa';
 import { dbAPI } from '@/src/lib/dbAPI';
 
 
-const emailPattern = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+const emailPattern = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,5})+$/;
 
 export default function Contact() {
 
@@ -58,8 +58,7 @@ export default function Contact() {
     const [isLoading, setIsLoading] = useState(false);
     const [isValidEmail, setIsValidEmail] = useState(null);
     const [isValidMessage, setIsValidMessage] = useState(null);
-
-
+    const [charsCount, setCharsCount] = useState(0);
 
     const sanitizeString = (dirtyString) => {
         return sanitize(dirtyString);
@@ -181,15 +180,19 @@ export default function Contact() {
                                 <Stack >
                                     <FormControl id="fullname">
                                         <FormLabel>Name</FormLabel>
-                                        <Input ref={formFullnameRef} type="text" placeholder={'John Doe'} name={'fullname'} />
+                                        <Input ref={formFullnameRef} _focus={{ outline: 'none' }}
+                                            _focusVisible={{ outline: 'none' }} type="text" placeholder={'John Doe'} name={'fullname'} />
                                     </FormControl>
                                     <FormControl id="email">
                                         <FormLabel>Email</FormLabel>
                                         <InputGroup>
-                                            <Input ref={formEmailRef} type="email" placeholder={'email@example.com'} name={'email'} onChange={(e) => validateInput(e.target)} />
+                                            <Input ref={formEmailRef}
+                                                _focus={{ outline: 'none' }}
+                                                _focusVisible={{ outline: 'none' }}
+                                                type="email" placeholder={'email@example.com'} name={'email'} onChange={(e) => validateInput(e.target)} />
                                             {
                                                 isValidEmail !== null &&
-                                                <InputRightElement color={isValidEmail ? 'green' : 'red'} mr={'10px'}>
+                                                <InputRightElement color={isValidEmail ? 'green' : 'red'} mr={1}>
                                                     <Icon as={isValidEmail ? FaCheckCircle : FaRegTimesCircle} boxSize={4} />
                                                 </InputRightElement>
                                             }
@@ -200,16 +203,26 @@ export default function Contact() {
                                     <FormControl id="message">
                                         <FormLabel>Message</FormLabel>
                                         <InputGroup>
-                                            <Textarea ref={formMessageRef} placeholder='your message...' height={'100%'} rows={textareaRows} name='message' onChange={(e) => validateInput(e.target)} />
+                                            <Textarea ref={formMessageRef}
+                                                _focus={{ outline: 'none' }}
+                                                _focusVisible={{ outline: 'none' }}
+                                                resize='none' placeholder='put your message...' maxLength={800} height={'100%'} rows={textareaRows} name='message' onChange={(e) => {
+                                                    setCharsCount(formMessageRef.current.value.length)
+                                                    validateInput(e.target);
+                                                }} />
                                             {
                                                 isValidMessage !== null &&
-                                                <InputRightElement color={isValidMessage ? 'green' : 'red'} mr={'10px'}>
+                                                <InputRightElement color={isValidMessage ? 'green' : 'red'} mr={'1'}>
                                                     <Icon as={isValidMessage ? FaCheckCircle : FaRegTimesCircle} boxSize={4} />
                                                 </InputRightElement>
                                             }
                                         </InputGroup>
+                                        <Text textAlign={'right'} fontSize={{ base: '10px', md: 'xs' }}>
+                                            {`${charsCount}/800 chars`}
+                                        </Text>
 
                                     </FormControl>
+
                                 </Stack>
                                 <Stack spacing={6}>
                                     <Box></Box>
@@ -244,13 +257,13 @@ export default function Contact() {
                         />
                     </Flex>
                 </Stack>
-            </Box>
+            </Box >
 
             {/* footer */}
-            <Box as='footer' className={styles.footer}>
+            < Box as='footer' className={styles.footer} >
                 <Footer />
-            </Box>
-        </Fragment>
+            </Box >
+        </Fragment >
 
     )
 }

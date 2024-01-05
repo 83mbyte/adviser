@@ -162,12 +162,18 @@ export default function Login() {
                             <form ref={formRef} onSubmit={onSubmit}>
                                 <FormControl id="email">
                                     <FormLabel>Email address</FormLabel>
-                                    <Input type="email" placeholder={'your_email@example.com'} name={'email'} />
+                                    <Input type="email" placeholder={'your_email@example.com'} name={'email'}
+                                        _focus={{ outline: 'none' }}
+                                        _focusVisible={{ outlineColor: 'none' }}
+                                    />
                                 </FormControl>
                                 <FormControl id="password" isRequired mb={2}>
                                     <FormLabel>Password</FormLabel>
                                     <InputGroup >
-                                        <Input name="password" type={showPassword ? 'text' : 'password'} />
+                                        <Input name="password" type={showPassword ? 'text' : 'password'}
+                                            _focus={{ outline: 'none' }}
+                                            _focusVisible={{ outlineColor: 'none' }}
+                                        />
                                         <InputRightElement h={'full'}   >
 
                                             <Stack direction={'row'}>

@@ -38,7 +38,7 @@ import { sanitize } from "isomorphic-dompurify";
 import Footer from '../../components/PagesFooter/Footer';
 import AlternativeSignInUpForm from '@/src/components/AlternativeSignInUpForm/AlternativeSignInUpForm';
 
-const emailPattern = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+const emailPattern = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,5})+$/;
 
 const SignUp = () => {
     const formRef = React.useRef(null);
@@ -196,20 +196,24 @@ const SignUp = () => {
                                     <Box>
                                         <FormControl id="firstName" mb={2}>
                                             <FormLabel>First name</FormLabel>
-                                            <Input type="text" name="firstName" />
+                                            <Input type="text" name="firstName" _focus={{ outline: 'none' }}
+                                                _focusVisible={{ outlineColor: 'none' }} />
                                         </FormControl>
                                     </Box>
                                     <Box>
                                         <FormControl id="lastName" mb={2}>
                                             <FormLabel>Last name</FormLabel>
-                                            <Input type="text" name="lastName" />
+                                            <Input type="text" name="lastName" _focus={{ outline: 'none' }}
+                                                _focusVisible={{ outlineColor: 'none' }} />
                                         </FormControl>
                                     </Box>
                                 </HStack>
                                 <FormControl id="email" isRequired mb={2}>
                                     <FormLabel >Email address</FormLabel>
                                     <InputGroup>
-                                        <Input type="email" placeholder={'email@example.com'} name={'email'} onChange={(e) => validateInput(e.target)} />
+                                        <Input type="email" _focus={{ outline: 'none' }}
+                                            _focusVisible={{ outlineColor: 'none' }}
+                                            placeholder={'email@example.com'} name={'email'} onChange={(e) => validateInput(e.target)} />
                                         {
                                             isValidEmail !== null &&
                                             <InputRightElement color={isValidEmail ? 'green' : 'red'} mr={'10px'}>
@@ -221,7 +225,10 @@ const SignUp = () => {
                                 <FormControl id="password" isRequired mb={2}>
                                     <FormLabel>Password</FormLabel>
                                     <InputGroup >
-                                        <Input name="password" type={showPassword ? 'text' : 'password'} onChange={(e) => validateInput(e.target)} pr={'90px'} />
+                                        <Input name="password"
+                                            _focus={{ outline: 'none' }}
+                                            _focusVisible={{ outlineColor: 'none' }}
+                                            type={showPassword ? 'text' : 'password'} onChange={(e) => validateInput(e.target)} pr={'90px'} />
                                         <InputRightElement h={'full'} w={'90px'} mr={'10px'} >
 
                                             <Stack direction={'row'}>
