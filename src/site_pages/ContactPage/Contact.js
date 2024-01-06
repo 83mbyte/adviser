@@ -138,6 +138,9 @@ export default function Contact() {
                     formEmailRef.current.value = '';
                     formMessageRef.current.value = '';
                     formFullnameRef.current.value = '';
+                    setIsValidEmail(null);
+                    setCharsCount(0);
+                    setIsValidMessage(null);
                 } else {
                     throw new Error('while submiting a form')
                 }
