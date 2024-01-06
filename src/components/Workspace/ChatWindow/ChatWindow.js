@@ -54,7 +54,7 @@ const ChatWindow = () => {
 
     //show topic questions and select question
     const [showTopicQuestions, setShowTopicQuestions] = useState(false);
-    const [selectedQuestion, setSelectedQuestion] = useState(null);
+
 
     //show chat settings
     const [showChatSettings, setShowChatSettings] = useState(false);
@@ -66,6 +66,9 @@ const ChatWindow = () => {
     // history for a chat window
     const [chatHistory, setChatHistory] = useState({});
     const [showHistoryScreen, setShowHistoryScreen] = useState(false);
+
+    // input textarea value state 
+    const [inputTextData, setInputTextData] = useState(null);
 
     const [isLoadingBtn, setIsBtnLoadingBtn] = useState(false);
 
@@ -138,13 +141,13 @@ const ChatWindow = () => {
                 setShowTopicQuestions(true);
             }
             setShowTopics(false);
-            setSelectedQuestion(null);
+            setInputTextData(null);
             setShowFooter(true);
         }
     }
 
     const selectQuestionHandler = (data) => {
-        setSelectedQuestion(data);
+        setInputTextData(data);
         if (showFooter == false) {
             setShowFooter(true);
         }
@@ -236,7 +239,7 @@ const ChatWindow = () => {
         finally {
             textAreaRef.current.value = '';
             setIsBtnLoadingBtn(false);
-            setSelectedQuestion(null);
+            setInputTextData(null);
         }
     }
 
@@ -363,9 +366,7 @@ const ChatWindow = () => {
                                             <Text textAlign={'center'} px={2} fontSize={['xs', 'sm']} w='full' >
                                                 Please be aware that the chat history cannot be stored while you are using the Trial plan. Kindly upgrade to either the Basic or Premium plan to ensure the storage of your chat history.
                                             </Text>
-                                            {/* <Text textAlign={'center'} px={2} fontSize={['xs', 'sm']} w='full' >
-                                                Please note the chats history can't be stored while your are using Trial plan. Please upgrade your plan to Basic or Premium.
-                                            </Text> */}
+
                                             <Box p={0} m={0} mr={1}>
 
                                                 {
@@ -503,7 +504,7 @@ const ChatWindow = () => {
                         </CardBody>
 
                         {/* Card footer */}
-                        <ChatWindowFooter themeColor={themeColor} selectedQuestion={selectedQuestion} isLoadingBtn={isLoadingBtn} submitButtonHandler={submitButtonHandler} ref={textAreaRef} showFooter={showFooter} />
+                        <ChatWindowFooter themeColor={themeColor} inputTextData={inputTextData} setInputTextData={setInputTextData} isLoadingBtn={isLoadingBtn} submitButtonHandler={submitButtonHandler} ref={textAreaRef} showFooter={showFooter} />
 
                     </Card>
                 </>

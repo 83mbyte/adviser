@@ -45,7 +45,7 @@ const footerVisibilityAnimation = {
 }
 
 
-const ChatWindowFooter = forwardRef(function ChatWindowFooterRef({ themeColor, selectedQuestion, isLoadingBtn, submitButtonHandler, showFooter }, ref) {
+const ChatWindowFooter = forwardRef(function ChatWindowFooterRef({ themeColor, inputTextData, setInputTextData, isLoadingBtn, submitButtonHandler, showFooter }, ref) {
 
     const userSettings = useSettingsContext();
 
@@ -85,12 +85,12 @@ const ChatWindowFooter = forwardRef(function ChatWindowFooterRef({ themeColor, s
 
 
     useEffect(() => {
-        if (selectedQuestion && (selectedQuestion !== '' || selectedQuestion !== undefined)) {
+        if (inputTextData && (inputTextData !== '' || inputTextData !== undefined)) {
             ref.current.value = '';
-            ref.current.value = selectedQuestion;
+            ref.current.value = inputTextData;
             ref.current.focus();
         }
-    }, [selectedQuestion, ref])
+    }, [inputTextData, ref])
 
     return (
         <AnimatePresence mode='wait'>
@@ -118,25 +118,6 @@ const ChatWindowFooter = forwardRef(function ChatWindowFooterRef({ themeColor, s
                             w='full'
                             columnGap={2}
                         >
-                            {/* <Textarea
-
-                        ref={ref}
-                        resize={'none'}
-                        rows={1}
-                        marginBottom={{ base: '10px', sm: '0px' }}
-                        borderColor={`${themeColor}.200`}
-                        _hover={{ borderColor: `${themeColor}.600` }}
-                        _focusVisible={{ borderColor: `${themeColor}.600` }}
-                        placeholder={'ask me.. or use a predefined prompt'}
-                        onChange={(e) => checkInputHeight(e)}
-                        onFocus={(e) => { checkInputHeight(e); e.target.setSelectionRange(e.target.value.length, e.target.value.length) }}
-                        defaultValue={selectedQuestion}
-                        as={motion.textarea}
-                        variants={textAreaAnimation}
-                        initial={'oneRow'}
-                        animate={changeHeight ? 'multiRows' : 'oneRow'}
-                        layout
-                    /> */}
 
                             <Box
                                 borderWidth={'1px'}
@@ -153,15 +134,11 @@ const ChatWindowFooter = forwardRef(function ChatWindowFooterRef({ themeColor, s
                                     resize={'none'}
                                     rows={1}
                                     border={'none'}
-                                    // marginBottom={{ base: '10px', sm: '0px' }}
-                                    // borderColor={`${themeColor}.200`}
-                                    // borderColor={`red.200`}
-                                    // _hover={{ borderColor: `${themeColor}.600` }}
                                     _focusVisible={{ borderColor: `${themeColor}.900` }}
                                     placeholder={'ask me.. or use a predefined prompt'}
-                                    onChange={(e) => checkInputHeight(e)}
+                                    onChange={(e) => { setInputTextData(e.target.value); checkInputHeight(e) }}
                                     onFocus={(e) => { checkInputHeight(e); e.target.setSelectionRange(e.target.value.length, e.target.value.length) }}
-                                    defaultValue={selectedQuestion}
+                                    defaultValue={inputTextData}
                                     as={motion.textarea}
                                     variants={textAreaAnimation}
                                     initial={'oneRow'}
