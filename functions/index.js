@@ -32,7 +32,8 @@ exports.requestToTranscribe = onRequest(
 
         //PROD
         cors: [process.env.APP_DOMAIN_MAIN, process.env.APP_DOMAIN_SECOND, process.env.APP_DOMAIN_CUSTOM],
-        secrets: ['SECRET_KEY_OPENAI']
+        secrets: ['SECRET_KEY_OPENAI'],
+        enforceAppCheck: true, // Reject requests with missing or invalid App Check tokens.
     },
 
     async (req, resp) => {
@@ -92,7 +93,8 @@ exports.getExchangeRates = onRequest(
 
         //PROD
         cors: [process.env.APP_DOMAIN_MAIN, process.env.APP_DOMAIN_SECOND, process.env.APP_DOMAIN_CUSTOM],
-        secrets: ['SECRET_KEY_CURRENCY_RATES',]
+        secrets: ['SECRET_KEY_CURRENCY_RATES',],
+        enforceAppCheck: true, // Reject requests with missing or invalid App Check tokens.
     },
     async (req, resp) => {
 
@@ -181,7 +183,8 @@ exports.webhookStrp = onRequest(
 exports.createSubscription = onRequest(
     {
         // cors: true //dev
-        cors: [process.env.APP_DOMAIN_MAIN, process.env.APP_DOMAIN_CUSTOM, process.env.APP_DOMAIN_SECOND,] //prod
+        cors: [process.env.APP_DOMAIN_MAIN, process.env.APP_DOMAIN_CUSTOM, process.env.APP_DOMAIN_SECOND,], //prod
+        enforceAppCheck: true, // Reject requests with missing or invalid App Check tokens.
     },
     async (req, resp) => {
         //DEV domain
@@ -270,7 +273,8 @@ exports.requestToAssistant = onRequest(
     {
         //cors: true,
         cors: [process.env.APP_DOMAIN_MAIN, process.env.APP_DOMAIN_SECOND, process.env.APP_DOMAIN_CUSTOM],
-        secrets: ['SECRET_KEY_OPENAI']
+        secrets: ['SECRET_KEY_OPENAI'],
+        enforceAppCheck: true, // Reject requests with missing or invalid App Check tokens.
     },
     async (req, resp) => {
         if (req.method !== 'POST') {
@@ -340,7 +344,8 @@ exports.requestToAssistantWithImage = onRequest(
         // cors: true,
         //PROD
         cors: [process.env.APP_DOMAIN_MAIN, process.env.APP_DOMAIN_SECOND, process.env.APP_DOMAIN_CUSTOM],
-        secrets: ['SECRET_KEY_OPENAI']
+        secrets: ['SECRET_KEY_OPENAI'],
+        enforceAppCheck: true, // Reject requests with missing or invalid App Check tokens.
     },
     async (req, resp) => {
 
