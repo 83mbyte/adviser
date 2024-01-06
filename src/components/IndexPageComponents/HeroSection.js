@@ -61,7 +61,16 @@ export default function HeroSection() {
                         >
                             Register
                         </ChakraNextLinkButton>
+                        <ChakraNextLinkButton href={'/contact'}
 
+                            prefetch={true}
+                            bg={'whiteAlpha.300'}
+                            variant={'outline'}
+                            color={'white'}
+                            _hover={{ bg: 'whiteAlpha.500' }}
+                        >
+                            Contact Us
+                        </ChakraNextLinkButton>
                     </Stack>
                 </Stack>
             </VStack>

@@ -8,6 +8,7 @@ import FeaturesSection from '@/src/components/IndexPageComponents/FeaturesSectio
 import PricingSection from '@/src/components/IndexPageComponents/PricingSection';
 import Testimonials from '@/src/components/IndexPageComponents/Testimonials';
 import Footer from '@/src/components/PagesFooter/Footer';
+import ContactSection from '@/src/components/IndexPageComponents/ContactSection';
 
 const IndexPage = ({ data }) => {
     const { pricing, features } = data;
@@ -33,6 +34,7 @@ const IndexPage = ({ data }) => {
             <PricingSection pricing={pricing ? pricing.dataArray : []} />
             <Divider my={12} />
             <Testimonials />
+            <ContactSection />
             <Footer />
             <Portal>
                 <CookiePref isOpen={showCookiePref} setIsOpen={setShowCookiePref} />
