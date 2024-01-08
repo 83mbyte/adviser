@@ -7,7 +7,7 @@ const ContactSection = () => {
             <Stack spacing={4} as={Container} maxW={'3xl'} textAlign={'center'}>
                 <Heading fontSize={'3xl'}   >
                     <Highlight query='Just' styles={{ color: 'green.500', fontWeight: 'bold' }}>
-                        Have a Question? We're Just a Click Away
+                        Have a Question? We&#39;re Just a Click Away
                     </Highlight>
                 </Heading>
                 <Text color={'gray.600'} fontSize={['md', 'xl']} mb={1}>

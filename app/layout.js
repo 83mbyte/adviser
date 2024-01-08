@@ -1,5 +1,6 @@
 
 import './globals.css';
+import { GoogleTagManager } from '@next/third-parties/google';
 
 export const metadata = {
   title: 'Helpi - Your AI Assistant | Streamline Tasks',
@@ -13,6 +14,7 @@ export default function RootLayout({ children }) {
       <body>
         {children}
       </body>
+      <GoogleTagManager gtmId="AW-11467751381" />
     </html>
   )
 }
