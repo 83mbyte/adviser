@@ -11,10 +11,11 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
+      <GoogleTagManager gtmId={process.env.NEXT_PUBLIC_GOOGLE_ADS} />
       <body>
         {children}
       </body>
-      <GoogleTagManager gtmId="AW-11467751381" />
+
     </html>
   )
 }

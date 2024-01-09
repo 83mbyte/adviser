@@ -1,5 +1,6 @@
 import { useSettingsContext } from '@/src/context/SettingsContext';
 import { Box, Card, CardBody, CardFooter, Button, HStack, Heading, Text, VStack } from '@chakra-ui/react';
+import { sendGTMEvent } from '@next/third-parties/google';
 
 const CheckoutResultModal = ({ handleClose, result, renewCheckout }) => {
     const { themeColor } = useSettingsContext().userThemeColor;
@@ -24,7 +25,12 @@ const CheckoutResultModal = ({ handleClose, result, renewCheckout }) => {
                     <HStack bg='' w='full' justifyContent={'center'}>
                         {
                             isSuccess
-                                ? <Button size={['xs', 'sm']} colorScheme={themeColor} variant='solid' onClick={handleClose}>Close</Button>
+                                ? <Button size={['xs', 'sm']} colorScheme={themeColor} variant='solid'
+                                    onClick={() => {
+                                        sendGTMEvent({ event: 'conversion', value: { send_to: `${process.env.NEXT_PUBLIC_GOOGLE_ADS}/OMnrCPj42YYZENX_n9wq`, transaction_id: `${Date.now()}` } });
+                                        // sendGTMEvent({ event: 'conversion', value: { 'send_to': `${process.env.NEXT_PUBLIC_GOOGLE_ADS}/OMnrCPj42YYZENX_n9wq`, 'transaction_id': `${Date.now()}` } });
+                                        handleClose();
+                                    }}>Close</Button>
                                 :
                                 <>
                                     <Button size={['xs', 'sm']} colorScheme={themeColor} variant='solid' onClick={renewCheckout}>Try again</Button>
