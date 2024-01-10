@@ -27,7 +27,12 @@ const CheckoutResultModal = ({ handleClose, result, renewCheckout }) => {
                             isSuccess
                                 ? <Button size={['xs', 'sm']} colorScheme={themeColor} variant='solid'
                                     onClick={() => {
-                                        sendGTMEvent({ event: 'conversion', value: { send_to: `${process.env.NEXT_PUBLIC_GOOGLE_ADS}/OMnrCPj42YYZENX_n9wq`, transaction_id: `${Date.now()}` } });
+                                        sendGTMEvent({
+                                            event: 'conversion',
+                                            send_to: `${process.env.NEXT_PUBLIC_GOOGLE_ADS}/OMnrCPj42YYZENX_n9wq`,
+                                            transaction_id: `${Date.now()}`
+                                        });
+                                        // sendGTMEvent({ event: 'conversion', value: { send_to: `${process.env.NEXT_PUBLIC_GOOGLE_ADS}/OMnrCPj42YYZENX_n9wq`, transaction_id: `${Date.now()}` } });
                                         // sendGTMEvent({ event: 'conversion', value: { 'send_to': `${process.env.NEXT_PUBLIC_GOOGLE_ADS}/OMnrCPj42YYZENX_n9wq`, 'transaction_id': `${Date.now()}` } });
                                         handleClose();
                                     }}>Close</Button>
