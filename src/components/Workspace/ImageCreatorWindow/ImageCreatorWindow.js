@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
-import { Box, Card, CardBody, VStack, Text, IconButton, Highlight, Tooltip } from '@chakra-ui/react';
+import { Box, Card, CardBody, VStack, Text, Highlight, useBreakpointValue } from '@chakra-ui/react';
 import { animationProps } from "@/src/lib/animationProps";
 
 import ImageCreatorFooter from './ImageCreatorFooter';
@@ -10,15 +10,41 @@ import { AnimatePresence, motion } from 'framer-motion';
 import ImageResult from './ImageResult';
 import ImageCreatorHeader from './ImageCreatorHeader';
 import IdeasList from './Ideas/IdeasList';
-import { MdClose } from "react-icons/md";
+import LimitReachedNotice from './Notices/LimitReachedNotice';
+import StoreImageNotice from './Notices/StoreImageNotice';
+import BrowserNotice from './Notices/BrowserNotice';
+
+import { dbAPI } from '@/src/lib/dbAPI';
+import { useAuthContext } from '@/src/context/AuthContextProvider';
+
 
 
 
 const ImageCreatorWindow = () => {
-    // contexts
-    const { themeColor } = useSettingsContext().userThemeColor;
+
+    const settingsContext = useSettingsContext();
+
+    const variant = useBreakpointValue(
+        {
+            base: 'IconButton',
+            sm: 'Button',
+        })
+
+    const user = useAuthContext();
+
+    const { themeColor } = settingsContext.userThemeColor;
+
+    const { subscription, setSubscription } = settingsContext.userSubscription;
+    const trialCountOnServer = subscription.imgTrial;
+    const subscriptionType = subscription.type;
+    const userWorkspaceType = settingsContext.userWorkspaceType;
+
 
     // states
+
+    const [trialImagesCount, setTrialImagesCount] = useState(trialCountOnServer);
+    const limitImgCount = 10;
+
     const [isLoadingBtn, setIsLoadingBtn] = useState(false); //to show loading button
     const textAreaRef = useRef(null); //textarea 
     const [noticeAboutImages, setNoticeAboutImages] = useState(true);
@@ -38,6 +64,10 @@ const ImageCreatorWindow = () => {
     // 
     // handlers //
     // 
+
+    const gotoCheckout = () => {
+        userWorkspaceType.setWorkspaceType('subscription');
+    }
     const submitButtonHandler = async () => {
         setIsLoadingBtn(true);
         closeBackToChat();
@@ -54,7 +84,6 @@ const ImageCreatorWindow = () => {
 
 
                 if (imgHistory && imgHistory[imgCreatorId]) {
-                    console.log('history with ID')
                     setImgHistory({
                         ...imgHistory,
                         [imgCreatorId]: [
@@ -69,6 +98,24 @@ const ImageCreatorWindow = () => {
                         [imgCreatorId]: [imgRequestAndReplyItem]
                     });
                 }
+                if (subscriptionType == 'Trial') {
+                    let newValueTrialImagesCount = trialImagesCount + 1;
+                    setTrialImagesCount(newValueTrialImagesCount);
+                    let dataToUpload = {
+                        ...subscription,
+                        imgTrial: newValueTrialImagesCount
+                    }
+
+                    setSubscription({ ...subscription, imgTrial: newValueTrialImagesCount })
+
+                    try {
+
+                        await dbAPI.updateUserData(user.uid, 'plan', dataToUpload);
+                    } catch (error) {
+                        console.error(error)
+                    }
+                }
+
             }
         } catch (error) {
             console.error(error)
@@ -245,28 +292,47 @@ const ImageCreatorWindow = () => {
                                 zIndex={1003}
                             >
                                 <ImageCreatorHeader
-
                                     themeColor={themeColor}
                                     showHeaderReturnPanel={showHeaderReturnPanel}
                                     ideaBtnHandler={ideaBtnHandler}
                                     headerBackButtonHandler={headerBackButtonHandler}
                                 />
                             </Box>
+
+                            {/* issues notifications start*/}
                             <AnimatePresence>
                                 {
-                                    noticeAboutImages &&
-                                    <Box bg={`${themeColor}.50`} w='100%'
-                                        px={1}
-                                        borderBottomWidth={'1px'}
-                                        borderBottomColor={'gray.200'}
-                                        display={'flex'}
-                                        flexDir={'row'}
-                                        as={motion.div}
-                                        alignItems={'center'}
+                                    subscriptionType == 'Trial' && trialImagesCount >= limitImgCount &&
+                                    <MotionLimitReachedNotice
+                                        variant={variant}
+                                        themeColor={themeColor}
+                                        gotoCheckout={gotoCheckout}
+                                        key={'limitImgCount'}
+                                        initial={{ y: -40, opacity: 0 }}
+                                        animate={{
+                                            y: 0,
+                                            opacity: 1,
+                                            transition: {
+                                                opacity: { delay: 0.8, duration: 0.5 },
+                                                y: { delay: 0.8, duration: 0.5 }
+                                            }
+                                        }}
+                                        exit={{
+                                            opacity: 0,
+                                            y: -40,
+                                            transition: {
+                                                opacity: { duration: 0.5 },
+                                                y: { delay: 0.1, duration: 0.5 }
+                                            }
+                                        }} />
+                                }
+
+                                {
+                                    (noticeAboutImages && subscriptionType != 'Trial') || (noticeAboutImages && subscriptionType == 'Trial' && trialImagesCount < limitImgCount) &&
+                                    <MotionStoreImageNotice
+                                        themeColor={themeColor}
+                                        setNoticeAboutImages={setNoticeAboutImages}
                                         key={'ttlImagesNotice'}
-                                        style={{ willChange: 'height' }}
-                                        layout
-                                        zIndex={1002}
                                         initial={{ y: -40, opacity: 0 }}
                                         animate={{
                                             y: 0,
@@ -284,35 +350,15 @@ const ImageCreatorWindow = () => {
                                                 y: { delay: 0.1, duration: 0.5 }
                                             }
                                         }}
-                                    >
-                                        <Text textAlign={'center'} px={2} fontSize={['xs', 'sm']} w='full' >
-                                            <Highlight
-                                                query={['Please note', 'the images will no longer be accessible']}
-                                                styles={{ px: '0', py: '0', rounded: 'sm', fontWeight: 'bold' }}
-                                            >
-                                                Please note that we do not store images on our server. If you leave the Create Image screen or refresh your browser tab, the images will no longer be accessible. However, you have the option to download and save them to your local storage.
-                                            </Highlight>
-                                        </Text>
-                                        <Box p={0} m={0}>
-                                            <Tooltip label='Hide' hasArrow bg={`${themeColor}.500`}>
-                                                <IconButton colorScheme={themeColor} size={'sm'} variant='link' icon={<MdClose />}
-                                                    onClick={() => setNoticeAboutImages(false)}
-                                                />
-                                            </Tooltip>
-                                        </Box>
-                                    </Box>
+                                    />
+
                                 }
                                 {
-                                    noticeAboutBrowser.status &&
-                                    <Box bg={`red.400`} w='100%'
-                                        px={1}
-                                        zIndex={1001}
-                                        borderBottomWidth={'1px'}
-                                        borderBottomColor={'gray.200'}
-                                        display={'flex'}
-                                        flexDir={'row'}
-                                        as={motion.div}
-                                        alignItems={'center'}
+                                    (noticeAboutBrowser.status && subscriptionType != 'Trial') || (noticeAboutBrowser.status && subscriptionType == 'Trial' && trialImagesCount < limitImgCount) &&
+                                    <MotionBrowserNotice
+                                        themeColor={themeColor}
+                                        type={noticeAboutBrowser.type}
+                                        setNoticeAboutBrowser={setNoticeAboutBrowser}
                                         key={'outdatedBrowser'}
                                         layout
                                         initial={{ y: -40, opacity: 0 }}
@@ -332,39 +378,11 @@ const ImageCreatorWindow = () => {
                                                 y: { delay: 0.1, duration: 0.5 }
                                             }
                                         }}
-                                    >
-                                        {
-                                            !noticeAboutBrowser.type &&
-                                            <Text textAlign={'center'} px={2} fontSize={['xs', 'sm']} w='full' color={'#FFF'}>
-
-                                                <Highlight
-                                                    query={['browser is outdated', 'the images will no longer be accessible']}
-                                                    styles={{ px: '0', py: '0', fontWeight: 'bold', color: '#FFF', textDecoration: 'underline' }}
-                                                >Your web browser is outdated and may not be able to properly display this content. Please update or change your browser to access the images.
-                                                </Highlight>
-
-                                            </Text>
-                                        }
-                                        {
-                                            noticeAboutBrowser.type === 'osOutdated' &&
-                                            <Text textAlign={'center'} px={2} fontSize={['xs', 'sm']} w='full' color={'#FFF'}>
-                                                <Highlight
-                                                    query={['operating system is not compatible', 'Firefox, Chrome, Opera']}
-                                                    styles={{ px: '0', py: '0', fontWeight: 'bold', color: '#FFF', textDecoration: 'underline' }}>
-                                                    Your operating system is not compatible with displaying images in Safari browser. To properly view images, we recommend switching to a different browser such as Firefox, Chrome, Opera, or any other compatible browser.
-                                                </Highlight>
-                                            </Text>
-                                        }
-                                        <Box p={0} m={0}>
-                                            <Tooltip label='Hide' hasArrow bg={`${themeColor}.500`}>
-                                                <IconButton color={'white'} variant='link' size={'sm'} icon={<MdClose />}
-                                                    onClick={() => setNoticeAboutBrowser({ status: false, type: null })}
-                                                />
-                                            </Tooltip>
-                                        </Box>
-                                    </Box>
+                                    />
                                 }
+
                             </AnimatePresence>
+                            {/* issues notifications start*/}
 
                             {/* render images */}
                             <Box w={'full'}
@@ -426,16 +444,19 @@ const ImageCreatorWindow = () => {
                             </Box>
                         </VStack>
                     </CardBody>
-                    {(themeColor) &&
-                        < ImageCreatorFooter
+                    {
+                        themeColor &&
+                        <ImageCreatorFooter
                             themeColor={themeColor}
+                            disabledForm={subscriptionType == 'Trial' && trialImagesCount >= limitImgCount}
                             isLoadingBtn={isLoadingBtn}
                             submitButtonHandler={submitButtonHandler}
                             ref={textAreaRef}
                             imgSize={imgSize}
                             setImgSize={setImgSize}
                             selectedIdea={selectedIdea}
-                        />}
+                        />
+                    }
                 </Card>
             }
 
@@ -444,3 +465,7 @@ const ImageCreatorWindow = () => {
 };
 
 export default ImageCreatorWindow;
+
+const MotionLimitReachedNotice = motion(LimitReachedNotice, { forwardMotionProps: true });
+const MotionStoreImageNotice = motion(StoreImageNotice, { forwardMotionProps: true });
+const MotionBrowserNotice = motion(BrowserNotice, { forwardMotionProps: true });

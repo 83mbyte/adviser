@@ -42,7 +42,7 @@ const footerVisibilityAnimation = {
     }
 }
 
-const ImageCreatorFooter = forwardRef(function ImageCreatorFooterRef({ themeColor, isLoadingBtn, submitButtonHandler, imgSize, setImgSize, selectedIdea }, ref) {
+const ImageCreatorFooter = forwardRef(function ImageCreatorFooterRef({ themeColor, disabledForm, isLoadingBtn, submitButtonHandler, imgSize, setImgSize, selectedIdea }, ref) {
     const [changeHeight, setChangeHeight] = useState(false);
     const footerHeightVariant = useBreakpointValue(
         {
@@ -57,6 +57,7 @@ const ImageCreatorFooter = forwardRef(function ImageCreatorFooterRef({ themeColo
             setChangeHeight(false);
         }
     }
+
     useEffect(() => {
         if (selectedIdea && (selectedIdea !== '' || selectedIdea !== undefined)) {
             ref.current.value = '';
@@ -92,6 +93,7 @@ const ImageCreatorFooter = forwardRef(function ImageCreatorFooterRef({ themeColo
                         ref={ref}
                         resize={'none'}
                         rows={1}
+                        isDisabled={disabledForm}
                         marginBottom={{ base: '0', sm: '0px' }}
                         borderColor={`${themeColor}.200`}
                         _hover={{ borderColor: `${themeColor}.600` }}
@@ -111,6 +113,7 @@ const ImageCreatorFooter = forwardRef(function ImageCreatorFooterRef({ themeColo
                         <Button
                             w={['full', 'min']}
                             colorScheme={themeColor}
+                            isDisabled={disabledForm}
                             isLoading={isLoadingBtn}
                             size={{ base: 'sm', sm: 'md' }}
                             onClick={() => submitButtonHandler()}

@@ -356,8 +356,13 @@ exports.requestToAssistantWithImage = onRequest(
             });
 
             try {
+
                 const image = await openai.images.generate({
-                    model: 'dall-e-3', prompt: request, size, style: 'natural', response_format: 'b64_json'
+                    model: 'dall-e-3',
+                    prompt: request,
+                    size,
+                    style: 'vivid',
+                    response_format: 'b64_json'
                 });
                 if (image?.data) {
 
@@ -401,7 +406,7 @@ exports.requestToAssistantWithImage = onRequest(
 
 
 exports.userAdded = functions.auth.user().onCreate((user) => {
-    createUserInDB(user.uid);
+    createUserInDB(user.uid, user.email, user.emailVerified);
     return Promise.resolve();
 })
 
@@ -411,7 +416,7 @@ exports.userDeleted = functions.auth.user().onDelete((user) => {
 })
 
 
-const createUserInDB = async (userId) => {
+const createUserInDB = async (userId, email, isVerified) => {
 
     // create initial db documents for a new  user //
     const chatsUserDoc = db.collection('chats').doc(userId);
@@ -422,7 +427,7 @@ const createUserInDB = async (userId) => {
     const period = start + 259200000;
     await chatsUserDoc.set({}, { merge: true });
     await imagesUserDoc.set({}, { merge: true });
-    await usersUserDoc.set({ theme: 'green', plan: { period, type: 'Trial' } }, { merge: true });
+    await usersUserDoc.set({ theme: 'green', plan: { period, type: 'Trial', imgTrial: 10 }, userData: { email, isVerified } }, { merge: true });
 
     return `Document created.`
 }
