@@ -427,7 +427,7 @@ const createUserInDB = async (userId, email, isVerified) => {
     const period = start + 259200000;
     await chatsUserDoc.set({}, { merge: true });
     await imagesUserDoc.set({}, { merge: true });
-    await usersUserDoc.set({ theme: 'green', plan: { period, type: 'Trial', imgTrial: 10 }, userData: { email, isVerified } }, { merge: true });
+    await usersUserDoc.set({ theme: 'green', plan: { period, type: 'Trial', imgTrial: 0 }, userData: { email, isVerified } }, { merge: true });
 
     return `Document created.`
 }
