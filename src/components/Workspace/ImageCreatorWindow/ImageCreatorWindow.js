@@ -52,7 +52,17 @@ const ImageCreatorWindow = () => {
 
     const [imgCreatorId, setImgCreatorId] = useState(null);
     const [imgSize, setImgSize] = useState('A'); //default Img size
+    const [imgStyle, setImgStyle] = useState('vivid'); //default Img size
+    const [imgQuality, setImgQuality] = useState('standard'); //default Img size
     const [imgHistory, setImgHistory] = useState({});
+
+    // TODO
+    // TODO
+    // TODO
+    // TODO
+    // TODO    передать данные переменных imgQuality , imgStyle для промпта
+    // TODO
+    // TODO
 
     const [showHeaderReturnPanel, setShowHeaderReturnPanel] = useState({ state: false, title: '' });
     const [showHistoryScreen, setShowHistoryScreen] = useState(false);
@@ -73,7 +83,7 @@ const ImageCreatorWindow = () => {
         closeBackToChat();
         try {
 
-            let resp = await getReplyFromAssistant({ size: imgSize, request: textAreaRef.current.value }, 'image');
+            let resp = await getReplyFromAssistant({ size: imgSize, request: textAreaRef.current.value, quality: imgQuality, style: imgStyle }, 'image');
             if (resp) {
 
 
@@ -454,6 +464,10 @@ const ImageCreatorWindow = () => {
                             ref={textAreaRef}
                             imgSize={imgSize}
                             setImgSize={setImgSize}
+                            imgStyle={imgStyle}
+                            setImgStyle={setImgStyle}
+                            imgQuality={imgQuality}
+                            setImgQuality={setImgQuality}
                             selectedIdea={selectedIdea}
                         />
                     }

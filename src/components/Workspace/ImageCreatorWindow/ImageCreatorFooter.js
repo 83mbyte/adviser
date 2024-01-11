@@ -42,7 +42,7 @@ const footerVisibilityAnimation = {
     }
 }
 
-const ImageCreatorFooter = forwardRef(function ImageCreatorFooterRef({ themeColor, disabledForm, isLoadingBtn, submitButtonHandler, imgSize, setImgSize, selectedIdea }, ref) {
+const ImageCreatorFooter = forwardRef(function ImageCreatorFooterRef({ themeColor, disabledForm, isLoadingBtn, submitButtonHandler, selectedIdea, imgSize, setImgSize, imgStyle, setImgStyle, imgQuality, setImgQuality }, ref) {
     const [changeHeight, setChangeHeight] = useState(false);
     const footerHeightVariant = useBreakpointValue(
         {
@@ -109,7 +109,7 @@ const ImageCreatorFooter = forwardRef(function ImageCreatorFooterRef({ themeColo
                         layout
                     />
                     <Box display={'flex'} flexDirection={'row'} columnGap={2}>
-                        <AdjustImageMenu themeColor={themeColor} size={imgSize} setSize={setImgSize} />
+                        <AdjustImageMenu themeColor={themeColor} size={imgSize} setSize={setImgSize} imgStyle={imgStyle} setStyle={setImgStyle} imgQuality={imgQuality} setQuality={setImgQuality} />
                         <Button
                             w={['full', 'min']}
                             colorScheme={themeColor}

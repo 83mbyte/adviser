@@ -349,9 +349,8 @@ exports.requestToAssistantWithImage = onRequest(
     },
     async (req, resp) => {
 
-        const generateImage_dall_e_3_64 = async (request, size = '1024x1024') => {
+        const generateImage_dall_e_3_64 = async (request, size = '1024x1024', style, quality) => {
             const openai = new OpenAI({
-
                 apiKey: process.env.SECRET_KEY_OPENAI,
             });
 
@@ -361,7 +360,8 @@ exports.requestToAssistantWithImage = onRequest(
                     model: 'dall-e-3',
                     prompt: request,
                     size,
-                    style: 'vivid',
+                    style,
+                    quality,
                     response_format: 'b64_json'
                 });
                 if (image?.data) {
@@ -382,13 +382,13 @@ exports.requestToAssistantWithImage = onRequest(
 
             if (req.body) {
 
-                const { request, size } = { ...JSON.parse(req.body) };
+                const { request, size, quality, style } = { ...JSON.parse(req.body) };
                 const imgSize = {
                     A: '1024x1024',
                     B: '1792x1024',
                     C: '1024x1792',
                 }
-                let imageData64 = await generateImage_dall_e_3_64(request, `${imgSize[size]}`); //return base64
+                let imageData64 = await generateImage_dall_e_3_64(request, `${imgSize[size]}`, style, quality); //return base64
 
                 if (imageData64) {
                     resp.status(200).json({ content: imageData64 })
@@ -436,10 +436,10 @@ const deleteUserInDB = async (userId) => {
 
     const chatsUserDoc = db.collection('chats').doc(userId);
     const usersUserDoc = db.collection('users').doc(userId);
-    const imagesUserDoc = db.collection('images').doc(userId);
+    //const imagesUserDoc = db.collection('images').doc(userId);
 
     await chatsUserDoc.delete();
     await usersUserDoc.delete();
-    await imagesUserDoc.delete();
+    //await imagesUserDoc.delete();
     return `User (${userId}) deleted from DataBase.`
 }
