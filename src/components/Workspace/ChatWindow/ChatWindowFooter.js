@@ -135,8 +135,9 @@ const ChatWindowFooter = forwardRef(function ChatWindowFooterRef({ themeColor, i
                                     rows={1}
                                     border={'none'}
                                     _focusVisible={{ borderColor: `${themeColor}.900` }}
-                                    placeholder={'ask me.. or use a predefined prompt'}
-                                    onChange={(e) => { setInputTextData(e.target.value); checkInputHeight(e) }}
+                                    placeholder={'type text message or use a microphone'}
+                                    onChange={(e) => { checkInputHeight(e) }}
+                                    onBlur={(e) => setInputTextData(e.target.value)}
                                     onFocus={(e) => { checkInputHeight(e); e.target.setSelectionRange(e.target.value.length, e.target.value.length) }}
                                     defaultValue={inputTextData}
                                     as={motion.textarea}
@@ -145,6 +146,7 @@ const ChatWindowFooter = forwardRef(function ChatWindowFooterRef({ themeColor, i
                                     fontSize={{ base: 'xs', sm: 'md' }}
                                     animate={changeHeight ? 'multiRows' : 'oneRow'}
                                     layout
+                                    spellCheck={false}
                                 />
                                 {
                                     showMic &&

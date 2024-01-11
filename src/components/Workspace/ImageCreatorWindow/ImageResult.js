@@ -11,9 +11,9 @@ const ImageResult = ({ currentChat, themeColor, isLoadingBtn, }) => {
 
     const save64toFile = async (base64String, fileNameSuffix) => {
         try {
-            // TODO switch image type based on model dall-e-2 OR dall-e-3
-            // const response = await fetch(`data:image/png;base64,${base64String}`); //dall-e-2 result
-            const response = await fetch(`data:image/webp;base64,${base64String}`); //dall-e-3 result
+
+            const response = await fetch(`data:image/png;base64,${base64String}`); //png result
+            // const response = await fetch(`data:image/webp;base64,${base64String}`); //webp result
             if (response.ok) {
                 const blob = await response.blob();
                 createSaveLink(blob, blob.type.split('/')[1], fileNameSuffix)
