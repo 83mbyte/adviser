@@ -37,7 +37,7 @@ const AdjustImageMenu = ({ themeColor, size, setSize, imgStyle, setStyle, imgQua
                 </MenuOptionGroup>
                 <MenuOptionGroup defaultValue={imgQuality} title='Image Quality' type='radio' onChange={setQuality} >
                     <MenuItemOption value='standard' fontSize={['xs', 'sm']} _hover={{ backgroundColor: `${themeColor}.50` }}>Standard</MenuItemOption>
-                    <MenuItemOption value='hd' fontSize={['xs', 'sm']} _hover={{ backgroundColor: `${themeColor}.50` }}>HD</MenuItemOption>
+                    <MenuItemOption value='hd' fontSize={['xs', 'sm']} _hover={{ backgroundColor: `${themeColor}.50` }}>HD (for enhanced detail)</MenuItemOption>
                 </MenuOptionGroup>
             </MenuList>
         </Menu >

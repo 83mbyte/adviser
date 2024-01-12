@@ -24,7 +24,7 @@ const LimitReachedNotice = forwardRef(function LimitReachedNoticeRef({ variant, 
                     query={['Premium']}
                     styles={{ px: '0', py: '0', rounded: 'sm', fontWeight: 'bold', color: '#FFF' }}
                 >
-                    You have reached the limit of 10 image creations allowed in the "Trial" plan. To continue enjoying image creation, we advise upgrading your subscription to the "Premium" plan.
+                    You have reached the limit of image creations allowed in the &quot;Trial&quot; plan. To continue enjoying image creation, we advise upgrading your subscription to the &quot;Premium&quot; plan.
                 </Highlight>
             </Text>
             <Box p={0} m={0} mr={1}>

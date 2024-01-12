@@ -107,6 +107,7 @@ const ImageCreatorFooter = forwardRef(function ImageCreatorFooterRef({ themeColo
                         initial={'oneRow'}
                         animate={changeHeight ? 'multiRows' : 'oneRow'}
                         layout
+                        spellCheck={false}
                     />
                     <Box display={'flex'} flexDirection={'row'} columnGap={2}>
                         <AdjustImageMenu themeColor={themeColor} size={imgSize} setSize={setImgSize} imgStyle={imgStyle} setStyle={setImgStyle} imgQuality={imgQuality} setQuality={setImgQuality} />
