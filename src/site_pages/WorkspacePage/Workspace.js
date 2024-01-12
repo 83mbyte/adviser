@@ -16,10 +16,13 @@ import ZoomImgModal from '@/src/components/Modal/ZoomImgModal';
 import CheckoutResultModal from '@/src/components/Modal/CheckoutResultModal';
 import SubscriptionNoticeModal from '@/src/components/Modal/SubscriptionNoticeModal';
 import VoiceRecordingModal from '@/src/components/Modal/VoiceRecordingModal';
+import { useAuthContext } from '@/src/context/AuthContextProvider';
+import { dbAPI } from '@/src/lib/dbAPI';
 
 const Workspace = () => {
-
+    const user = useAuthContext();
     const settingsContext = useSettingsContext();
+    const isEmailVerified = settingsContext.isEmailVerified;
     const showModalSettings = settingsContext.showModalWindow;
     const userWorkspaceType = settingsContext.userWorkspaceType;
     const { subscription } = settingsContext.userSubscription;
@@ -40,6 +43,15 @@ const Workspace = () => {
         userWorkspaceType.setWorkspaceType('subscription');
         closeModal();
     }
+
+    useEffect(() => {
+        const updateUserData = async () => {
+            await dbAPI.updateUserData(user.uid, 'userData.isVerified', true);
+        }
+        if (user.emailVerified === true && isEmailVerified === false) {
+            updateUserData();
+        }
+    }, []);
 
     useEffect(() => {
         if (params.has('checkout')) {
