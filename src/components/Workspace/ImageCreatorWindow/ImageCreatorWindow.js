@@ -12,11 +12,11 @@ import ImageCreatorHeader from './ImageCreatorHeader';
 import IdeasList from './Ideas/IdeasList';
 import LimitReachedNotice from './Notices/LimitReachedNotice';
 import StoreImageNotice from './Notices/StoreImageNotice';
-// import browserCheck from '@/src/lib/browserCheck';   // uncomment to check broser compatibilities
-// import BrowserNotice from './Notices/BrowserNotice'; // uncomment to check broser compatibilities
+import BrowserNotice from './Notices/BrowserNotice';
 
 import { dbAPI } from '@/src/lib/dbAPI';
 import { useAuthContext } from '@/src/context/AuthContextProvider';
+// import browserCheck from '@/src/lib/browserCheck';   // uncomment to check broser compatibilities
 
 
 
