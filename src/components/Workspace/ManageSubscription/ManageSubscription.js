@@ -1,4 +1,4 @@
-import { Box, Button, Card, CardBody, CardFooter, CardHeader, Heading, Highlight, Text, VStack, HStack, Stack, Menu, MenuButton, MenuList, MenuOptionGroup, MenuItemOption, Divider } from '@chakra-ui/react';
+import { Box, Button, Card, CardBody, CardFooter, CardHeader, Heading, Highlight, Text, VStack, HStack, Stack, Menu, MenuButton, MenuList, MenuOptionGroup, MenuItemOption, Divider, List, ListItem, ListIcon } from '@chakra-ui/react';
 
 import { createCheckoutSession, getExchangeRates } from '@/src/lib/fetchingData';
 import { useRouter } from 'next/navigation';
@@ -7,10 +7,12 @@ import { useAuthContext } from '@/src/context/AuthContextProvider';
 import { MdOutlineShoppingCart, MdChevronRight, MdOutlineKeyboardDoubleArrowUp } from "react-icons/md";
 import { useSettingsContext } from '@/src/context/SettingsContext';
 import { AnimatePresence, motion } from 'framer-motion';
+import { FaCheckCircle, FaRegTimesCircle } from 'react-icons/fa'
 
 import { animationProps } from '@/src/lib/animationProps';
 
 import { useEffect, useState } from 'react';
+
 
 const ManageSubscription = () => {
     const [isLoading, setIsLoading] = useState(false)
@@ -204,13 +206,13 @@ const ManageSubscription = () => {
                                                     let upgradePeriod = subscription.period + 15768000000;
 
                                                     return (
-                                                        <PlanCardUpgrade key={`pl_${index}`} isLoading={isLoading} title={planName} themeColor={themeColor} period={paidPlans[planName].period} upgradePrice={upgradePrice} currency={paidPlans[planName].currency} submitHandler={() => submitUpgradeHandler(paidPlans[planName].period, upgradePrice, planName, upgradePeriod)} />
+                                                        <PlanCardUpgrade key={`pl_${index}`} isLoading={isLoading} title={planName} themeColor={themeColor} period={paidPlans[planName].period} upgradePrice={upgradePrice} currency={paidPlans[planName].currency} planOptions={paidPlans[planName].options} submitHandler={() => submitUpgradeHandler(paidPlans[planName].period, upgradePrice, planName, upgradePeriod)} />
                                                     )
 
                                                 }
 
                                                 return (
-                                                    <PlanCardOriginal key={`pl_${index}`} isLoading={isLoading} currentSubscription={subscription.type} title={planName} themeColor={themeColor} period={paidPlans[planName].period} price={price} currency={paidPlans[planName].currency} submitHandler={() => submitHandler(paidPlans[planName].period, price, planName)} />
+                                                    <PlanCardOriginal key={`pl_${index}`} isLoading={isLoading} currentSubscription={subscription.type} title={planName} themeColor={themeColor} period={paidPlans[planName].period} price={price} currency={paidPlans[planName].currency} planOptions={paidPlans[planName].options} submitHandler={() => submitHandler(paidPlans[planName].period, price, planName)} />
                                                 )
                                             })
                                         }
@@ -242,7 +244,7 @@ const ManageSubscription = () => {
 
 export default ManageSubscription;
 
-const PlanCardOriginal = ({ themeColor, currentSubscription, title, price, period, currency, isLoading, submitHandler }) => {
+const PlanCardOriginal = ({ themeColor, currentSubscription, title, price, period, currency, isLoading, planOptions, submitHandler }) => {
     let cardOpacity = '1';
     if (currentSubscription == 'Basic' && title !== 'Premium' || currentSubscription == 'Premium') {
         cardOpacity = '0.45';
@@ -254,9 +256,36 @@ const PlanCardOriginal = ({ themeColor, currentSubscription, title, price, perio
                 <Heading as='h5' size={['md']} textAlign={'center'} color={themeColor} >{title}</Heading>
             </CardHeader>
             <CardBody bg='' py={0} opacity={cardOpacity}>
-                <Box w='full' my={0}>
+                <Box w='full' mb={8}>
                     <Text fontSize={'sm'} textAlign={'center'}>{currency}<Highlight query={price + ''} styles={{ px: '1', py: '1', fontSize: '28px', fontWeight: 'bold', opacity: `${cardOpacity}` }}>{price + ''}</Highlight></Text>
                     <Text textAlign={['center']} fontSize={'sm'}>for {period}</Text>
+                </Box>
+                <Box w='full' bg='' justifyContent={'center'} display={'flex'} >
+
+                    <List spacing={1} textAlign="start" px={0} bg=''>
+                        {
+                            planOptions.incl && planOptions.incl.map((item, index) => {
+                                return (
+                                    <ListItem key={index} fontSize={['xs', 'sm']}>
+                                        <ListIcon as={FaCheckCircle} color="green.400" boxSize={'11px'} />
+                                        {item}
+                                    </ListItem>
+                                )
+                            })
+                        }
+                        {
+                            planOptions.excl !== undefined && planOptions.excl.map((item, index) => {
+
+                                return (
+                                    <ListItem key={index} fontSize={['xs', 'sm']} color="gray.400">
+                                        <ListIcon as={FaRegTimesCircle} boxSize={'11px'} />
+                                        {item}
+                                    </ListItem>
+                                )
+                            })
+                        }
+
+                    </List>
                 </Box>
             </CardBody>
             <CardFooter justifyContent={'center'}>
@@ -274,7 +303,7 @@ const PlanCardOriginal = ({ themeColor, currentSubscription, title, price, perio
     )
 }
 
-const PlanCardUpgrade = ({ themeColor, title, upgradePrice, period, currency, isLoading, submitHandler }) => {
+const PlanCardUpgrade = ({ themeColor, title, upgradePrice, period, currency, isLoading, planOptions, submitHandler }) => {
     let cardOpacity = '1';
     let price = upgradePrice + '';
     return (
@@ -283,10 +312,37 @@ const PlanCardUpgrade = ({ themeColor, title, upgradePrice, period, currency, is
                 <Heading as='h5' size={['md']} textAlign={'center'} color={themeColor} >{title}</Heading>
             </CardHeader>
             <CardBody bg='' py={0} opacity={cardOpacity}>
-                <Box w='full' my={0}>
+                <Box w='full' mb={8}>
                     <Text fontSize={'sm'}>To upgrade your current subscription plan, you need to pay the price difference.</Text>
                     <Text fontSize={'sm'} textAlign={'center'}>{currency} <Highlight query={`${price}`} styles={{ px: '1', py: '1', fontSize: '28px', fontWeight: 'bold', opacity: `${cardOpacity}` }}>{price}</Highlight></Text>
                     <Text textAlign={['center']} fontSize={'sm'}>for {period}</Text>
+                </Box>
+                <Box w='full' bg='' justifyContent={'center'} display={'flex'} >
+
+                    <List spacing={1} textAlign="start" px={0} bg=''>
+                        {
+                            planOptions.incl && planOptions.incl.map((item, index) => {
+                                return (
+                                    <ListItem key={index} fontSize={['xs', 'sm']}>
+                                        <ListIcon as={FaCheckCircle} color="green.400" boxSize={'11px'} />
+                                        {item}
+                                    </ListItem>
+                                )
+                            })
+                        }
+                        {
+                            planOptions.excl !== undefined && planOptions.excl.map((item, index) => {
+
+                                return (
+                                    <ListItem key={index} fontSize={['xs', 'sm']} color="gray.400">
+                                        <ListIcon as={FaRegTimesCircle} boxSize={'11px'} />
+                                        {item}
+                                    </ListItem>
+                                )
+                            })
+                        }
+
+                    </List>
                 </Box>
             </CardBody>
             <CardFooter justifyContent={'center'}>

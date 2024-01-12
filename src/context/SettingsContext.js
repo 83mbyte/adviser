@@ -16,10 +16,11 @@ const SettingsContextProvider = ({ children }) => {
     const [showModal, setShowModal] = React.useState({ isShow: false, type: '' });
     const [workspaceType, setWorkspaceType] = React.useState('chat');
     const [subscription, setSubscription] = React.useState(null);
+    const [isEmailVerified, setIsEmailVerified] = React.useState(null);
     const [transcribedText, setTranscribedText] = React.useState(null)
     const [plansPrices, setPlansPrices] = React.useState({
-        Basic: { currency: 'usd', price: 50, period: '6 month', },
-        Premium: { currency: 'usd', price: 80, period: '1 year', }
+        Basic: { currency: 'usd', price: 50, period: '6 month', options: { excl: ['Image Generator'], incl: ['GPT-3.5', 'History', 'Fast Support'] } },
+        Premium: { currency: 'usd', price: 80, period: '1 year', options: { incl: ['GPT-3.5 & GPT-4', 'History', 'Fast Support', 'Image Generator'] } }
     })
 
     const [chatSettings, setChatSettings] = React.useState({
@@ -41,7 +42,8 @@ const SettingsContextProvider = ({ children }) => {
         chatSettings: { chatSettings, setChatSettings },
         transcribedTextData: { transcribedText, setTranscribedText },
         userSubscription: { subscription, setSubscription },
-        paidPlans: plansPrices
+        paidPlans: plansPrices,
+        isEmailVerified: isEmailVerified,
     }
     const user = useAuthContext();
 
@@ -58,6 +60,9 @@ const SettingsContextProvider = ({ children }) => {
                 if (resp.plan) {
                     setSubscription(resp.plan)
                 }
+                if (resp.userData) {
+                    setIsEmailVerified(resp.userData.isVerified);
+                }
                 setLoading({ ...loading, userUi: false });
             }
         } catch (error) {
@@ -68,8 +73,27 @@ const SettingsContextProvider = ({ children }) => {
     const getPaidPlansDetails = async () => {
         try {
             let resp = await dbAPI.getSectionData('plans');
+            let respPricing = await dbAPI.getSectionData('pricing');
             if (resp) {
                 setPlansPrices(resp);
+                if (respPricing) {
+                    let plansWithOptions = {};
+
+                    respPricing.dataArray.forEach(element => {
+                        let planName = element.title;
+
+                        if (plansPrices[planName]) {
+                            plansWithOptions = {
+                                ...plansWithOptions,
+                                [planName]: {
+                                    ...plansPrices[planName],
+                                    options: element.options
+                                },
+                            }
+                        }
+                    });
+                    setPlansPrices(plansWithOptions)
+                }
                 setLoading({ ...loading, plans: false });
             }
         } catch (error) {
