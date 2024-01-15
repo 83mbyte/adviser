@@ -25,11 +25,10 @@ import { useSettingsContext } from '@/src/context/SettingsContext';
 
 const colors = ['green', 'teal', 'orange', 'purple', 'pink']
 
-const HeaderSettingsMenu = ({ setThemeColor, themeColor, }) => {
+const HeaderSettingsMenu = ({ setThemeColor, themeColor, openNewWindowHandler }) => {
 
     const userSettings = useSettingsContext();
     const showModalSettings = userSettings.showModalWindow;
-    const userWorkspaceType = userSettings.userWorkspaceType;
     const { subscription } = userSettings.userSubscription;
 
     const user = useAuthContext();
@@ -54,9 +53,6 @@ const HeaderSettingsMenu = ({ setThemeColor, themeColor, }) => {
         }
     }
 
-    const openNewWindowHandler = (type) => {
-        userWorkspaceType.setWorkspaceType(type);
-    }
 
     return (
         <Popover placement='bottom-end' bg='transparent' border={'none'} onClose={saveColorScheme}>

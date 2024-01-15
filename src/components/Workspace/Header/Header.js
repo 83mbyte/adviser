@@ -6,14 +6,19 @@ import {
   Heading,
   IconButton,
   HStack,
+  Button,
   Text,
   useBreakpointValue,
+  Tooltip,
 } from "@chakra-ui/react";
 import { AnimatePresence, motion } from "framer-motion";
 
+import { FaCrown } from "react-icons/fa";
 import { HiMenu } from "react-icons/hi";
+
 import MainWrapper from "../../Wrappers/MainWrapper";
 import HeaderSettingsMenu from "../../Menus/HeaderSettingsMenu";
+
 
 
 
@@ -64,9 +69,12 @@ const buttonsAnimation = {
 }
 
 const Header = () => {
+  const userSettings = useSettingsContext();
+  const userWorkspaceType = userSettings.userWorkspaceType;
+  const { subscription } = userSettings.userSubscription;
 
-  const { themeColor, setThemeColor } = useSettingsContext().userThemeColor;
 
+  const { themeColor, setThemeColor } = userSettings.userThemeColor;
 
   const navVisibility = useBreakpointValue({
     base: false,
@@ -128,7 +136,7 @@ const Header = () => {
               display="flex"
               alignItems={"center"}
             >
-              <NavigationButtons show={true} themeColor={themeColor} setThemeColor={setThemeColor} />
+              <NavigationButtons show={true} themeColor={themeColor} setThemeColor={setThemeColor} userWorkspaceType={userWorkspaceType} subscription={subscription} />
               {/* <MenuBtn show={navVisibility} themeColor={themeColor} /> */}
             </Box>
           </MainWrapper>
@@ -141,8 +149,12 @@ const Header = () => {
 export default Header;
 
 
-const NavigationButtons = ({ show, themeColor, setThemeColor }) => {
+const NavigationButtons = ({ show, themeColor, setThemeColor, userWorkspaceType, subscription }) => {
 
+
+  const openNewWindowHandler = (type) => {
+    userWorkspaceType.setWorkspaceType(type);
+  }
   return (
     <>
       <AnimatePresence mode='wait'>
@@ -156,15 +168,29 @@ const NavigationButtons = ({ show, themeColor, setThemeColor }) => {
             key={"headerNav"}
             spacing='10px'
           >
+            {
+              (subscription?.type && subscription.type !== 'Premium') &&
+              <motion.div
+                key={'getPremium'}
+                variants={buttonsAnimation}
+              >
+
+                <Tooltip label='Get premium subscription' hasArrow bg={`${themeColor}.500`}>
+                  <Button leftIcon={<FaCrown />} colorScheme={'orange'} size={'sm'} variant={'outline'} onClick={() => { openNewWindowHandler('subscription') }}>Premium</Button>
+                </Tooltip>
+              </motion.div>
+            }
+
             <motion.div
-              key={'SettingsButton'}
+              key={'SettingsButton2'}
               variants={buttonsAnimation}
             >
-              <HeaderSettingsMenu setThemeColor={setThemeColor} themeColor={themeColor} />
+
+              <HeaderSettingsMenu setThemeColor={setThemeColor} themeColor={themeColor} openNewWindowHandler={openNewWindowHandler} />
             </motion.div>
           </HStack>
         }
-      </AnimatePresence>
+      </AnimatePresence >
     </>
   );
 };
