@@ -19,7 +19,7 @@ const SettingsContextProvider = ({ children }) => {
     const [isEmailVerified, setIsEmailVerified] = React.useState(null);
     const [transcribedText, setTranscribedText] = React.useState(null)
     const [plansPrices, setPlansPrices] = React.useState({
-        Basic: { currency: 'usd', price: 50, period: '6 month', options: { excl: ['Image Generator'], incl: ['GPT-3.5', 'History', 'Fast Support'] } },
+        Basic: { currency: 'usd', price: 50, period: '6 months', options: { excl: ['Image Generator'], incl: ['GPT-3.5', 'History', 'Fast Support'] } },
         Premium: { currency: 'usd', price: 80, period: '1 year', options: { incl: ['GPT-3.5 & GPT-4', 'History', 'Fast Support', 'Image Generator'] } }
     })
 
@@ -73,20 +73,21 @@ const SettingsContextProvider = ({ children }) => {
     const getPaidPlansDetails = async () => {
         try {
             let resp = await dbAPI.getSectionData('plans');
-            let respPricing = await dbAPI.getSectionData('pricing');
+
             if (resp) {
                 setPlansPrices(resp);
+                let respPricing = await dbAPI.getSectionData('pricing');
                 if (respPricing) {
                     let plansWithOptions = {};
 
                     respPricing.dataArray.forEach(element => {
                         let planName = element.title;
 
-                        if (plansPrices[planName]) {
+                        if (resp[planName]) {
                             plansWithOptions = {
                                 ...plansWithOptions,
                                 [planName]: {
-                                    ...plansPrices[planName],
+                                    ...resp[planName],
                                     options: element.options
                                 },
                             }
@@ -112,7 +113,7 @@ const SettingsContextProvider = ({ children }) => {
         <SettingsContext.Provider value={settingsObject}>
             {
                 loading.userUi && loading.plans
-                    ? <LoadingSpinner spinnerColor={'green'} progress={99} />
+                    ? <LoadingSpinner spinnerColor={'green'} progress={97} />
                     : children
             }
         </SettingsContext.Provider>

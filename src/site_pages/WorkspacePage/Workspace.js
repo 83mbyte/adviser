@@ -22,7 +22,7 @@ import { dbAPI } from '@/src/lib/dbAPI';
 const Workspace = () => {
     const user = useAuthContext();
     const settingsContext = useSettingsContext();
-    const isEmailVerified = settingsContext.isEmailVerified;
+    const isEmailVerifiedSavedOnDB = settingsContext.isEmailVerified;
     const showModalSettings = settingsContext.showModalWindow;
     const userWorkspaceType = settingsContext.userWorkspaceType;
     const { subscription } = settingsContext.userSubscription;
@@ -48,7 +48,7 @@ const Workspace = () => {
         const updateUserData = async () => {
             await dbAPI.updateUserData(user.uid, 'userData.isVerified', true);
         }
-        if (user.emailVerified === true && isEmailVerified === false) {
+        if (user.emailVerified === true && isEmailVerifiedSavedOnDB !== true) {
             updateUserData();
         }
     }, []);
@@ -102,7 +102,6 @@ const Workspace = () => {
                     {
                         showModalSettings.showModal.isShow == true &&
                         <motion.div
-                            //onClick={closeModal}
                             key={'backdrop'}
                             style={{ zIndex: 3001, position: 'absolute', top: 0, left: 0, height: '100%', width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.7)' }}
                             variants={animationProps.opacity}
