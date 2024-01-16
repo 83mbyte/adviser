@@ -209,7 +209,7 @@ export default function Contact() {
                                             <Textarea ref={formMessageRef}
                                                 _focus={{ outline: 'none' }}
                                                 _focusVisible={{ outline: 'none' }}
-                                                resize='none' placeholder='put your message...' maxLength={800} height={'100%'} rows={textareaRows} name='message' onChange={(e) => {
+                                                resize='none' placeholder='your message...' maxLength={800} height={'100%'} rows={textareaRows} name='message' onChange={(e) => {
                                                     setCharsCount(formMessageRef.current.value.length)
                                                     validateInput(e.target);
                                                 }} />

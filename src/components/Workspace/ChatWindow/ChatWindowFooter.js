@@ -135,7 +135,7 @@ const ChatWindowFooter = forwardRef(function ChatWindowFooterRef({ themeColor, i
                                     rows={1}
                                     border={'none'}
                                     _focusVisible={{ borderColor: `${themeColor}.900` }}
-                                    placeholder={'type text message or use a microphone'}
+                                    placeholder={showMic ? 'type text message or use a microphone' : 'type text message'}
                                     onChange={(e) => { checkInputHeight(e) }}
                                     onBlur={(e) => setInputTextData(e.target.value)}
                                     onFocus={(e) => { checkInputHeight(e); e.target.setSelectionRange(e.target.value.length, e.target.value.length) }}
