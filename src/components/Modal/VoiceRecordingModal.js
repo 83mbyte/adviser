@@ -39,7 +39,7 @@ const VoiceRecordingModal = ({ handleClose, }) => {
 
             return getDownloadURL(storageRef)
                 .then(async (url) => {
-                    console.log('URL to download: ', url);
+                    //console.log('URL to download: ', url);
 
                     return await transcribeToText(url);
                 })
