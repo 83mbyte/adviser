@@ -7,14 +7,13 @@ const headerLeftButtons = null;
 const headerRightButtons = null;
 
 const YouTubeSummarize = () => {
-
-    const userId = useAuthContext().uid;
+    const userToken = useAuthContext().accessToken;
 
     // handlers 
     const onSubmitHandler = async (data) => {
         console.log('onSubmitHandler data: ', data);
 
-        let resp = await getReplyFromAssistant({ type: 'ytsummarize', requestedBy: { userId: userId }, payload: data }, 'summarize');
+        let resp = await getReplyFromAssistant({ type: 'ytsummarize', accessToken: userToken, payload: data }, 'summarize');
         if (resp) {
             console.log(resp)
         }
