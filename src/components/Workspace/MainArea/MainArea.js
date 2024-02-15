@@ -1,10 +1,12 @@
 'use client'
 import MainWrapper from "../../Wrappers/MainWrapper";
-import ChatWindow from "../ChatWindow/ChatWindow";
-import ImageCreatorWindow from "../ImageCreatorWindow/ImageCreatorWindow";
 import { AnimatePresence, motion } from "framer-motion";
 import { animationProps } from "@/src/lib/animationProps";
+
 import ManageSubscription from "../ManageSubscription/ManageSubscription";
+import YouTubeSummarize from "../YouTubeSummarize/YouTubeSummarize";
+import TextChat from "../TextChat/TextChat";
+import CreateImage from "../CreateImage/CreateImage";
 
 const MainArea = ({ workspaceType }) => {
 
@@ -14,18 +16,7 @@ const MainArea = ({ workspaceType }) => {
 
     <MainWrapper >
       <AnimatePresence mode='wait'>
-        {
-          workspaceType == 'chat' &&
-          <motion.div key={'chatWindow'}
-            style={{ width: '100%', height: '100%' }}
-            variants={animationProps.slideFromTop}
-            initial={'hidden'}
-            animate={'visible'}
-            exit={'exit'}
-          >
-            <ChatWindow />
-          </motion.div>
-        }
+
         {
           workspaceType == 'image' &&
           <motion.div key={'imageWindow'}
@@ -35,7 +26,7 @@ const MainArea = ({ workspaceType }) => {
             animate={'visible'}
             exit={'exit'}
           >
-            <ImageCreatorWindow />
+            <CreateImage />
           </motion.div>
         }
         {
@@ -48,6 +39,30 @@ const MainArea = ({ workspaceType }) => {
             exit={'exit'}
           >
             <ManageSubscription />
+          </motion.div>
+        }
+        {
+          workspaceType == 'ytsummarize' &&
+          <motion.div key={'ytsummarize'}
+            style={{ width: '100%', height: '100%' }}
+            variants={animationProps.slideFromTop}
+            initial={'hidden'}
+            animate={'visible'}
+            exit={'exit'}
+          >
+            <YouTubeSummarize />
+          </motion.div>
+        }
+        {
+          workspaceType == 'textchat' &&
+          <motion.div key={'textchat'}
+            style={{ width: '100%', height: '100%' }}
+            variants={animationProps.slideFromTop}
+            initial={'hidden'}
+            animate={'visible'}
+            exit={'exit'}
+          >
+            <TextChat />
           </motion.div>
         }
       </AnimatePresence>
