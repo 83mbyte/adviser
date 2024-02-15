@@ -65,33 +65,33 @@ export const animationProps = {
     },
 
     chatWindowScreens: {
-        // slideFromTop: {
-        //     hidden: {
-        //         y: '-80vh',
-        //         opacity: 0
-        //     },
-        //     show: {
-        //         y: 0,
-        //         opacity: 1,
-        //         transition: {
-        //             y: {
-        //                 type: 'spring',
-        //                 delay: 0.1,
-        //                 stiffness: 100
-        //             }
-        //         }
-        //     },
-        //     exit: {
-        //         opacity: 0, y: '50vh',
-        //         transition: {
-        //             y: {
-        //                 type: 'spring',
-        //                 delay: 0.1,
-        //                 stiffness: 100
-        //             }
-        //         }
-        //     }
-        // },
+        slideFromTop: {
+            hidden: {
+                y: '-80vh',
+                opacity: 0
+            },
+            show: {
+                y: 0,
+                opacity: 1,
+                transition: {
+                    y: {
+                        type: 'spring',
+                        delay: 0.1,
+                        stiffness: 100
+                    }
+                }
+            },
+            exit: {
+                opacity: 0, y: '50vh',
+                transition: {
+                    y: {
+                        type: 'spring',
+                        delay: 0.1,
+                        stiffness: 100
+                    }
+                }
+            }
+        },
         slideFromLeft: {
             hidden: {
                 x: '-300px',
@@ -103,7 +103,7 @@ export const animationProps = {
                 transition: { delay: 0.1, duration: 0.8 }
             },
             exit: {
-                x: '300px',
+                x: '-300px',
                 opacity: 0,
                 transition: {
                     duration: 0.4
