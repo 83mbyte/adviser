@@ -48,11 +48,17 @@ export const dbAPI = {
     updateData: async (path, userId, id, data) => {
         const docRef = doc(db, path, userId);
 
-        let res = await updateDoc(docRef,
-            {
-                [id]: data
-            },
-            { merge: true });
+        try {
+            let res = await updateDoc(docRef,
+                {
+                    [id]: data
+                },
+                { merge: true });
+            return ({ status: 'Success', message: 'updated data' })
+        } catch (error) {
+            return ({ status: 'Error', message: error })
+
+        }
 
     },
     deleteDocument: async (path, userId, id) => {
