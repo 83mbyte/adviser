@@ -38,6 +38,10 @@ const SettingsContextProvider = ({ children }) => {
         size: 'A',
         style: 'vivid',
         quality: 'standard'
+    });
+
+    const [summarizeSettings, setSummarizeSettings] = React.useState({
+        operation: 'summarize'
     })
 
 
@@ -48,6 +52,7 @@ const SettingsContextProvider = ({ children }) => {
         userWorkspaceType: { workspaceType, setWorkspaceType },
         chatSettings: { chatSettings, setChatSettings },
         imageSettings: { imageSettings, setImageSettings },
+        summarizeSettings: { summarizeSettings, setSummarizeSettings },
         transcribedTextData: { transcribedText, setTranscribedText },
         userSubscription: { subscription, setSubscription },
         trialOffers: { trialOffers, setTrialOffers },
