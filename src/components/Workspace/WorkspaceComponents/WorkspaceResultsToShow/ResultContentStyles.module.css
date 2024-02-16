@@ -1,0 +1,21 @@
+.YouTubeResult {
+}
+
+.YouTubeResult h1,
+.YouTubeResult h2,
+.YouTubeResult h3,
+.YouTubeResult h4 {
+  font-weight: bold;
+  margin: 20px 0 5px 0;
+  text-align: center;
+}
+.YouTubeResult p {
+  margin: 5px 0;
+}
+
+.YouTubeResult ol,
+.YouTubeResult ul {
+  margin: 0 7px;
+  padding: 0 15px;
+  /* list-style: inside; */
+}
