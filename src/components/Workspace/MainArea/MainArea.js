@@ -7,8 +7,14 @@ import ManageSubscription from "../ManageSubscription/ManageSubscription";
 import YouTubeSummarize from "../YouTubeSummarize/YouTubeSummarize";
 import TextChat from "../TextChat/TextChat";
 import CreateImage from "../CreateImage/CreateImage";
+import { useState } from "react";
 
 const MainArea = ({ workspaceType }) => {
+
+  //Issues states:
+  const [showNoStoreImagesIssue, setShowNoStoreImagesIssue] = useState(true);
+  const [showNoHistoryIssue, setShowNoHistoryIssue] = useState(true);
+  const [showNoHistoryVideoIssue, setShowNoHistoryVideoIssue] = useState(true);
 
 
 
@@ -26,7 +32,7 @@ const MainArea = ({ workspaceType }) => {
             animate={'visible'}
             exit={'exit'}
           >
-            <CreateImage />
+            <CreateImage showNoStoreImagesIssue={showNoStoreImagesIssue} setShowNoStoreImagesIssue={setShowNoStoreImagesIssue} />
           </motion.div>
         }
         {
@@ -50,7 +56,7 @@ const MainArea = ({ workspaceType }) => {
             animate={'visible'}
             exit={'exit'}
           >
-            <YouTubeSummarize />
+            <YouTubeSummarize showNoHistoryVideoIssue={showNoHistoryVideoIssue} setShowNoHistoryVideoIssue={setShowNoHistoryVideoIssue} />
           </motion.div>
         }
         {
@@ -62,7 +68,7 @@ const MainArea = ({ workspaceType }) => {
             animate={'visible'}
             exit={'exit'}
           >
-            <TextChat />
+            <TextChat showNoHistoryIssue={showNoHistoryIssue} setShowNoHistoryIssue={setShowNoHistoryIssue} />
           </motion.div>
         }
       </AnimatePresence>
