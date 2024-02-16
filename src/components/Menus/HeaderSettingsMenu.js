@@ -79,7 +79,7 @@ const HeaderSettingsMenu = ({ setThemeColor, themeColor, openNewWindowHandler })
                                                 <Button isDisabled={subscription?.period && subscription.period < Date.now()} leftIcon={<MdChat />} size='sm' variant={'ghost'} colorScheme={themeColor} onClick={() => { openNewWindowHandler('textchat'); onClose(); }}>Chat bot</Button>
 
                                                 <HStack>
-                                                    <Button leftIcon={<MdImage />} isDisabled={subscription?.period && subscription.period < Date.now() || subscription?.type && subscription.type == 'Basic'} size='sm' variant={'ghost'} colorScheme={themeColor} onClick={() => { openNewWindowHandler('image'); onClose() }}>Create image</Button>
+                                                    <Button leftIcon={<MdImage />} isDisabled={subscription?.period && subscription.period < Date.now() || subscription?.type && subscription.type == 'Basic'} size='sm' variant={'ghost'} colorScheme={themeColor} onClick={() => { openNewWindowHandler('image'); onClose() }}>Generate image</Button>
                                                     {
                                                         subscription?.type && subscription.type == 'Basic' && <Box>
                                                             <Box borderWidth='1px' borderColor={'yellow.400'} p={'1px 3px'} mx={0} borderRadius={'3px'} >
