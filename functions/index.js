@@ -1,13 +1,24 @@
 
 const functions = require("firebase-functions");
+const { Storage, getDownloadURL } = require("firebase-admin/storage");
 const { onRequest } = require("firebase-functions/v2/https");
 const { setGlobalOptions } = require("firebase-functions/v2/options");
 // const { defineSecret } = require('firebase-functions/params');
 
 const { initializeApp } = require("firebase-admin/app");
 const { getFirestore, Timestamp } = require("firebase-admin/firestore");
+const { getAuth } = require("firebase-admin/auth")
 
 const { OpenAI } = require("openai");
+
+const ffmpegPath = require('@ffmpeg-installer/ffmpeg').path;
+const ffmpeg = require('fluent-ffmpeg');
+const ffprobe = require('ffprobe-static');
+ffmpeg.setFfmpegPath(ffmpegPath);
+ffmpeg.setFfprobePath(ffprobe.path);
+
+//my import
+const summarize = require('./summarize');
 
 // DEV stripe key 
 // const DEV_SECRET = process.env.STRIPE_API_KEY_DEV;
@@ -20,9 +31,231 @@ const stripe = require('stripe')(process.env.SECRET_KEY_STRIPE_API);
 setGlobalOptions({ maxInstances: 5 });
 
 // init App and DB
-initializeApp();
+let app = initializeApp();
 const db = getFirestore();
+const storage = new Storage(app);
 
+exports.summarizeData = onRequest({
+    // DEV
+    // cors: true,
+    //PROD
+    cors: [process.env.APP_DOMAIN_MAIN, process.env.APP_DOMAIN_SECOND, process.env.APP_DOMAIN_CUSTOM],
+    secrets: ['SECRET_KEY_OPENAI'],
+    timeoutSeconds: 360,
+    cpu: 1,
+    enforceAppCheck: true, // Reject requests with missing or invalid App Check tokens.
+}, async (req, resp) => {
+    if (req.method !== 'POST') {
+        return resp.status(400).json({ error: 'Bad request.' });
+    } else {
+
+        const data_received = JSON.parse(req.body);
+
+        let isUserTokenValid = await getAuth(app)
+            .verifyIdToken(data_received.accessToken)
+            .then((decodedToken) => {
+                const uid = decodedToken.uid;
+                return ({ status: true, uid, message: 'Token verified successfully' })
+            })
+            .catch((error) => {
+                return ({ status: false, uid: null, message: 'Unauthorized request' })
+            });
+
+        if (isUserTokenValid.status == false) {
+            return resp.status(401).json({ status: 'Error', message: isUserTokenValid.message });
+        }
+
+        const userId = isUserTokenValid.uid;
+        const bucket = storage.bucket('adviserai.appspot.com');
+
+        const openai = new OpenAI({
+            apiKey: process.env.SECRET_KEY_OPENAI,
+        });
+
+        switch (data_received.type) {
+            case 'getAudioInfo':
+                let audioInfo = null;
+                let urlValidationResponse = summarize.validateYoutubeURL(data_received.payload);
+
+                if (!urlValidationResponse) {
+                    return resp.status(500).json({ status: 'Error', message: 'Internal Server Error' });
+                } else if (urlValidationResponse.status == 'Error') {
+                    return resp.status(200).json(urlValidationResponse);
+                }
+
+                audioInfo = await summarize.collectYouTubeInfo(data_received.payload);
+                if (!audioInfo) {
+                    return resp.status(500).json({ status: 'Error', message: 'Internal Server Error' });
+                } else if (audioInfo.status == 'Error') {
+
+                    return resp.status(200).json(audioInfo)
+                }
+                let audioFileSizeMb = (Number(audioInfo.payload.contentLength) / 1024 / 1024).toFixed(2); // size in MB after being downloaded
+
+                if (urlValidationResponse.status == 'Success' && audioInfo.status == 'Success') {
+                    const bucket = storage.bucket('adviserai.appspot.com');
+                    const file = bucket.file(`ytdl/${userId}/audio_source.${audioInfo.payload.container}`);
+
+                    let res = await summarize.downloadAudioFile(url = data_received.payload, info = audioInfo.payload, fileToSave = file, userId);
+
+                    if (res && res.status !== 'Success') {
+                        return resp.status(200).json(res);
+                    } else {
+                        let fileUrl = await getDownloadURL(file);
+
+                        return resp.status(200).json({ status: 'Success', payload: { ...audioInfo.payload, fileUrl } });
+                    }
+                }
+
+                break;
+
+            case 'createAudioSegmentsTime':
+
+                let timeToCutAudio = null;
+
+                const calculateOutputsCount = (time_original) => {
+
+                    let TIME_ORIGINAL = time_original;
+                    let oneSegmentSeconds = 3600; //as seconds
+                    let allFilesCount = Math.ceil(TIME_ORIGINAL / oneSegmentSeconds);
+
+                    let timecodes = [];
+
+                    for (let i = 0; i < allFilesCount; i++) {
+                        timecodes.push(i * (oneSegmentSeconds + 1))
+                    }
+                    let lastSegmentDuration = (TIME_ORIGINAL - timecodes[timecodes.length - 1]);
+
+                    return { timecodes, lastSegmentDuration }
+                }
+
+                if (data_received.payload) {
+
+                    let fileUrl = data_received.payload;
+
+                    async function getDuration(file) {
+                        return new Promise((resolve, reject) => {
+                            ffmpeg.ffprobe(file, (err, data) => {
+                                resolve(data.format.duration)
+                            })
+                        })
+                    }
+                    let duration = await getDuration(fileUrl);
+                    if (duration) {
+
+                        timeToCutAudio = calculateOutputsCount(duration);
+                        return resp.status(200).json({
+                            status: 'Success',
+                            payload: { totalFiles: timeToCutAudio.timecodes.length, segmentsArray: timeToCutAudio.timecodes, lastSegmentDuration: timeToCutAudio.lastSegmentDuration }
+                        })
+                    } else {
+
+                        return resp.status(200).json({
+                            status: 'Error',
+                            message: 'Unable to get an audio track duration'
+                        })
+                    }
+                }
+                break;
+
+            case 'splitAudioOnSegments':
+                console.log(data_received.payload)
+                let fileUrl = data_received.payload.fileUrl;
+                let fileContainer = data_received.payload.fileContainer;
+                let fileIndex = data_received.payload.fileIndex;
+
+                let segmentDuration = 3600;
+                if (data_received.payload.lastSegmentDuration) {
+                    segmentDuration = data_received.payload.lastSegmentDuration;
+                };
+
+
+                let fileSegment = bucket.file(`ytdl/${userId}/segment_${fileIndex}.${fileContainer}`);
+                let startTime = data_received.payload.startTime;
+
+                async function cutAudio(fileUrl, fileContainer, fileIndex, fileSegment, startTime,) {
+
+                    return new Promise((resolve, reject) => {
+
+                        ffmpeg()
+                            .input(fileUrl)
+                            .format(fileContainer)
+                            .seekInput(startTime)
+                            .duration(segmentDuration) // 60min
+                            // .duration(900)   // 15min
+                            .audioCodec('libopus')  //low
+                            // .audioCodec('libvorbis')
+                            .audioChannels(1)
+                            .audioBitrate(32)
+                            .audioQuality(0)
+                            .on('end', async () => {
+                                // console.log(`FFmpeg has finished file N ${fileIndex}`);
+                                // console.log('....');
+                                resolve({ status: 'Success', payload: `segment_${fileIndex}.${fileContainer}` });
+                            })
+                            .on('error', (error) => {
+                                console.error('Error to fix:', error);
+                                reject({ status: 'Error', message: error })
+                            })
+                            .on('progress', (progress) => {
+                                if (progress.percent % 2 == 0) {
+                                    console.log(`Processing: ${Math.floor(progress.percent)} % done`);
+                                }
+                            })
+                            .writeToStream(fileSegment.createWriteStream({
+                                metadata: {
+                                    contentType: `audio/${fileContainer}`,
+                                    metadata: {
+                                        source: 'ffmpeg',
+                                        author: userId,
+                                    }
+                                }
+                                // }), { end: true });
+                            }));
+
+                    });
+                }
+                let currentResult = await cutAudio(fileUrl, fileContainer, fileIndex, fileSegment, startTime);
+
+                return resp.status(200).json(currentResult);
+
+                break;
+
+            case 'getTextFromAudio':
+
+                let file = bucket.file(`ytdl/${userId}/${data_received.payload.fileName}`);
+                let extractedText = await summarize.extractTextFromAudioFile(openai, file, data_received.payload.mimeType);
+
+                if (extractedText && extractedText.status == 'Success') {
+                    return resp.status(200).json({ status: 'Success', content: extractedText.payload }); //text-from-audio received
+                } else {
+                    return resp.status(200).json({ status: 'Error', message: `${extractedText.message}. Unable to achieve text extraction` })
+                }
+                break;
+            case 'summarizeText':
+
+                let summarizeResult = await summarize.summarizeText(openai, data_received.payload);
+                if (summarizeResult) {
+
+                    let stringText = summarizeResult.payload;
+                    if (stringText.startsWith('```html')) {
+                        stringText = stringText.slice(8,);
+                    }
+                    if (stringText.endsWith('```')) {
+                        stringText = stringText.slice(0, stringText.length - 3)
+                    }
+
+                    return resp.status(200).json({ status: summarizeResult.status, content: stringText });
+                } else {
+                    return resp.status(200).json({ status: 'Error', message: 'Unable to fulfil summarization' })
+                }
+
+            default:
+                break;
+        }
+    }
+    resp.json({ status: 'default', message: 'execution end' });
+})
 
 
 exports.requestToTranscribe = onRequest(
@@ -38,7 +271,7 @@ exports.requestToTranscribe = onRequest(
 
     async (req, resp) => {
         if (req.method !== 'POST') {
-            resp.status(400).json({ error: 'Bad request.' });
+            return resp.status(400).json({ error: 'Bad request.' });
         }
         else {
 
@@ -70,15 +303,14 @@ exports.requestToTranscribe = onRequest(
                         .catch(() => resp.status(500).json({ error: 'Internal Server Error. (Error while transcribe operation)' }))
 
                 if (transcribeReply) {
-                    resp.status(200).json(transcribeReply)
+                    return resp.status(200).json(transcribeReply)
                 } else {
-                    resp.status(502).json({ error: 'Bad Gateway. (No reply received)' })
+                    return resp.status(502).json({ error: 'Bad Gateway. (No reply received)' })
                 }
 
-                resp.end();
             }
             else {
-                resp.status(400).json({ error: 'Bad request.' });
+                return resp.status(400).json({ error: 'Bad request.' });
             }
 
         }
@@ -99,7 +331,7 @@ exports.getExchangeRates = onRequest(
     async (req, resp) => {
 
         if (req.method !== 'POST') {
-            resp.status(400).json({ error: 'Bad request.' });
+            return resp.status(400).json({ error: 'Bad request.' });
         };
         const ratesData = await fetch(`https://api.currencyfreaks.com/v2.0/rates/latest?apikey=${process.env.SECRET_KEY_CURRENCY_RATES}&symbols=EUR,BGN,GBP,CHF,JPY,ZAR,CNY`);
         if (!ratesData) {
@@ -125,7 +357,7 @@ exports.webhookStrp = onRequest(
         const endpointSecret = process.env.STRIPE_WHSEC;
 
         if (req.method !== 'POST') {
-            resp.status(400).json({ error: 'Bad request.' });
+            return resp.status(400).json({ error: 'Bad request.' });
         };
 
         const payload = req.rawBody;
@@ -194,7 +426,7 @@ exports.createSubscription = onRequest(
         const APP_DOMAIN_CUSTOM = process.env.APP_DOMAIN_CUSTOM;
 
         if (req.method !== 'POST') {
-            resp.status(400).json({ error: 'Bad request.' });
+            return resp.status(400).json({ error: 'Bad request.' });
         }
         else {
             const payloadReceived = JSON.parse(req.body);
@@ -278,7 +510,7 @@ exports.requestToAssistant = onRequest(
     },
     async (req, resp) => {
         if (req.method !== 'POST') {
-            resp.status(400).json({ error: 'Bad request.' });
+            return resp.status(400).json({ error: 'Bad request.' });
         }
         else {
 
@@ -287,13 +519,13 @@ exports.requestToAssistant = onRequest(
                 let data = req.body;
                 let assistReply = await createCompletions(data);
                 if (assistReply) {
-                    resp.status(200).json({ content: assistReply })
+                    return resp.status(200).json({ content: assistReply })
                 } else {
-                    resp.status(500).json({ error: 'Internal Server Error.' });
+                    return resp.status(500).json({ error: 'Internal Server Error.' });
                 }
             }
             else {
-                resp.status(400).json({ error: 'Bad request.' });
+                return resp.status(400).json({ error: 'Bad request.' });
             }
         }
     }
@@ -376,7 +608,7 @@ exports.requestToAssistantWithImage = onRequest(
         };
 
         if (req.method !== 'POST') {
-            resp.status(400).json({ error: 'Bad request.' });
+            return resp.status(400).json({ error: 'Bad request.' });
         }
         else {
 
@@ -391,13 +623,13 @@ exports.requestToAssistantWithImage = onRequest(
                 let imageData64 = await generateImage_dall_e_3_64(request, `${imgSize[size]}`, style, quality); //return base64
 
                 if (imageData64) {
-                    resp.status(200).json({ content: imageData64 })
+                    return resp.status(200).json({ content: imageData64 })
                 } else {
-                    resp.status(500).json({ error: 'Internal Server Error.' });
+                    return resp.status(500).json({ error: 'Internal Server Error.' });
                 }
             }
             else {
-                resp.status(400).json({ error: 'Bad request.' });
+                return resp.status(400).json({ error: 'Bad request.' });
             }
         }
     }
@@ -421,12 +653,13 @@ const createUserInDB = async (userId, email, isVerified) => {
     // create initial db documents for a new  user //
     const chatsUserDoc = db.collection('chats').doc(userId);
     const usersUserDoc = db.collection('users').doc(userId);
-    const imagesUserDoc = db.collection('images').doc(userId);
+    const summarizeYTUserDoc = db.collection('summarizeYT').doc(userId);
+
     const timeStamp = Timestamp.now();
     const start = timeStamp.toMillis();
     const period = start + 259200000;
     await chatsUserDoc.set({}, { merge: true });
-    await imagesUserDoc.set({}, { merge: true });
+    await summarizeYTUserDoc.set({}, { merge: true });
     await usersUserDoc.set({ theme: 'green', plan: { period, type: 'Trial', imgTrial: 0 }, userData: { email, isVerified } }, { merge: true });
 
     return `Document created.`
@@ -436,10 +669,11 @@ const deleteUserInDB = async (userId) => {
 
     const chatsUserDoc = db.collection('chats').doc(userId);
     const usersUserDoc = db.collection('users').doc(userId);
-    //const imagesUserDoc = db.collection('images').doc(userId);
+    const summarizeYTUserDoc = db.collection('summarizeYT').doc(userId);
 
     await chatsUserDoc.delete();
     await usersUserDoc.delete();
-    //await imagesUserDoc.delete();
+    await summarizeYTUserDoc.delete();
+
     return `User (${userId}) deleted from DataBase.`
 }
