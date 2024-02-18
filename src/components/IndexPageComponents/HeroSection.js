@@ -3,8 +3,10 @@
 import { Stack, Flex, Button, Text, VStack, useBreakpointValue, Heading, } from '@chakra-ui/react';
 import Link from 'next/link';
 
+const APP_NAME = process.env.NEXT_PUBLIC_APP_NAME;
 
 export default function HeroSection() {
+
 
     return (
         <Flex
@@ -26,7 +28,7 @@ export default function HeroSection() {
                     <Heading
                         as={'h2'} size={'4xl'} color={`green.400`}
 
-                    >Helpi</Heading>
+                    >{APP_NAME}</Heading>
                     <Text
                         color={'white'}
 

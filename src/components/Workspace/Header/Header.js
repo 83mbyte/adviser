@@ -20,7 +20,7 @@ import MainWrapper from "../../Wrappers/MainWrapper";
 import HeaderSettingsMenu from "../../Menus/HeaderSettingsMenu";
 
 
-
+const APP_NAME = process.env.NEXT_PUBLIC_APP_NAME;
 
 const navContainerVariants = {
   hidden: {
@@ -110,7 +110,7 @@ const Header = () => {
                 animate={{ opacity: 1, x: 0, transition: { delay: 0.5, duration: 0.8 } }}
               >
                 <Heading as={"h5"} color={`${themeColor}.500`}>
-                  Helpi
+                  {APP_NAME}
                 </Heading>
               </Box>
             }
@@ -124,7 +124,7 @@ const Header = () => {
               >
                 <HStack>
                   <Heading as={"h5"} >
-                    Helpi
+                    {APP_NAME}
                   </Heading>
                   <Text fontSize='sm'>offline</Text>
                 </HStack>

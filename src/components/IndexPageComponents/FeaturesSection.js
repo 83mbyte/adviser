@@ -28,8 +28,10 @@ import { FaCheckCircle } from 'react-icons/fa';
 //     },
 // ]
 
+const APP_DOMAIN = process.env.NEXT_PUBLIC_APP_DOMAIN;
 
 const FeaturesSection = ({ features }) => {
+
     return (
         <Box py={'4'} mt={['8', '12']} mb={2} px={['1', '4']} >
             <Stack spacing={4} as={Container} maxW={'3xl'} textAlign={'center'}>
@@ -37,8 +39,8 @@ const FeaturesSection = ({ features }) => {
                 <Heading fontSize={'3xl'} id='features'>
                     What Makes Us Special </Heading>
                 <Text color={'gray.600'} fontSize={['md', 'xl']}>
-                    <Highlight query='Helpi.bg' styles={{ color: 'green.500', fontWeight: 'bold' }}>
-                        At Helpi.bg, we pride ourselves on providing a unique and exceptional experience. Discover our unparalleled features, innovative solutions, and commitment to delivering excellence. Explore how we stand out from the crowd and make a difference in AI industry..
+                    <Highlight query={`${APP_DOMAIN}`} styles={{ color: 'green.500', fontWeight: 'bold' }}>
+                        {`At ${APP_DOMAIN}, we pride ourselves on providing a unique and exceptional experience. Discover our unparalleled features, innovative solutions, and commitment to delivering excellence. Explore how we stand out from the crowd and make a difference in AI industry..`}
                     </Highlight>
                 </Text>
 
@@ -66,8 +68,6 @@ const FeaturesSection = ({ features }) => {
                         })
                     }
                 </SimpleGrid>
-
-
             </Container>
         </Box >
     )

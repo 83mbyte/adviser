@@ -3,8 +3,8 @@ import { NecessaryProviders } from '@/src/context/providers';
 
 
 export const metadata = {
-    title: 'Helpi - Workspace Area',
-    description: 'Helpi - Your personal AI-based assistant. Workspace area.',
+    title: `${process.env.NEXT_PUBLIC_APP_NAME} - Workspace Area`,
+    description: `${process.env.NEXT_PUBLIC_APP_NAME} - Your personal AI-based assistant. Workspace area.`,
     manifest: './icons/site.webmanifest',
 }
 

@@ -424,6 +424,7 @@ exports.createSubscription = onRequest(
         //PROD domain
         // const APP_DOMAIN = process.env.APP_DOMAIN_MAIN;
         const APP_DOMAIN_CUSTOM = process.env.APP_DOMAIN_CUSTOM;
+        const APP_NAME = process.env.APP_NAME;
 
         if (req.method !== 'POST') {
             return resp.status(400).json({ error: 'Bad request.' });
@@ -452,11 +453,11 @@ exports.createSubscription = onRequest(
             let session = null;
 
             let objectToCreateSession = (isUpgrade) => {
-                let DESCRIPTION_STRING = `Helpi subscription for ${period}.`;
+                let DESCRIPTION_STRING = `${APP_NAME} subscription for ${period}.`;
                 let METADATA_TO_ADD = { uid: userId, period };
 
                 if (isUpgrade == true) {
-                    DESCRIPTION_STRING = `Helpi subscription upgrade to Premium.`;
+                    DESCRIPTION_STRING = `${APP_NAME} subscription upgrade to Premium.`;
                     METADATA_TO_ADD = { uid: userId, period, upgradePeriod }
                 }
                 return ({
@@ -660,7 +661,7 @@ const createUserInDB = async (userId, email, isVerified) => {
     const period = start + 259200000;
     await chatsUserDoc.set({}, { merge: true });
     await summarizeYTUserDoc.set({}, { merge: true });
-    await usersUserDoc.set({ theme: 'green', plan: { period, type: 'Trial', imgTrial: 0 }, userData: { email, isVerified } }, { merge: true });
+    await usersUserDoc.set({ theme: 'green', plan: { period, type: 'Trial', imgTrial: 0, trialOffers: { images: 0, youtube: 0 } }, userData: { email, isVerified } }, { merge: true });
 
     return `Document created.`
 }
