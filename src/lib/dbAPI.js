@@ -16,27 +16,29 @@ export const dbAPI = {
         }
     },
 
-    getData: async (userId) => {
+    getHistoryData: async (userId) => {
         const docChatsRef = doc(db, 'chats', userId);
+        const docSummarizeYTRef = doc(db, 'summarizeYT', userId);
         // const docImagesRef = doc(db, 'images', userId);
-        let returnObject = { chats: null, images: null };
+        let returnObject = { chats: null, summarizeYT: null };
 
         try {
             const docChatsSnap = await getDoc(docChatsRef);
-            //for images snap
-            // const docImagesSnap = await getDoc(docImagesRef);
+            const docSummarizeYTSnap = await getDoc(docSummarizeYTRef);
+
             if (docChatsSnap.exists()) {
                 returnObject = {
                     ...returnObject,
                     chats: docChatsSnap.data()
                 }
             }
-            // if (docImagesSnap.exists()) {
-            //     returnObject = {
-            //         ...returnObject,
-            //         images: docImagesSnap.data()
-            //     }
-            // }
+            if (docSummarizeYTSnap.exists()) {
+                returnObject = {
+                    ...returnObject,
+                    summarizeYT: docSummarizeYTSnap.data()
+                }
+            }
+
             return returnObject;
 
 

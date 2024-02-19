@@ -19,7 +19,7 @@ const HistoryContextProvider = ({ children }) => {
     const getHistoryFromRemoteDB = async (userId) => {
         try {
 
-            let resp = await dbAPI.getData(userId);
+            let resp = await dbAPI.getHistoryData(userId);
             if (resp) {
                 setHistory(resp);
                 setLoading(false);
