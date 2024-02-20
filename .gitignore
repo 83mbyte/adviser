@@ -44,3 +44,4 @@ functions/.env
 src/lib/promptsAPI.js
 functions/.secret.local
 src/components/Workspace/WorkspaceComponents/DefaultTemplate.js
+TODO_and_Notes.txt
