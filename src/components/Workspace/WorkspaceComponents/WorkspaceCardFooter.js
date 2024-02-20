@@ -133,17 +133,20 @@ const FormSummarizeYT = forwardRef(function FormSummarizeYTRef({ themeColor, def
     return (
 
         <Fragment key={'formYTubeSummarize'}>
-            <Input ref={ref} isDisabled={isDisabled} placeholder="https://www.youtube.com/watch?v=Video_ID" defaultValue={defaultValue} />
-            <SummarizeYTMenu themeColor={themeColor} isDisabled={isDisabled} />
-            <Button
-                colorScheme={themeColor}
-                isDisabled={isDisabled}
-                isLoading={isLoading}
-                spellCheck={false}
-                onClick={() => onSubmitButtonHandler(ref.current.value)}
-            >
-                {summarizeSettings.operation == 'summarize' ? 'Summarize' : 'Get text'}
-            </Button>
+            <Input ref={ref} isDisabled={isDisabled} placeholder="https://www.youtube.com/watch?v=Video_ID" defaultValue={defaultValue} spellCheck={false} />
+            <Box display={'flex'} flexDirection={'row'} columnGap={2}>
+                <SummarizeYTMenu themeColor={themeColor} isDisabled={isDisabled} />
+                <Button
+                    colorScheme={themeColor}
+                    isDisabled={isDisabled}
+                    isLoading={isLoading}
+                    w={['full', 'min']}
+                    size={{ base: 'sm', sm: 'md' }}
+                    onClick={() => onSubmitButtonHandler(ref.current.value)}
+                >
+                    {summarizeSettings.operation == 'summarize' ? 'Summarize' : 'Get text'}
+                </Button>
+            </Box>
         </Fragment>
     )
 })
