@@ -1,27 +1,28 @@
 
-import { useAuthContext } from "@/src/context/AuthContextProvider";
-import { useSettingsContext } from "@/src/context/SettingsContext";
-import { useToast } from "@chakra-ui/react";
-import { AnimatePresence, motion } from "framer-motion";
 import { useState, useEffect, useRef } from "react";
 
-import { animationProps } from "@/src/lib/animationProps";
+import { useAuthContext } from "@/src/context/AuthContextProvider";
+import { useSettingsContext } from "@/src/context/SettingsContext";
 import { usePredefinedDataContext } from "@/src/context/PredefinedDataContextProvider";
+import { useHistoryContext } from "@/src/context/HistoryContextProvider";
 
+import { useToast } from "@chakra-ui/react";
+import { AnimatePresence, motion } from "framer-motion";
 
 import { MdOutlineNotes, MdHistory, MdTune, } from 'react-icons/md';
 import { HiOutlineLightBulb } from "react-icons/hi";
+
+import { dbAPI } from "@/src/lib/dbAPI";
+import { promptTemplatesAPI } from "@/src/lib/promptsAPI";
+import { getReplyFromAssistant } from "@/src/lib/fetchingData";
+import { animationProps } from "@/src/lib/animationProps";
 
 import WorkspaceCard from "../WorkspaceComponents/WorkspaceCard";
 import SelectTopics from "./TopicsAndQuestions/SelectTopics";
 import SelectQuestions from "./TopicsAndQuestions/SelectQuestions";
 import ResultContentMessages from "../WorkspaceComponents/WorkspaceResultsToShow/ResultContentMessages";
-import { useHistoryContext } from "@/src/context/HistoryContextProvider";
-import { dbAPI } from "@/src/lib/dbAPI";
-import ChatAllHistory from "./ChatAllHistory/ChatAllHistory";
+import WorkspaceHistory from "../WorkspaceComponents/WorkspaceHistory/WorkspaceHistory";
 import ChatSettings from "./ChatSettings/ChatSettings";
-import { promptTemplatesAPI } from "@/src/lib/promptsAPI";
-import { getReplyFromAssistant } from "@/src/lib/fetchingData";
 
 
 const TextChat = ({ showNoHistoryIssue, setShowNoHistoryIssue }) => {
@@ -37,14 +38,12 @@ const TextChat = ({ showNoHistoryIssue, setShowNoHistoryIssue }) => {
     const { replyLength, replyStyle, replyTone, systemVersion, temperature, frequency_p, presence_p } = settingsContext.chatSettings.chatSettings;
     const { transcribedText, setTranscribedText } = settingsContext.transcribedTextData;
 
-    const historyContext = useHistoryContext().chats;
-
+    const historyContext = useHistoryContext();
+    const history = historyContext.history.chats;
+    const [historyId, setHistoryId] = useState(null);
 
     const [showChatMessages, setShowChatMessages] = useState(true); //show chat conversation
     const [inputValue, setInputValue] = useState(null);
-
-    const [chatsHistory, setChatsHistory] = useState({});
-    const [historyId, setHistoryId] = useState(null);
 
     const [showHeaderReturnPanel, setShowHeaderReturnPanel] = useState({ state: false, title: '' });  //return panel state
     const [isLoading, setIsLoading] = useState(false); // set it to True while async operation works...
@@ -65,22 +64,27 @@ const TextChat = ({ showNoHistoryIssue, setShowNoHistoryIssue }) => {
     const [showFooter, setShowFooter] = useState(true);
 
     const closeAll = () => {
+
         if (showTopicQuestions === true) {
             setShowTopicQuestions(false);
         }
-        else if (showTopicIdeas === true) {
+
+        if (showTopicIdeas === true) {
+
             setShowTopicIdeas(false);
         }
-        else if (showHistoryScreen === true) {
+        if (showHistoryScreen === true) {
             setShowHistoryScreen(false);
         }
-        else if (showChatSettings === true) {
+        if (showChatSettings === true) {
             setShowChatSettings(false);
         }
-        else if (showChatMessages === true) {
+        if (showChatMessages === true) {
             setShowChatMessages(false);
         }
-        headerReturnPanelToggler();
+        if (showHeaderReturnPanel.state == true) {
+            headerReturnPanelToggler();
+        }
     }
 
     const selectTopicIdeaHandler = (idea) => {
@@ -93,7 +97,6 @@ const TextChat = ({ showNoHistoryIssue, setShowNoHistoryIssue }) => {
                 generateHistoryId();
                 setShowFooter(true);
                 setShowTopicQuestions(false);
-                // openChatWindow();
             } else {
                 setShowTopicQuestions(true);
             }
@@ -113,7 +116,7 @@ const TextChat = ({ showNoHistoryIssue, setShowNoHistoryIssue }) => {
         closeAll();
         headerReturnPanelToggler();
         setShowFooter(true);
-        if (chatsHistory) {
+        if (history) {
             setShowChatMessages(true)
         }
     }
@@ -145,12 +148,18 @@ const TextChat = ({ showNoHistoryIssue, setShowNoHistoryIssue }) => {
         setShowHistoryScreen(true);
     }
 
-    const clearChatFromHistory = async (chatId) => {
-        let res = await dbAPI.deleteDocument('chats', user.uid, chatId);
-        if (res) {
-            const { [chatId]: removedData, ...restHistory } = chatsHistory;
-            setChatsHistory(restHistory);
+
+    const clearItemFromHistory = async (historyId) => {
+
+        let res = await dbAPI.deleteDocument('chats', user.uid, historyId);
+        if (res && res.status == 'Success') {
+
+            historyContext.deleteFromHistory('chats', historyId)
         }
+        else {
+            console.error(res.message)
+        }
+
         return 'done'
     }
 
@@ -172,10 +181,41 @@ const TextChat = ({ showNoHistoryIssue, setShowNoHistoryIssue }) => {
         setShowChatSettings(true);
     }
 
+    const addToHistory = async (userRequest, assistantReply) => {
+        let requestAndReplyItem =
+        {
+            user: { content: userRequest },
+            assistant: { content: assistantReply },
+        }
+
+        if (subscription?.type) {
+
+            if (subscription.type == 'Premium' || subscription.type == 'Basic') {
+
+                let dataToUpload;
+                if (history && history[historyId]) {
+                    dataToUpload = [
+                        ...history[historyId],
+                        requestAndReplyItem
+                    ]
+                } else {
+                    dataToUpload = [
+                        requestAndReplyItem
+                    ]
+                }
+
+                await dbAPI.updateData('chats', user.uid, historyId, dataToUpload);
+                setIsLoading(false);
+            }
+        }
+
+        historyContext.addToHistory('chats', historyId, requestAndReplyItem);
+    }
+
 
 
     const submitData = async (data) => {
-        let dataToUpload;
+
         setIsLoading(true);
         closeAll();
         setShowChatMessages(true);
@@ -196,9 +236,9 @@ const TextChat = ({ showNoHistoryIssue, setShowNoHistoryIssue }) => {
 
             let messagesArray;
 
-            if (chatsHistory[historyId] && chatsHistory[historyId].length > 0) {
+            if (history[historyId] && history[historyId].length > 0) {
                 console.log('with context create')
-                messagesArray = [systemMessage, ...provideDiscussionContext(chatsHistory[historyId])];
+                messagesArray = [systemMessage, ...provideDiscussionContext(history[historyId])];
                 messagesArray.push({ role: 'user', content: data.value })
             } else {
                 messagesArray = [systemMessage, { role: 'user', content: data.value }];
@@ -207,46 +247,7 @@ const TextChat = ({ showNoHistoryIssue, setShowNoHistoryIssue }) => {
             let resp = await getReplyFromAssistant({ messagesArray, tokens: 3600, systemVersion, temperature, frequency_p, presence_p }, 'chat');
 
             if (resp) {
-                let chatQuestionAndReplyItem =
-                {
-                    user: { content: data.value },
-                    assistant: { content: resp.content },
-                }
-
-                if (subscription?.type) {
-
-                    if (subscription.type == 'Premium' || subscription.type == 'Basic') {
-
-                        if (chatsHistory && chatsHistory[historyId]) {
-                            dataToUpload = [
-                                ...chatsHistory[historyId],
-                                chatQuestionAndReplyItem
-                            ]
-                        } else {
-                            dataToUpload = [
-                                chatQuestionAndReplyItem
-                            ]
-                        }
-
-                        await dbAPI.updateData('chats', user.uid, historyId, dataToUpload);
-                        setIsLoading(false);
-                    }
-                }
-
-                if (chatsHistory && chatsHistory[historyId]) {
-                    setChatsHistory({
-                        ...chatsHistory,
-                        [historyId]: [
-                            ...chatsHistory[historyId],
-                            chatQuestionAndReplyItem
-                        ]
-                    });
-                } else {
-                    setChatsHistory({
-                        ...chatsHistory,
-                        [historyId]: [chatQuestionAndReplyItem]
-                    });
-                }
+                addToHistory(data.value, resp.content)
             }
 
         } catch (error) {
@@ -283,7 +284,6 @@ const TextChat = ({ showNoHistoryIssue, setShowNoHistoryIssue }) => {
             callback: () => promptsButtonHandler('Prompts list'),
             isVisible: currentTopic && currentTopic !== undefined && currentTopic !== 'Blank'
         },
-
     ];
 
     const headerRightButtons = [
@@ -292,7 +292,7 @@ const TextChat = ({ showNoHistoryIssue, setShowNoHistoryIssue }) => {
             tooltipText: 'History',
             icon: <MdHistory size='22px' />,
             callback: () => historyButtonHandler('History'),
-            isVisible: chatsHistory && Object.keys(chatsHistory).length > 0,
+            isVisible: history && Object.keys(history).length > 0
         },
         {
             key: 'ChatSettingsButton',
@@ -317,11 +317,6 @@ const TextChat = ({ showNoHistoryIssue, setShowNoHistoryIssue }) => {
             generateHistoryId();
         }
     }, []);
-    useEffect(() => {
-        if (historyContext) {
-            setChatsHistory(historyContext);
-        }
-    }, [historyContext]);
 
     useEffect(() => {
         if (transcribedText && transcribedText !== undefined && transcribedText.length > 0) {
@@ -396,7 +391,7 @@ const TextChat = ({ showNoHistoryIssue, setShowNoHistoryIssue }) => {
                             animate={'show'}
                             exit={'exit'}
                         >
-                            <ChatAllHistory themeColor={themeColor} allHistory={chatsHistory} clearChatFromHistory={clearChatFromHistory} chooseHistory={chooseHistory} />
+                            <WorkspaceHistory themeColor={themeColor} allHistory={history} clearItemFromHistory={clearItemFromHistory} chooseHistory={chooseHistory} type='chat' />
                         </motion.section>
                     }
 
@@ -410,7 +405,6 @@ const TextChat = ({ showNoHistoryIssue, setShowNoHistoryIssue }) => {
                             exit={'exit'}
                         >
                             <ChatSettings themeColor={themeColor} />
-
                         </motion.section>
                     }
 
@@ -418,9 +412,8 @@ const TextChat = ({ showNoHistoryIssue, setShowNoHistoryIssue }) => {
 
                 {
                     showChatMessages &&
-                    <ResultContentMessages isLoading={isLoading} themeColor={themeColor} showMessages={showChatMessages} currentChat={(chatsHistory && Object.keys(chatsHistory).length > 0) ? chatsHistory[historyId] : []} setPromptToRepeat={setPromptToRepeat} />
+                    <ResultContentMessages isLoading={isLoading} themeColor={themeColor} showMessages={showChatMessages} currentChat={(history && Object.keys(history).length > 0) ? history[historyId] : []} setPromptToRepeat={setPromptToRepeat} />
                 }
-
             </WorkspaceCard>
         </>
     );

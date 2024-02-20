@@ -1,17 +1,26 @@
-import WorkspaceCard from "../WorkspaceComponents/WorkspaceCard";
-import ResultContentYTSummarize from "../WorkspaceComponents/WorkspaceResultsToShow/ResultContentYTSummarize.js"
+import { useState, useEffect, useRef } from "react";
+
 import { getReplyFromAssistant } from "@/src/lib/fetchingData";
 import { useAuthContext } from "@/src/context/AuthContextProvider";
 import { useToast } from "@chakra-ui/react";
 import { useSettingsContext } from "@/src/context/SettingsContext";
-import { useState, useEffect, useRef } from "react";
+import { useHistoryContext } from "@/src/context/HistoryContextProvider";
+
+import { animationProps } from "@/src/lib/animationProps";
 
 import { dbAPI } from "@/src/lib/dbAPI";
 import { promptTemplatesAPI } from "@/src/lib/promptsAPI";
 
+import { MdHistory, } from 'react-icons/md';
+import { AnimatePresence, motion } from "framer-motion";
+
+import WorkspaceHistory from "../WorkspaceComponents/WorkspaceHistory/WorkspaceHistory";
+import WorkspaceCard from "../WorkspaceComponents/WorkspaceCard";
+import ResultContentYTSummarize from "../WorkspaceComponents/WorkspaceResultsToShow/ResultContentYTSummarize.js"
+
 
 const headerLeftButtons = null;
-const headerRightButtons = null;
+// const headerRightButtons = null;
 
 const YouTubeSummarize = ({ showNoHistoryVideoIssue, setShowNoHistoryVideoIssue }) => {
 
@@ -35,26 +44,78 @@ const YouTubeSummarize = ({ showNoHistoryVideoIssue, setShowNoHistoryVideoIssue 
     const { themeColor } = settingsContext.userThemeColor;
     const { summarizeSettings } = settingsContext.summarizeSettings;
 
+    const historyContext = useHistoryContext();
+
+    const history = historyContext.history.summarizeYT;
+    const [historyId, setHistoryId] = useState(null);
+
     const [isLoading, setIsLoading] = useState(false);
     const [progressValue, setProgressValue] = useState(0);
     const [showFooter, setShowFooter] = useState(true);
     const [showHeaderReturnPanel, setShowHeaderReturnPanel] = useState({ state: false, title: '' });  //return panel state
 
-    const [youtubeSummarizeHistory, setYoutubeSummarizeHistory] = useState(null);
-    const [showSummarize] = useState(true);
-    const [historyId, setHistoryId] = useState(null);
+    const [showSummarize, setShowSummarize] = useState(true);
+    const [showHistoryScreen, setShowHistoryScreen] = useState(false);
 
+
+    const closeAll = () => {
+
+        if (showHistoryScreen === true) {
+            setShowHistoryScreen(false);
+        }
+        if (showHeaderReturnPanel.state == true) {
+            headerReturnPanelToggler();
+        }
+    }
     const headerReturnButtonHandler = () => {
         //return button in the header panel.. 
-        // closeAll();
+        closeAll();
         setShowFooter(true);
-        // if (chatsHistory) {
-        //     setShowChatMessages(true)
-        // }
+        if (showSummarize == false) {
+            setShowSummarize(true)
+        }
+    }
+
+    const headerReturnPanelToggler = (titleText) => {
+        setShowHeaderReturnPanel({
+            state: !showHeaderReturnPanel.state,
+            title: titleText ? titleText : ''
+        })
+    }
+
+    const historyButtonHandler = (panelTitleText) => {
+        headerReturnPanelToggler(panelTitleText);
+        setShowFooter(false);
+        setShowSummarize(false);
+        setShowHistoryScreen(true);
+    }
+
+    const clearItemFromHistory = async (historyId) => {
+        console.log('deleting..')
+        let res = await dbAPI.deleteDocument('summarizeYT', user.uid, historyId);
+        if (res && res.status == 'Success') {
+
+            historyContext.deleteFromHistory('summarizeYT', historyId)
+        }
+        else {
+            console.error(res.message)
+        }
+
+        return 'done'
+    }
+
+    const chooseHistory = (data) => {
+        setHistoryId(data);
+        setShowHistoryScreen(false);
+        setShowHeaderReturnPanel({
+            state: false,
+            title: ''
+        });
+        setShowFooter(true);
+        setShowSummarize(true);
     }
 
     const getTextFromAudioObject = async (data) => {
-        setIsLoading(true);
         let result = null;
         setProgressValue(1);
         let filesToTranscribe = [];
@@ -147,11 +208,6 @@ const YouTubeSummarize = ({ showNoHistoryVideoIssue, setShowNoHistoryVideoIssue 
 
                 if (extractedTextArray.length > 0) {
 
-
-                    // TODO make sumarizing of text chunks
-                    // https://community.openai.com/t/how-to-send-long-articles-for-summarization/205574/3
-                    //
-                    //
                     setProgressValue(75);
                     let fullText = extractedTextArray.join(' ');
 
@@ -163,7 +219,6 @@ const YouTubeSummarize = ({ showNoHistoryVideoIssue, setShowNoHistoryVideoIssue 
                     result = { textArray: extractedTextArray, wordsCount: wordsCount, title: audioInfo.title, urlOnYouTube: audioInfo.urlOnYouTube }
                 }
             }
-
         }
         catch (error) {
             console.error(error);
@@ -173,7 +228,6 @@ const YouTubeSummarize = ({ showNoHistoryVideoIssue, setShowNoHistoryVideoIssue 
             });
             setIsLoading(false);
             setProgressValue(0);
-
         }
         finally {
             inputFormRef.current.value = '';
@@ -218,7 +272,8 @@ const YouTubeSummarize = ({ showNoHistoryVideoIssue, setShowNoHistoryVideoIssue 
         }
     }
 
-    const addToLocalHistory = async (source, title, summarizedText) => {
+    const addToHistory = async (source, title, summarizedText) => {
+
         if (summarizedText) {
             setProgressValue(99);
             let requestAndReplyItem = {
@@ -227,13 +282,12 @@ const YouTubeSummarize = ({ showNoHistoryVideoIssue, setShowNoHistoryVideoIssue 
             }
 
             if (subscription?.type) {
-                console.log('# 1')
                 if (subscription.type == 'Premium' || subscription.type == 'Basic') {
-                    console.log('# 2')
+
                     let dataToUpload;
-                    if (youtubeSummarizeHistory && youtubeSummarizeHistory[historyId]) {
+                    if (history && history[historyId]) {
                         dataToUpload = [
-                            ...youtubeSummarizeHistory[historyId],
+                            ...history[historyId],
                             requestAndReplyItem
                         ]
                     } else {
@@ -248,26 +302,12 @@ const YouTubeSummarize = ({ showNoHistoryVideoIssue, setShowNoHistoryVideoIssue 
                 }
             }
 
-            if (youtubeSummarizeHistory && youtubeSummarizeHistory[historyId]) {
-                console.log('# 3')
-                setYoutubeSummarizeHistory({
-                    ...youtubeSummarizeHistory,
-                    [historyId]: [
-                        ...youtubeSummarizeHistory[historyId],
-                        requestAndReplyItem
-                    ]
-                });
-
-            } else {
-
-                setYoutubeSummarizeHistory({
-                    [historyId]: [requestAndReplyItem]
-                });
-            }
+            historyContext.addToHistory('summarizeYT', historyId, requestAndReplyItem);
         }
     }
 
-    const submitDataDev = async (data) => {
+    const submitData = async (data) => {
+        setIsLoading(true);
         let parser = new DOMParser();
         try {
             let textFromAudioObject = await getTextFromAudioObject(data);
@@ -311,8 +351,7 @@ const YouTubeSummarize = ({ showNoHistoryVideoIssue, setShowNoHistoryVideoIssue 
 
                 if (summarizedText) {
                     setProgressValue(96);
-                    console.log('summarized length', summarizedText.length)
-                    addToLocalHistory(textFromAudioObject.urlOnYouTube, textFromAudioObject.title, summarizedText);
+                    addToHistory(textFromAudioObject.urlOnYouTube, textFromAudioObject.title, summarizedText);
                 }
             } else {
                 console.log('full text ')
@@ -339,6 +378,19 @@ const YouTubeSummarize = ({ showNoHistoryVideoIssue, setShowNoHistoryVideoIssue 
         }
     }
 
+
+
+    const headerRightButtons = [
+        {
+            key: 'ChatsHistoryButton',
+            tooltipText: 'History',
+            icon: <MdHistory size='22px' />,
+            callback: () => historyButtonHandler('History'),
+            isVisible: history && Object.keys(history).length > 0,
+        },
+
+    ];
+
     const generateHistoryId = () => {
         let generatedId = Date.now();
         if (generatedId) {
@@ -353,6 +405,8 @@ const YouTubeSummarize = ({ showNoHistoryVideoIssue, setShowNoHistoryVideoIssue 
             generateHistoryId();
         }
     }, []);
+
+
     return (
         <>
             <WorkspaceCard
@@ -361,9 +415,9 @@ const YouTubeSummarize = ({ showNoHistoryVideoIssue, setShowNoHistoryVideoIssue 
                 closeIssueNotice={setShowNoHistoryVideoIssue}
                 showHeaderReturnPanel={showHeaderReturnPanel}
                 headerLeftButtons={null}
-                headerRightButtons={null}
+                headerRightButtons={headerRightButtons}
                 headerReturnButtonHandler={headerReturnButtonHandler}
-                callback={submitDataDev}
+                callback={submitData}
                 inputValue={null}
                 showFooter={showFooter}
                 isLoading={isLoading}
@@ -372,13 +426,29 @@ const YouTubeSummarize = ({ showNoHistoryVideoIssue, setShowNoHistoryVideoIssue 
                 currentChatHistoryId={historyId}
                 ref={inputFormRef}
             >
-                sumarize video - https://www.youtube.com/watch?v=ij8w9LIsxSA
+                <AnimatePresence mode='wait'>
+                    {
+                        showHistoryScreen &&
+                        <motion.section
+                            key={'sectionHistoryChats'}
+                            variants={animationProps.chatWindowScreens.slideFromLeft}
+                            initial={'hidden'}
+                            animate={'show'}
+                            exit={'exit'}
+                        >
+                            <WorkspaceHistory themeColor={themeColor} allHistory={history} clearItemFromHistory={clearItemFromHistory} chooseHistory={chooseHistory} type='summarize' />
+
+                        </motion.section>
+                    }
+                </AnimatePresence>
 
                 {
                     showSummarize &&
-                    <ResultContentYTSummarize progressValue={progressValue} isLoading={isLoading} themeColor={themeColor} showSummarize={showSummarize} currentSummarize={youtubeSummarizeHistory ? youtubeSummarizeHistory[historyId] : []} />
+                    <>
+                        <div>sumarize video - https://www.youtube.com/watch?v=ij8w9LIsxSA</div>
+                        <ResultContentYTSummarize progressValue={progressValue} isLoading={isLoading} themeColor={themeColor} showSummarize={showSummarize} currentSummarize={history ? history[historyId] : []} />
+                    </>
                 }
-
             </WorkspaceCard>
         </>
     )
