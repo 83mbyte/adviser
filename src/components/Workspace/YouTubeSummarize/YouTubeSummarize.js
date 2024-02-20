@@ -197,7 +197,6 @@ const YouTubeSummarize = ({ showNoHistoryVideoIssue, setShowNoHistoryVideoIssue 
                             throw new Error(respTextFromAudio.message ? respTextFromAudio.message : `Error while text extraction`);
                         }
                         else if (respTextFromAudio && respTextFromAudio.status == 'Success') {
-                            console.log('respTextFromAudio', respTextFromAudio)
 
                             tmpProgressValue = tmpProgressValue + (Math.ceil(20 / filesToTranscribe.length));
                             extractedTextArray.push(respTextFromAudio.content);
@@ -297,7 +296,6 @@ const YouTubeSummarize = ({ showNoHistoryVideoIssue, setShowNoHistoryVideoIssue 
                     }
 
                     let updateRes = await dbAPI.updateData('summarizeYT', user.uid, historyId, dataToUpload);
-                    console.log('updateRes', updateRes)
 
                 }
             }

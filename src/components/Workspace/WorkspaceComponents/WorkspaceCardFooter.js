@@ -113,6 +113,7 @@ const WorkspaceCardFooter = forwardRef(function WorkspaceCardFooterRef({ inputVa
                                 alignItems={'center'}
                                 w='full'
                                 columnGap={2}
+                                rowGap={2}
                             >
                                 {footerForm}
                             </Box>
