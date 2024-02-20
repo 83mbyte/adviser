@@ -63,7 +63,7 @@ const ResultContentImages = ({ themeColor, currentImages, isLoading, setPromptTo
     return (
         <Box bg='' display={'block'} overflow='auto' p={0} pb={1}>
 
-            <Stack ref={chatHistoryRef} direction={['column', 'row']} wrap={'wrap'}>
+            <Stack ref={chatHistoryRef} direction={['column', 'row']} wrap={'wrap'} justifyContent={'space-around'} columnGap={1} rowGap={6} >
 
                 {
                     currentImages && currentImages.length > 0 &&
@@ -82,7 +82,7 @@ const ResultContentImages = ({ themeColor, currentImages, isLoading, setPromptTo
                                 <CardBody bg='' display={'flex'} alignItems={'center'} justifyContent={'center'} my={0} pt={0} pb={0} overflow={'hidden'}>
                                     {/* render b64 */}
                                     {/* <Image src={`data:image/webp;base64, ${chatItem['assistant'].content}`} w='256px' h={'256px'} borderRadius={'md'} alt={`img_${index}`} /> */}
-                                    <Image src={`data: image/png;base64, ${chatItem['assistant'].content}`} w='256px' h={'256px'} borderRadius={'md'} alt={`img_${index}`} />
+                                    <Image src={`data: image/png;base64, ${chatItem['assistant'].content}`} w='85%' h={'256px'} borderRadius={'md'} alt={`img_${index}`} />
                                     <div id='imgContainer'>
                                     </div>
                                 </CardBody>
