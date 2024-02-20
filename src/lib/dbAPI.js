@@ -65,10 +65,18 @@ export const dbAPI = {
     },
     deleteDocument: async (path, userId, id) => {
         const docRef = doc(db, path, userId);
-        await updateDoc(docRef, {
-            [id]: deleteField()
+
+        return new Promise((resolve, reject) => {
+            try {
+                updateDoc(docRef, {
+                    [id]: deleteField()
+                }).then(() => {
+                    resolve({ status: 'Success', message: 'Item removed successfully' })
+                })
+            } catch (error) {
+                reject({ status: 'Error', message: 'Unable to remove item from history' })
+            }
         })
-        return 'chat removed'
     },
 
     // users
@@ -126,5 +134,4 @@ export const dbAPI = {
             return ({ status: 'error', errorCode, errorMessage })
         });
     }
-
 }

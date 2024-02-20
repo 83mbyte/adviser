@@ -29,6 +29,45 @@ const HistoryContextProvider = ({ children }) => {
         }
     }
 
+    const historyObj = {
+        history: {
+            chats: history.chats,
+            summarizeYT: history.summarizeYT
+        },
+        addToHistory: (path, historyId, data) => {
+            if (history[path][historyId]) {
+                setHistory({
+                    ...history,
+                    [path]: {
+                        ...history[path],
+                        [historyId]: [
+                            ...history[path][historyId],
+                            data
+                        ]
+                    }
+                })
+
+            } else {
+                setHistory({
+                    ...history,
+                    [path]: {
+                        ...history[path],
+                        [historyId]: [
+                            data
+                        ]
+                    }
+                })
+            }
+        },
+        deleteFromHistory: (path, historyId) => {
+            const { [historyId]: removedData, ...restHistory } = history[path];
+            setHistory({
+                ...history,
+                [path]: restHistory
+            })
+        }
+    }
+
     useEffect(() => {
         if (user && user.uid && user.uid !== undefined) {
             getHistoryFromRemoteDB(user.uid);
@@ -36,7 +75,7 @@ const HistoryContextProvider = ({ children }) => {
     }, [])
 
     return (
-        <HistoryContext.Provider value={history} >
+        <HistoryContext.Provider value={historyObj} >
             {
                 loading
                     ? <LoadingSpinner spinnerColor={'pink'} progress={75} />
