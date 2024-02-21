@@ -35,7 +35,7 @@ const TextChat = ({ showNoHistoryIssue, setShowNoHistoryIssue }) => {
     const settingsContext = useSettingsContext();
     const { themeColor } = settingsContext.userThemeColor;
     const { subscription } = settingsContext.userSubscription;
-    const { replyLength, replyStyle, replyTone, systemVersion, temperature, frequency_p, presence_p } = settingsContext.chatSettings.chatSettings;
+    const { replyLength, replyStyle, replyTone, replyFormat, systemVersion, temperature, frequency_p, presence_p } = settingsContext.chatSettings.chatSettings;
     const { transcribedText, setTranscribedText } = settingsContext.transcribedTextData;
 
     const historyContext = useHistoryContext();
@@ -219,32 +219,62 @@ const TextChat = ({ showNoHistoryIssue, setShowNoHistoryIssue }) => {
         setIsLoading(true);
         closeAll();
         setShowChatMessages(true);
-
+        let systemMessage;
         try {
-            const systemMessage = promptTemplatesAPI.default({ replyTone, replyLength, replyStyle });
+
+            switch (replyFormat) {
+                case 'Plain text':
+                    systemMessage = promptTemplatesAPI.default({ replyTone, replyLength, replyStyle });
+                    break;
+                case 'HTML':
+                    systemMessage = promptTemplatesAPI.replyAsHTML({ replyTone, replyLength, replyStyle });
+                    break;
+                default:
+                    systemMessage = promptTemplatesAPI.default({ replyTone, replyLength, replyStyle });
+                    break;
+            }
 
             const provideDiscussionContext = (arrayHistory) => {
+                let arrayDiscussionContext = [{ role: 'user', content: arrayHistory[0].user.content }];
 
-                if (arrayHistory.length >= 2) {
-                    let firstItem = { role: 'assistant', content: arrayHistory[arrayHistory.length - 2].assistant.content };
-                    let lastItem = { role: 'assistant', content: arrayHistory[arrayHistory.length - 1].assistant.content };
-                    return [firstItem, lastItem];
-                } else {
-                    return [{ role: 'assistant', content: arrayHistory[arrayHistory.length - 1].assistant.content }]
+                switch (systemVersion) {
+                    case 'GPT-4':
+
+                        if (arrayHistory.length > 0) {
+                            for (let i = 0; i <= arrayHistory.length - 1; i++) {
+                                arrayDiscussionContext.push({ role: 'assistant', content: arrayHistory[i].assistant.content })
+                            }
+                        }
+                        break;
+                    case 'GPT-3.5':
+
+                        if (arrayHistory.length >= 2) {
+                            arrayDiscussionContext.push({ role: 'assistant', content: arrayHistory[arrayHistory.length - 2].assistant.content });
+                            arrayDiscussionContext.push({ role: 'assistant', content: arrayHistory[arrayHistory.length - 1].assistant.content });
+                        }
+                        else {
+                            arrayDiscussionContext.push({ role: 'assistant', content: arrayHistory[arrayHistory.length - 1].assistant.content });
+                        }
+
+                    default:
+                        arrayDiscussionContext.push({ role: 'assistant', content: arrayHistory[arrayHistory.length - 1].assistant.content });
+                        break;
                 }
+
+                return arrayDiscussionContext
             };
 
             let messagesArray;
 
             if (history[historyId] && history[historyId].length > 0) {
-                console.log('with context create')
+
                 messagesArray = [systemMessage, ...provideDiscussionContext(history[historyId])];
                 messagesArray.push({ role: 'user', content: data.value })
             } else {
                 messagesArray = [systemMessage, { role: 'user', content: data.value }];
             }
 
-            let resp = await getReplyFromAssistant({ messagesArray, tokens: 3600, systemVersion, temperature, frequency_p, presence_p }, 'chat');
+            let resp = await getReplyFromAssistant({ messagesArray, tokens: 4000, systemVersion, temperature, frequency_p, presence_p }, 'chat');
 
             if (resp) {
                 addToHistory(data.value, resp.content)
