@@ -132,8 +132,7 @@ module.exports = {
 
     summarizeText: async (openai, messagesArrayToSummarize) => {
 
-        let model = 'gpt-4-1106-preview';
-        // let model = 'gpt-4';
+        let model = 'gpt-4-turbo-preview';
         // let model = 'gpt-3.5-turbo';
         let presence_p = 0;
         let frequency_p = 0;
@@ -162,12 +161,12 @@ module.exports = {
             messages: messagesArrayToSummarize,
         });
 
-        console.log('===========');
+
         console.log({
             usage: completion.usage,
             reason: completion.choices[0].finish_reason
         });
-        console.log('===========');
+
 
         if (completion.choices[0].finish_reason == 'stop') {
             return { status: 'Success', payload: completion.choices[0].message.content }
