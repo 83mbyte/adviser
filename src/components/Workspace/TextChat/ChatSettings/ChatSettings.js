@@ -1,5 +1,5 @@
 'use client'
-import { VStack, Box, Button, Text, StackDivider, Divider, Stack, Icon, HStack, } from '@chakra-ui/react';
+import { VStack, Box, Button, Text, StackDivider, Divider, Stack, Icon, HStack, Badge } from '@chakra-ui/react';
 import { AnimatePresence, motion } from 'framer-motion';
 
 import { Fragment, useEffect, useState } from 'react';
@@ -83,6 +83,7 @@ const settingsArray = [
             },
             {
                 subTitle: 'Set output format',
+                badge: 'new',
                 key: 'replyFormat',
                 uiElement: 'buttons',
                 buttons: ['Plain text', 'HTML'],
@@ -135,7 +136,15 @@ const ChatSettings = ({ themeColor }) => {
                                                 <Fragment key={elIndex}>
                                                     <HStack mt={0} mb={2} bg=''>
                                                         {el.icon && <Icon as={el.icon} color={`${themeColor}.600`} boxSize={'1em'} />}
-                                                        <Text fontSize={['xs', 'md']} color={`${themeColor}.700`}>{el.subTitle}:</Text>
+                                                        <Text fontSize={['xs', 'md']} color={`${themeColor}.700`}>
+
+                                                            {el.subTitle} {
+                                                                el.badge &&
+                                                                <Badge mr='1' mb='3' colorScheme='orange' variant={'solid'} fontSize={'8px'} >
+                                                                    {el.badge}
+                                                                </Badge>
+                                                            }:
+                                                        </Text>
                                                     </HStack>
                                                     {
                                                         el.uiElement == 'buttons' &&
