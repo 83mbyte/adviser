@@ -443,7 +443,6 @@ const YouTubeSummarize = ({ showNoHistoryVideoIssue, setShowNoHistoryVideoIssue 
                 {
                     showSummarize &&
                     <>
-                        <div>sumarize video - https://www.youtube.com/watch?v=ij8w9LIsxSA</div>
                         <ResultContentYTSummarize progressValue={progressValue} isLoading={isLoading} themeColor={themeColor} showSummarize={showSummarize} currentSummarize={history ? history[historyId] : []} />
                     </>
                 }
