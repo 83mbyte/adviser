@@ -28,6 +28,7 @@ const SettingsContextProvider = ({ children }) => {
         replyLength: '100 words',
         replyStyle: 'Facts only',
         replyTone: 'Casual',
+        replyFormat: 'Plain text',
         systemVersion: 'GPT-3.5',
         temperature: 1,
         frequency_p: 0,
@@ -69,7 +70,9 @@ const SettingsContextProvider = ({ children }) => {
             if (resp) {
                 setThemeColor(resp.theme.toLowerCase());
                 if (resp.chatSettings) {
-                    setChatSettings(resp.chatSettings)
+                    setChatSettings((chatSettings) => {
+                        return { ...chatSettings, ...resp.chatSettings }
+                    })
                 }
                 if (resp.plan) {
                     setSubscription(resp.plan);
