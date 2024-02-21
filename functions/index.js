@@ -550,7 +550,7 @@ const createCompletions = async (dataJSON) => {
                 model = 'gpt-3.5-turbo';
                 break;
             case 'GPT-4':
-                model = 'gpt-4'
+                model = 'gpt-4-turbo-preview'
                 break;
             default:
                 model = 'gpt-3.5-turbo';
@@ -566,6 +566,9 @@ const createCompletions = async (dataJSON) => {
         messages: data.messagesArray,
     });
 
+    // console.log('-------------------')
+    // console.log(completion)
+    // console.log('--=====================-')
     return completion.choices[0].message.content
 }
 
