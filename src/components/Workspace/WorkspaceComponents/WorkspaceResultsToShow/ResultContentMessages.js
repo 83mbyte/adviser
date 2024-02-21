@@ -2,6 +2,9 @@ import { Box, Text, useToast, Tooltip, IconButton, VStack, Skeleton, SkeletonCir
 import { AnimatePresence, motion } from 'framer-motion';
 import { Fragment, forwardRef, useEffect, useRef } from 'react';
 import { animationProps } from '@/src/lib/animationProps';
+import { sanitize } from 'isomorphic-dompurify';
+import styles from './ResultContentStyles.module.css';
+
 
 import { FaRobot } from "react-icons/fa6";
 import { RxAvatar } from "react-icons/rx";
@@ -88,7 +91,9 @@ export default ResultContentMessages;
 
 
 const ChatItem = ({ data, role, themeColor, setPromptToRepeat }) => {
-
+    const sanitizeString = (dirtyString) => {
+        return sanitize(dirtyString);
+    }
     return (
         <Box maxW={'90%'} border={'0px solid black'}>
             <Box bg='' display={'flex'} justifyContent={role === 'user' ? 'flex-start' : 'flex-end'} flexDirection={role !== 'user' ? 'row-reverse' : 'row'}>
@@ -113,7 +118,9 @@ const ChatItem = ({ data, role, themeColor, setPromptToRepeat }) => {
                     borderBottomRightRadius={role !== 'user' ? 0 : '10px'}
                     borderColor={role !== 'user' ? `${'gray.200'}` : `${themeColor}.200`}
                 >
-                    <Text fontSize={['xs', 'md']} w={'full'} >{data.content}</Text>
+                    {role == 'user' ? <Text fontSize={['xs', 'md']} w={'full'} >{data.content}</Text> : <Box className={styles.htmlResult} fontSize={['xs', 'md']} dangerouslySetInnerHTML={{ __html: sanitizeString(data.content) }}></Box>
+                    }
+
                     {
                         role !== 'user' ? <CopyToClipboardButton data={data.content} themeColor={themeColor} /> : <RepeatPrompt data={data.content} themeColor={themeColor} setPromptToRepeat={setPromptToRepeat} />
                     }
