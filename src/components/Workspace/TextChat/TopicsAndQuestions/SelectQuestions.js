@@ -18,7 +18,6 @@ const SelectQuestions = ({ themeColor, predefinedData, selectQuestionHandler }) 
                             viewport={{ once: true, amount: 0.2 }}
                             custom={index}
                             layout
-                            //transition={{ ease: 'anticipate' }}
                             style={{ margin: '15px 0', backgroundColor: '', padding: '5px' }}
                         >
 

@@ -43,5 +43,5 @@ ui-debug.log
 functions/.env
 src/lib/promptsAPI.js
 functions/.secret.local
-TODO_and_Notes.txt
 src/components/Workspace/WorkspaceComponents/DefaultTemplate.js
+TODO_and_Notes.txt

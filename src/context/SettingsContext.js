@@ -14,8 +14,9 @@ const SettingsContextProvider = ({ children }) => {
     const [loading, setLoading] = React.useState({ userUi: true, plans: true });
     const [themeColor, setThemeColor] = React.useState(null);
     const [showModal, setShowModal] = React.useState({ isShow: false, type: '' });
-    const [workspaceType, setWorkspaceType] = React.useState('chat');
+    const [workspaceType, setWorkspaceType] = React.useState('textchat');
     const [subscription, setSubscription] = React.useState(null);
+    const [trialOffers, setTrialOffers] = React.useState({ images: 0, youtube: 0 });
     const [isEmailVerified, setIsEmailVerified] = React.useState(null);
     const [transcribedText, setTranscribedText] = React.useState(null)
     const [plansPrices, setPlansPrices] = React.useState({
@@ -27,11 +28,22 @@ const SettingsContextProvider = ({ children }) => {
         replyLength: '100 words',
         replyStyle: 'Facts only',
         replyTone: 'Casual',
+        replyFormat: 'Plain text',
         systemVersion: 'GPT-3.5',
         temperature: 1,
         frequency_p: 0,
         presence_p: 0
     });
+
+    const [imageSettings, setImageSettings] = React.useState({
+        size: 'A',
+        style: 'vivid',
+        quality: 'standard'
+    });
+
+    const [summarizeSettings, setSummarizeSettings] = React.useState({
+        operation: 'summarize'
+    })
 
 
 
@@ -40,8 +52,11 @@ const SettingsContextProvider = ({ children }) => {
         showModalWindow: { showModal, setShowModal },
         userWorkspaceType: { workspaceType, setWorkspaceType },
         chatSettings: { chatSettings, setChatSettings },
+        imageSettings: { imageSettings, setImageSettings },
+        summarizeSettings: { summarizeSettings, setSummarizeSettings },
         transcribedTextData: { transcribedText, setTranscribedText },
         userSubscription: { subscription, setSubscription },
+        trialOffers: { trialOffers, setTrialOffers },
         paidPlans: plansPrices,
         isEmailVerified: isEmailVerified,
     }
@@ -55,10 +70,13 @@ const SettingsContextProvider = ({ children }) => {
             if (resp) {
                 setThemeColor(resp.theme.toLowerCase());
                 if (resp.chatSettings) {
-                    setChatSettings(resp.chatSettings)
+                    setChatSettings((chatSettings) => {
+                        return { ...chatSettings, ...resp.chatSettings }
+                    })
                 }
                 if (resp.plan) {
-                    setSubscription(resp.plan)
+                    setSubscription(resp.plan);
+                    setTrialOffers(resp.plan.trialOffers)
                 }
                 if (resp.userData) {
                     setIsEmailVerified(resp.userData.isVerified);

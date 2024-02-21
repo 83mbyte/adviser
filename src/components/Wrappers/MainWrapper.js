@@ -10,7 +10,7 @@ const MainWrapper = ({ direction = 'column', align = 'center', justify = 'space-
             w={"full"}
             h={"100%"}
             maxH={'100%'}
-            width={["full", "full", "xl", "3xl"]}
+            width={["full", "full", "3xl", "5xl"]}
             alignItems={align}
             justifyContent={justify}
             px={[1, 2]}

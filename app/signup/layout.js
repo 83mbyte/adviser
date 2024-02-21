@@ -1,8 +1,9 @@
 import { NecessaryProviders } from "@/src/context/providers"
 
 export const metadata = {
-    title: 'Helpi - SignUp page',
-    description: 'Helpi - Your personal AI-based assistant. Register your account.',
+
+    title: `${process.env.NEXT_PUBLIC_APP_NAME} - SignUp page`,
+    description: `${process.env.NEXT_PUBLIC_APP_NAME} - Your personal AI-based assistant. Register your account.`,
     manifest: './icons/site.webmanifest',
 }
 

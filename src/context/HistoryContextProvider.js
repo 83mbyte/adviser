@@ -19,13 +19,52 @@ const HistoryContextProvider = ({ children }) => {
     const getHistoryFromRemoteDB = async (userId) => {
         try {
 
-            let resp = await dbAPI.getData(userId);
+            let resp = await dbAPI.getHistoryData(userId);
             if (resp) {
                 setHistory(resp);
                 setLoading(false);
             }
         } catch (error) {
             console.error('Error while getHistoryFromRemoteDB', error)
+        }
+    }
+
+    const historyObj = {
+        history: {
+            chats: history.chats,
+            summarizeYT: history.summarizeYT
+        },
+        addToHistory: (path, historyId, data) => {
+            if (history[path][historyId]) {
+                setHistory({
+                    ...history,
+                    [path]: {
+                        ...history[path],
+                        [historyId]: [
+                            ...history[path][historyId],
+                            data
+                        ]
+                    }
+                })
+
+            } else {
+                setHistory({
+                    ...history,
+                    [path]: {
+                        ...history[path],
+                        [historyId]: [
+                            data
+                        ]
+                    }
+                })
+            }
+        },
+        deleteFromHistory: (path, historyId) => {
+            const { [historyId]: removedData, ...restHistory } = history[path];
+            setHistory({
+                ...history,
+                [path]: restHistory
+            })
         }
     }
 
@@ -36,7 +75,7 @@ const HistoryContextProvider = ({ children }) => {
     }, [])
 
     return (
-        <HistoryContext.Provider value={history} >
+        <HistoryContext.Provider value={historyObj} >
             {
                 loading
                     ? <LoadingSpinner spinnerColor={'pink'} progress={75} />

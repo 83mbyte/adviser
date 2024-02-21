@@ -6,7 +6,6 @@ import {
 import { useSettingsContext } from '@/src/context/SettingsContext';
 import { FaMicrophone, FaMicrophoneSlash } from "react-icons/fa";
 import { MdOutlineDone } from "react-icons/md";
-// import MicRecorder from 'mic-recorder-to-mp3';
 import MicRecorder from '@jmd01/mic-recorder-to-mp3';
 
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
@@ -29,6 +28,8 @@ const VoiceRecordingModal = ({ handleClose, }) => {
     const { themeColor } = settingsContext.userThemeColor;
     const { transcribedText, setTranscribedText } = settingsContext.transcribedTextData;
 
+    const [isRecording, setIsRecording] = useState(false);
+
     const uploadFile = async (file) => {
         setTranscribedStatus({ status: 'pending', text: null });
 
@@ -39,8 +40,6 @@ const VoiceRecordingModal = ({ handleClose, }) => {
 
             return getDownloadURL(storageRef)
                 .then(async (url) => {
-                    console.log('URL to download: ', url);
-
                     return await transcribeToText(url);
                 })
         });
@@ -54,11 +53,11 @@ const VoiceRecordingModal = ({ handleClose, }) => {
                 setTranscribedStatus({ status: 'error', text: result.error })
             }
         }
-
     };
 
 
     const startRecording = () => {
+        setIsRecording(true);
         recorder.start().then(() => {
             console.log('recording in progress..')
         }).catch((e) => {
@@ -86,9 +85,6 @@ const VoiceRecordingModal = ({ handleClose, }) => {
             });
     }
 
-    useEffect(() => {
-        startRecording();
-    }, [])
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -123,7 +119,6 @@ const VoiceRecordingModal = ({ handleClose, }) => {
                                     emptyColor='gray.200'
                                     size='xl' />
                             </Box>
-
                         }
                         {
                             transcribedStatus && transcribedStatus.status === 'ok' &&
@@ -136,9 +131,16 @@ const VoiceRecordingModal = ({ handleClose, }) => {
                 <CardFooter pt={0} pb={2}>
                     <HStack w='full' justifyContent={'center'}>
 
-                        <Button leftIcon={<FaMicrophoneSlash />} colorScheme={'red'} size={['xs', 'sm']} variant='solid' onClick={stopRecording}>Stop recording</Button>
+                        {isRecording
+                            ?
+                            <Button leftIcon={<FaMicrophoneSlash />} colorScheme={'red'} size={['xs', 'sm']} variant='solid' onClick={stopRecording}>Stop</Button>
+                            : <Button leftIcon={<FaMicrophone />} colorScheme={'green'} size={['xs', 'sm']} variant='solid' onClick={startRecording}>Start</Button>
+                        }
 
-                        <Button colorScheme={themeColor} size={['xs', 'sm']} variant='outline' onClick={handleClose}>Close</Button>
+                        {
+                            !isRecording &&
+                            <Button colorScheme={themeColor} size={['xs', 'sm']} variant='outline' onClick={handleClose}>Close</Button>
+                        }
                     </HStack>
                 </CardFooter>
             </Card>

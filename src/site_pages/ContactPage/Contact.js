@@ -29,8 +29,8 @@ import Footer from '../../components/PagesFooter/Footer';
 import { FaCheckCircle, FaRegTimesCircle } from 'react-icons/fa';
 import { dbAPI } from '@/src/lib/dbAPI';
 
-
 const emailPattern = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,5})+$/;
+const APP_NAME = process.env.NEXT_PUBLIC_APP_NAME;
 
 export default function Contact() {
 
@@ -175,7 +175,7 @@ export default function Contact() {
                             <Box bg='' mb={[2, 6]} >
                                 <Link href={'/'}>
                                     <Heading as={'h2'} size={'3xl'} color={`green.500`}
-                                    >Helpi</Heading>
+                                    >{APP_NAME}</Heading>
                                 </Link>
                             </Box>
                             <Heading fontSize={'2xl'}>Get in touch</Heading>

@@ -1,15 +1,15 @@
 import { Box, SimpleGrid, Text, Flex } from '@chakra-ui/react';
-import { motion } from 'framer-motion';
+import { motion, } from 'framer-motion';
 
 import TopicIcon from '../../../Icons/TopicIcon';
+import { forwardRef } from 'react';
 
-const SelectTopics = ({ predefinedData, selectTopicHandler, themeColor }) => {
 
+const SelectTopics = forwardRef(function SelectTopicsRef({ predefinedData, selectIdeaHandler, themeColor }, ref) {
     const predefinedDataExtended = {
         Blank: [],
         ...predefinedData.prompts,
     }
-
     return (
 
         <SimpleGrid columns={{ base: 2, md: 3, lg: 4 }}
@@ -17,6 +17,7 @@ const SelectTopics = ({ predefinedData, selectTopicHandler, themeColor }) => {
             border={'0px solid green'}
             spacing={['2', '16']}
             px={['0', '8']}
+            ref={ref}
         >
             {
                 Object.keys(predefinedDataExtended).map((topic, index) => {
@@ -32,13 +33,12 @@ const SelectTopics = ({ predefinedData, selectTopicHandler, themeColor }) => {
                             display={'flex'}
                             alignItems={'center'}
                             flexDirection={'column'}
-                            onClick={() => selectTopicHandler(topic)}
+                            onClick={() => selectIdeaHandler(topic)}
                             _hover={{ cursor: 'pointer' }}
                             as={motion.div}
                             whileHover={{ scale: 1.05 }}
                             initial={{ x: -100, opacity: 0 }}
                             whileInView={{ x: 0, opacity: 1, transition: { duration: 0.5 } }}
-
                         >
                             <Flex bg='' flex={1} alignItems={'center'}>
                                 {topic !== 'Blank' &&
@@ -57,6 +57,6 @@ const SelectTopics = ({ predefinedData, selectTopicHandler, themeColor }) => {
             }
         </SimpleGrid>
     )
-}
+})
 
 export default SelectTopics;

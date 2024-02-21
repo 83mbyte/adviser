@@ -1,0 +1,58 @@
+.YouTubeResult {
+}
+
+.YouTubeResult h1,
+.YouTubeResult h2,
+.YouTubeResult h3,
+.YouTubeResult h4 {
+  font-weight: bold;
+  margin: 20px 0 5px 0;
+  text-align: center;
+}
+.YouTubeResult p {
+  margin: 5px 0;
+}
+
+.YouTubeResult ol,
+.YouTubeResult ul {
+  margin: 0 7px;
+  padding: 0 15px;
+  /* list-style: inside; */
+}
+
+.htmlResult {
+}
+
+.htmlResult h1,
+.htmlResult h2,
+.htmlResult h3,
+.htmlResult h4 {
+  font-weight: bold;
+  margin: 20px 0 5px 0;
+  text-align: center;
+}
+.htmlResult p {
+  margin: 5px 0;
+}
+
+.htmlResult ol,
+.htmlResult ul {
+  margin: 0 7px;
+  padding: 0 15px;
+  /* list-style: inside; */
+}
+
+.htmlResult pre {
+  color: crimson;
+  border: 1px solid lightgray;
+  background-color: #f1f1f1;
+  font-family: monospace;
+  padding: 5px;
+  white-space: pre-wrap;
+}
+
+.htmlResult code {
+  background-color: #ddd;
+  font-family: courier, monospace;
+  padding: 0 3px;
+}

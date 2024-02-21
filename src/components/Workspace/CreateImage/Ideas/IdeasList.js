@@ -4,8 +4,6 @@ import { Box, Icon } from '@chakra-ui/react';
 
 import { MdChevronRight } from 'react-icons/md';
 
-// const predefinedData = ['An impressionist oil painting of sunflowers in a purple vase', 'A cute kitty', 'Two men riding a horse', 'Black spider on its web', 'Martian landscape', 'One man and its dog', 'A girl with a blue velvet jacket']
-
 const predefinedData = [
     'Vintage car in front of the Eiffel Tower.',
     'Spaceship flying above planet Earth.',

@@ -29,6 +29,7 @@ import Link from 'next/link';
 import Footer from '../../components/PagesFooter/Footer';
 import AlternativeSignInUpForm from '@/src/components/AlternativeSignInUpForm/AlternativeSignInUpForm';
 
+const APP_NAME = process.env.NEXT_PUBLIC_APP_NAME;
 
 
 export default function Login() {
@@ -154,7 +155,7 @@ export default function Login() {
                             <Box bg='' mb={[2, 6]} >
                                 <Link href={'/'}>
                                     <Heading as={'h2'} size={'3xl'} color={`green.500`}
-                                    >Helpi</Heading>
+                                    >{APP_NAME}</Heading>
                                 </Link>
 
                             </Box>

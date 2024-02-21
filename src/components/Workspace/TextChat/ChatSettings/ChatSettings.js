@@ -8,7 +8,7 @@ import { MdRule } from "react-icons/md";
 import { RiSpeakLine } from "react-icons/ri";
 import { AiFillEdit } from "react-icons/ai";
 import { BiSolidNetworkChart } from "react-icons/bi";
-import { RxSlider } from "react-icons/rx";
+import { RxSlider, RxFileText } from "react-icons/rx";
 
 import { dbAPI } from '@/src/lib/dbAPI';
 import { useAuthContext } from '@/src/context/AuthContextProvider';
@@ -29,7 +29,6 @@ const settingsArray = [
                     0: 'GPT-3.5 model can understand and generate natural language or code. The GPT-3.5 model has been optimized for chat using.',
                     1: 'GPT-4 is a large multimodal model that can solve difficult problems with greater accuracy, thanks to its broader general knowledge and advanced reasoning capabilities.',
                 }
-
             }
         ]
     },
@@ -65,7 +64,7 @@ const settingsArray = [
                 subTitle: 'Set reply length (as max)',
                 key: 'replyLength',
                 uiElement: 'buttons',
-                buttons: ['100 words', '300 words', '500 words'],
+                buttons: ['100 words', '300 words', '500 words', '800 words'],
                 icon: AiFillEdit,
             },
             {
@@ -81,20 +80,16 @@ const settingsArray = [
                 uiElement: 'buttons',
                 buttons: ['Funny', 'Casual', 'Philosophical', 'Professional'],
                 icon: RiSpeakLine,
+            },
+            {
+                subTitle: 'Set output format',
+                key: 'replyFormat',
+                uiElement: 'buttons',
+                buttons: ['Plain text', 'HTML'],
+                icon: RxFileText,
             }
         ]
     },
-
-    // {
-    //     title: 'Chat settings',
-    //     data: [
-    //         {
-    //             subTitle: 'Clear chat',
-    //             buttons: ['Clear chat']
-
-    //         }
-    //     ]
-    // },
 ]
 
 const ChatSettings = ({ themeColor }) => {

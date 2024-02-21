@@ -39,6 +39,7 @@ import Footer from '../../components/PagesFooter/Footer';
 import AlternativeSignInUpForm from '@/src/components/AlternativeSignInUpForm/AlternativeSignInUpForm';
 
 const emailPattern = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,5})+$/;
+const APP_NAME = process.env.NEXT_PUBLIC_APP_NAME;
 
 const SignUp = () => {
     const formRef = React.useRef(null);
@@ -187,7 +188,7 @@ const SignUp = () => {
                         <Stack spacing={[1, 4]} w={'full'} maxW={'md'} >
                             <Box bg='' mb={[4, 6]}>
                                 <Link href='/'>
-                                    <Heading as={'h2'} size={'3xl'} color={`green.500`}>Helpi</Heading>
+                                    <Heading as={'h2'} size={'3xl'} color={`green.500`}>{APP_NAME}</Heading>
                                 </Link>
                             </Box>
                             <Heading fontSize={'2xl'}>Create a new account</Heading>

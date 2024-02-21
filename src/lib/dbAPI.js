@@ -16,27 +16,29 @@ export const dbAPI = {
         }
     },
 
-    getData: async (userId) => {
+    getHistoryData: async (userId) => {
         const docChatsRef = doc(db, 'chats', userId);
+        const docSummarizeYTRef = doc(db, 'summarizeYT', userId);
         // const docImagesRef = doc(db, 'images', userId);
-        let returnObject = { chats: null, images: null };
+        let returnObject = { chats: null, summarizeYT: null };
 
         try {
             const docChatsSnap = await getDoc(docChatsRef);
-            //for images snap
-            // const docImagesSnap = await getDoc(docImagesRef);
+            const docSummarizeYTSnap = await getDoc(docSummarizeYTRef);
+
             if (docChatsSnap.exists()) {
                 returnObject = {
                     ...returnObject,
                     chats: docChatsSnap.data()
                 }
             }
-            // if (docImagesSnap.exists()) {
-            //     returnObject = {
-            //         ...returnObject,
-            //         images: docImagesSnap.data()
-            //     }
-            // }
+            if (docSummarizeYTSnap.exists()) {
+                returnObject = {
+                    ...returnObject,
+                    summarizeYT: docSummarizeYTSnap.data()
+                }
+            }
+
             return returnObject;
 
 
@@ -48,19 +50,33 @@ export const dbAPI = {
     updateData: async (path, userId, id, data) => {
         const docRef = doc(db, path, userId);
 
-        let res = await updateDoc(docRef,
-            {
-                [id]: data
-            },
-            { merge: true });
+        try {
+            let res = await updateDoc(docRef,
+                {
+                    [id]: data
+                },
+                { merge: true });
+            return ({ status: 'Success', message: 'updated data' })
+        } catch (error) {
+            return ({ status: 'Error', message: error })
+
+        }
 
     },
     deleteDocument: async (path, userId, id) => {
         const docRef = doc(db, path, userId);
-        await updateDoc(docRef, {
-            [id]: deleteField()
+
+        return new Promise((resolve, reject) => {
+            try {
+                updateDoc(docRef, {
+                    [id]: deleteField()
+                }).then(() => {
+                    resolve({ status: 'Success', message: 'Item removed successfully' })
+                })
+            } catch (error) {
+                reject({ status: 'Error', message: 'Unable to remove item from history' })
+            }
         })
-        return 'chat removed'
     },
 
     // users
@@ -118,5 +134,4 @@ export const dbAPI = {
             return ({ status: 'error', errorCode, errorMessage })
         });
     }
-
 }
