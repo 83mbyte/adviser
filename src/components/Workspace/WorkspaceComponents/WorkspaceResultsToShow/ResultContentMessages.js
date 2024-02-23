@@ -1,25 +1,28 @@
-import { Box, Text, useToast, Tooltip, IconButton, VStack, Skeleton, SkeletonCircle } from '@chakra-ui/react';
+import { Box, Text, Tooltip, IconButton, VStack, Skeleton, SkeletonCircle, StackDivider, HStack } from '@chakra-ui/react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Fragment, forwardRef, useEffect, useRef } from 'react';
+import { Fragment, forwardRef, useEffect, useRef, useState } from 'react';
 import { animationProps } from '@/src/lib/animationProps';
 import { sanitize } from 'isomorphic-dompurify';
 import styles from './ResultContentStyles.module.css';
 
 
 import { FaRobot } from "react-icons/fa6";
-import { RxAvatar } from "react-icons/rx";
-import { RiFileCopy2Fill } from "react-icons/ri";
+import { RxAvatar, RxChevronLeft, RxChevronRight } from "react-icons/rx";
 import { BsArrowRepeat } from "react-icons/bs";
+import CopyToClipboardButton from '../CopyToClipboardButton/CopyToClipboardButton';
+
+
 const ResultContentMessages = forwardRef(function ResultContentMessagesRef({ currentChat, showMessages, themeColor, isLoading, setPromptToRepeat }, ref) {
+
     const chatHistoryRef = useRef(null);
 
     useEffect(() => {
         //messages scroll to bottom 
-        if (currentChat && currentChat.length > 0) {
+        if (isLoading || (!isLoading && currentChat && currentChat.length > 0)) {
             let lastChild = chatHistoryRef?.current?.lastElementChild;
             lastChild.scrollIntoView({ behavior: 'smooth', block: 'end' });
         }
-    }, [currentChat]);
+    }, [currentChat, isLoading]);
 
     return (
 
@@ -80,9 +83,7 @@ const ResultContentMessages = forwardRef(function ResultContentMessagesRef({ cur
                         }
                     </motion.div>
                 }
-
             </AnimatePresence>
-
         </Box>
     )
 })
@@ -91,9 +92,7 @@ export default ResultContentMessages;
 
 
 const ChatItem = ({ data, role, themeColor, setPromptToRepeat }) => {
-    const sanitizeString = (dirtyString) => {
-        return sanitize(dirtyString);
-    }
+
     return (
         <Box maxW={'90%'} border={'0px solid black'}>
             <Box bg='' display={'flex'} justifyContent={role === 'user' ? 'flex-start' : 'flex-end'} flexDirection={role !== 'user' ? 'row-reverse' : 'row'}>
@@ -118,11 +117,13 @@ const ChatItem = ({ data, role, themeColor, setPromptToRepeat }) => {
                     borderBottomRightRadius={role !== 'user' ? 0 : '10px'}
                     borderColor={role !== 'user' ? `${'gray.200'}` : `${themeColor}.200`}
                 >
-                    {role == 'user' ? <Text fontSize={['xs', 'md']} w={'full'} >{data.content}</Text> : <Box className={styles.htmlResult} fontSize={['xs', 'md']} dangerouslySetInnerHTML={{ __html: sanitizeString(data.content) }}></Box>
+                    {role == 'user'
+                        ? <Text fontSize={['xs', 'md']} w={'full'} >{data.content}</Text>
+                        : <AssistantReplyBlock data={data.content} format={data.format} themeColor={themeColor} />
                     }
 
                     {
-                        role !== 'user' ? <CopyToClipboardButton data={data.content} themeColor={themeColor} /> : <RepeatPrompt data={data.content} themeColor={themeColor} setPromptToRepeat={setPromptToRepeat} />
+                        role == 'user' && <RepeatPrompt data={data.content} themeColor={themeColor} setPromptToRepeat={setPromptToRepeat} />
                     }
 
 
@@ -132,67 +133,83 @@ const ChatItem = ({ data, role, themeColor, setPromptToRepeat }) => {
     )
 }
 
+const AssistantReplyBlock = ({ data, format, themeColor }) => {
 
-const CopyToClipboardButton = ({ data, themeColor }) => {
-    const toast = useToast();
-    const copyToClipboard = () => {
-        navigator.clipboard.writeText(data).then(
-            () => {
-                /* clipboard successfully set */
-                console.log('Copied');
-                toast({
-                    position: 'top-right',
-                    title: 'Copied.',
-                    status: 'success',
-                    duration: 1000,
-                    containerStyle: {
-                        maxWidth: '100%',
-                        marginTop: '100px'
-                    },
-                });
-            },
-            () => {
-                /* clipboard write failed */
-                console.error('Failed copy to clipboard.');
-                toast({
-                    position: 'top',
-                    title: 'Failed copy to clipboard.',
-                    status: 'error',
-                    duration: 1000,
-                    containerStyle: {
-                        maxWidth: '100%',
-                        marginTop: '100px'
-                    },
-                })
-            },
-        );
+    const [currentNumber, setCurrentNumber] = useState(0);
+    const [showReply, setShowReply] = useState(() => {
+        return {
+            id: 0,
+        }
+    });
+
+
+    const sanitizeString = (dirtyString) => {
+        return sanitize(dirtyString);
     }
 
-    return (
-        <Box bg=''
-            position={'relative'}
-            color={`${themeColor}.600`}
-            // color={'gray.400'}
-            alignItems={'center'}
-            display={'flex'}
-            p={0}
-            pl={'1'}
-        >
+    const movePage = (offset) => {
+        setShowReply({
+            id: showReply.id + offset
+        })
+        setCurrentNumber(currentNumber + offset);  // offset as +1 or -1
+    }
 
-            <Tooltip label='Copy' hasArrow bg={`${themeColor}.500`}>
-                <IconButton
-                    size={'xs'}
-                    onClick={copyToClipboard}
-                    icon={<RiFileCopy2Fill size={'18px'} />}
-                    color={'inherit'}
-                    _hover={{ color: `${themeColor}.500` }}
-                    variant={'link'}
-                    aria-label={'Copy to Clipboard'}
-                />
-            </Tooltip>
-        </Box>
+
+    return (
+        <VStack divider={<StackDivider borderColor='gray.200' />} >
+
+            <AnimatePresence mode='wait' initial={false}>
+                {
+                    (showReply.id == currentNumber) &&
+                    <Box as={motion.div} key={`assistReply_${currentNumber}`} className={styles.htmlResult} fontSize={['xs', 'md']} dangerouslySetInnerHTML={{ __html: sanitizeString(data[currentNumber]) }}
+                        variants={animationProps.opacity}
+                        initial={'hidden'}
+                        animate={'show'}
+                        exit={'exit'}
+                        layout
+                    ></Box>
+                }
+            </AnimatePresence>
+
+            <HStack divider={<StackDivider borderColor='gray.200' />} w='full' bg='' justifyContent={'flex-end'}
+                pr={6}>
+                {data.length > 1 &&
+                    <HStack spacing={0} bg=''>
+                        <Box bg=''>
+                            <IconButton variant='link'
+                                colorScheme={themeColor}
+                                size={'sm'}
+                                aria-label='previous variant'
+                                icon={currentNumber != 0 && <RxChevronLeft />}
+                                onClick={() => movePage(-1)}
+                                isDisabled={currentNumber == 0}
+                            />
+                        </Box>
+                        <Box bg='' fontSize={['2xs', 'xs']}>{`${currentNumber + 1}/${data.length}`}</Box>
+                        <Box bg=''>
+                            {<IconButton variant='link'
+                                size='sm'
+                                colorScheme={themeColor}
+                                aria-label='next variant'
+                                icon={currentNumber !== data.length - 1 && <RxChevronRight />}
+                                onClick={() => movePage(1)}
+                                isDisabled={currentNumber == data.length - 1}
+                            />}
+                        </Box>
+                    </HStack>
+                }
+                <CopyToClipboardButton data={data[currentNumber]} themeColor={themeColor} format={format} />
+
+            </HStack>
+
+        </VStack >
     )
 }
+
+
+
+
+
 
 const RepeatPrompt = ({ data, themeColor, setPromptToRepeat }) => {
     const repeatPrompt = () => {
@@ -202,7 +219,6 @@ const RepeatPrompt = ({ data, themeColor, setPromptToRepeat }) => {
         <Box bg=''
             position={'relative'}
             color={`${themeColor}.600`}
-            // color={'gray.400'}
             alignItems={'center'}
             display={'flex'}
             p={0}

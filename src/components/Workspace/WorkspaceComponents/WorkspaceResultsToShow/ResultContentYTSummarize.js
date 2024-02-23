@@ -1,4 +1,4 @@
-import { Box, Text, CircularProgress, CircularProgressLabel, Card, CardBody, CardHeader, Icon } from '@chakra-ui/react';
+import { Box, Text, CircularProgress, CircularProgressLabel, Card, CardBody, CardHeader, Icon, VStack, StackDivider, HStack } from '@chakra-ui/react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Fragment, useEffect, useRef } from 'react';
 import { animationProps } from '@/src/lib/animationProps';
@@ -8,6 +8,7 @@ import { TfiYoutube } from "react-icons/tfi";
 import { sanitize } from 'isomorphic-dompurify';
 
 import styles from './ResultContentStyles.module.css';
+import CopyToClipboardButton from '../CopyToClipboardButton/CopyToClipboardButton';
 
 const sanitizeString = (dirtyString) => {
     return sanitize(dirtyString);
@@ -50,7 +51,6 @@ const ResultContentYTSummarize = ({ currentSummarize, showSummarize, isLoading, 
                         initial={'hidden'}
                         animate={'show'}
                         exit={'exit'}
-                    // style={{ height: '100%', width: '100%', display: 'flex', justifyContent: 'flex-end', flexDirection: 'column', padding: '0px 1px', }}
                     >
 
                         {
@@ -71,11 +71,25 @@ const ResultContentYTSummarize = ({ currentSummarize, showSummarize, isLoading, 
                                                 </Box>
                                             </CardHeader>
 
+                                            <CardBody>
+                                                <VStack
+                                                    divider={<StackDivider borderColor='gray.200' />}
+                                                >
+                                                    <Box className={styles.YouTubeResult}
+                                                        dangerouslySetInnerHTML={{ __html: sanitizeString(chatItem['assistant'].content) }}
+                                                    ></Box>
+                                                    <HStack
+                                                        divider={<StackDivider borderColor='gray.200' />}
+                                                        w='full' bg=''
+                                                        justifyContent={'flex-end'}
+                                                        pr={6}
+                                                    >
+                                                        <CopyToClipboardButton data={chatItem['assistant'].content} format='HTML' themeColor={themeColor} />
+                                                    </HStack>
 
-                                            <CardBody bg='' className={styles.YouTubeResult} dangerouslySetInnerHTML={{ __html: sanitizeString(chatItem['assistant'].content) }}>
+                                                </VStack>
 
                                             </CardBody>
-
                                         </Card>
                                     </Fragment>
                                 )
