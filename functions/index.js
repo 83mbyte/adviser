@@ -49,10 +49,11 @@ exports.summarizeData = onRequest({
         return resp.status(400).json({ error: 'Bad request.' });
     } else {
 
-        const data_received = JSON.parse(req.body);
+        const request_data = JSON.parse(req.body);
+        const DEFAULT_BUCKET = process.env.DEFAULT_BUCKET;
 
         let isUserTokenValid = await getAuth(app)
-            .verifyIdToken(data_received.accessToken)
+            .verifyIdToken(request_data.accessToken)
             .then((decodedToken) => {
                 const uid = decodedToken.uid;
                 return ({ status: true, uid, message: 'Token verified successfully' })
@@ -66,45 +67,52 @@ exports.summarizeData = onRequest({
         }
 
         const userId = isUserTokenValid.uid;
-        const bucket = storage.bucket('adviserai.appspot.com');
+        const bucket = storage.bucket(DEFAULT_BUCKET);
 
         const openai = new OpenAI({
             apiKey: process.env.SECRET_KEY_OPENAI,
         });
 
-        switch (data_received.type) {
-            case 'getAudioInfo':
-                let audioInfo = null;
-                let urlValidationResponse = summarize.validateYoutubeURL(data_received.payload);
+        switch (request_data.type) {
+            case 'validateYoutubeURL':
+
+                let urlValidationResponse = summarize.validateYoutubeURL(request_data.payload);
 
                 if (!urlValidationResponse) {
                     return resp.status(500).json({ status: 'Error', message: 'Internal Server Error' });
                 } else if (urlValidationResponse.status == 'Error') {
                     return resp.status(200).json(urlValidationResponse);
+                } else {
+                    return resp.status(200).json(urlValidationResponse)
                 }
+                break;
 
-                audioInfo = await summarize.collectYouTubeInfo(data_received.payload);
+            case 'getAudioInfo':
+                let audioInfo = await summarize.collectYouTubeInfo(request_data.payload);
+
                 if (!audioInfo) {
                     return resp.status(500).json({ status: 'Error', message: 'Internal Server Error' });
-                } else if (audioInfo.status == 'Error') {
-
+                }
+                else if (audioInfo.status == 'Error' || audioInfo.status == 'Success') {
                     return resp.status(200).json(audioInfo)
                 }
-                let audioFileSizeMb = (Number(audioInfo.payload.contentLength) / 1024 / 1024).toFixed(2); // size in MB after being downloaded
 
-                if (urlValidationResponse.status == 'Success' && audioInfo.status == 'Success') {
-                    const bucket = storage.bucket('adviserai.appspot.com');
-                    const file = bucket.file(`ytdl/${userId}/audio_source.${audioInfo.payload.container}`);
+                // let audioFileSizeMb = (Number(audioInfo.payload.contentLength) / 1024 / 1024).toFixed(2); // size in MB after being downloaded
+                break;
 
-                    let res = await summarize.downloadAudioFile(url = data_received.payload, info = audioInfo.payload, fileToSave = file, userId);
 
-                    if (res && res.status !== 'Success') {
-                        return resp.status(200).json(res);
-                    } else {
-                        let fileUrl = await getDownloadURL(file);
+            case 'downloadAudioFile':
 
-                        return resp.status(200).json({ status: 'Success', payload: { ...audioInfo.payload, fileUrl } });
-                    }
+                const filePath = bucket.file(`ytdl/${userId}/audio_source.${request_data.payload.info.container}`);
+
+                let res = await summarize.downloadAudioFile(url = request_data.payload.url, info = request_data.payload.info, fileToSave = filePath, userId);
+
+                if (res && res.status !== 'Success') {
+                    return resp.status(200).json(res);
+                } else {
+
+                    let fileUrl = await getDownloadURL(filePath);
+                    return resp.status(200).json({ status: 'Success', payload: fileUrl });
                 }
 
                 break;
@@ -129,9 +137,9 @@ exports.summarizeData = onRequest({
                     return { timecodes, lastSegmentDuration }
                 }
 
-                if (data_received.payload) {
+                if (request_data.payload) {
 
-                    let fileUrl = data_received.payload;
+                    let fileUrl = request_data.payload;
 
                     async function getDuration(file) {
                         return new Promise((resolve, reject) => {
@@ -159,19 +167,19 @@ exports.summarizeData = onRequest({
                 break;
 
             case 'splitAudioOnSegments':
-                console.log(data_received.payload)
-                let fileUrl = data_received.payload.fileUrl;
-                let fileContainer = data_received.payload.fileContainer;
-                let fileIndex = data_received.payload.fileIndex;
+
+                let fileUrl = request_data.payload.fileUrl;
+                let fileContainer = request_data.payload.fileContainer;
+                let fileIndex = request_data.payload.fileIndex;
 
                 let segmentDuration = 3600;
-                if (data_received.payload.lastSegmentDuration) {
-                    segmentDuration = data_received.payload.lastSegmentDuration;
+                if (request_data.payload.lastSegmentDuration) {
+                    segmentDuration = request_data.payload.lastSegmentDuration;
                 };
 
 
                 let fileSegment = bucket.file(`ytdl/${userId}/segment_${fileIndex}.${fileContainer}`);
-                let startTime = data_received.payload.startTime;
+                let startTime = request_data.payload.startTime;
 
                 async function cutAudio(fileUrl, fileContainer, fileIndex, fileSegment, startTime,) {
 
@@ -223,8 +231,8 @@ exports.summarizeData = onRequest({
 
             case 'getTextFromAudio':
 
-                let file = bucket.file(`ytdl/${userId}/${data_received.payload.fileName}`);
-                let extractedText = await summarize.extractTextFromAudioFile(openai, file, data_received.payload.mimeType);
+                let file = bucket.file(`ytdl/${userId}/${request_data.payload.fileName}`);
+                let extractedText = await summarize.extractTextFromAudioFile(openai, file, request_data.payload.mimeType);
 
                 if (extractedText && extractedText.status == 'Success') {
                     return resp.status(200).json({ status: 'Success', content: extractedText.payload }); //text-from-audio received
@@ -234,7 +242,7 @@ exports.summarizeData = onRequest({
                 break;
             case 'summarizeText':
 
-                let summarizeResult = await summarize.summarizeText(openai, data_received.payload);
+                let summarizeResult = await summarize.summarizeText(openai, request_data.payload);
                 if (summarizeResult) {
 
                     let stringText = summarizeResult.payload;
@@ -543,6 +551,7 @@ const createCompletions = async (dataJSON) => {
     let presence_p = data.presence_p || 0;
     let frequency_p = data.frequency_p || 0;
     let temperature = data.temperature || 1;
+    let n_param = data.n_param || 1;
 
     if (data.systemVersion) {
         switch (data.systemVersion) {
@@ -563,13 +572,15 @@ const createCompletions = async (dataJSON) => {
         presence_penalty: presence_p,
         frequency_penalty: frequency_p,
         max_tokens: data.tokens,
+        n: n_param,
         messages: data.messagesArray,
     });
 
     // console.log('-------------------')
     // console.log(completion)
     // console.log('--=====================-')
-    return completion.choices[0].message.content
+    return completion.choices
+    // return completion.choices[0].message.content
 }
 
 // Dall-e

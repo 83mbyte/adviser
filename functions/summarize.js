@@ -59,7 +59,7 @@ module.exports = {
                 metadata: {
                     contentType: `audio/${info.container}`,
                     metadata: {
-                        source: 'youtube',
+                        source: url,
                         downloadedBy: userId,
                     }
                 }

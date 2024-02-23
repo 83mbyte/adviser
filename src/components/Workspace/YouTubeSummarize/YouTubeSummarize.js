@@ -122,19 +122,36 @@ const YouTubeSummarize = ({ showNoHistoryVideoIssue, setShowNoHistoryVideoIssue 
         let tmpProgressValue = 0;
 
         try {
+            let isValidYouTubeURL = await getReplyFromAssistant({ type: 'validateYoutubeURL', accessToken, payload: data.value }, 'summarize');
+            setProgressValue(3);
+
+            if (!isValidYouTubeURL || isValidYouTubeURL.status == 'Error') {
+                throw new Error(isValidYouTubeURL.message ? isValidYouTubeURL.message : 'the request can not be fulfilled');
+            }
+            setProgressValue(7);
             let respAudioInfo = await getReplyFromAssistant({ type: 'getAudioInfo', accessToken, payload: data.value }, 'summarize');
 
             if (!respAudioInfo || respAudioInfo.status == 'Error') {
 
                 throw new Error(respAudioInfo.message ? respAudioInfo.message : 'the request can not be fulfilled');
             }
-            else if (respAudioInfo.status == 'Success') {
+
+            if (respAudioInfo.status == 'Success') {
 
                 setProgressValue(10);
 
                 let audioInfo = respAudioInfo.payload;
-                let fileUrl = audioInfo.fileUrl;
+
                 let fileContainer = audioInfo.container;
+
+                let respDownloadFile = await getReplyFromAssistant({ type: 'downloadAudioFile', accessToken, payload: { url: data.value, info: audioInfo } }, 'summarize');
+
+                if (respDownloadFile.status !== 'Success') {
+                    throw new Error(respDownloadFile.message ? respDownloadFile.message : 'the request can not be fulfilled');
+                }
+                let fileUrl = respDownloadFile.payload;
+                setProgressValue(25);
+
 
                 if (audioInfo.contentLength < 25000000) {
 
