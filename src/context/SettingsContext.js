@@ -29,6 +29,7 @@ const SettingsContextProvider = ({ children }) => {
         replyStyle: 'Facts only',
         replyTone: 'Casual',
         replyFormat: 'Plain text',
+        replyCount: '1',
         systemVersion: 'GPT-3.5',
         temperature: 1,
         frequency_p: 0,

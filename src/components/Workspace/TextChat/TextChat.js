@@ -35,8 +35,9 @@ const TextChat = ({ showNoHistoryIssue, setShowNoHistoryIssue }) => {
     const settingsContext = useSettingsContext();
     const { themeColor } = settingsContext.userThemeColor;
     const { subscription } = settingsContext.userSubscription;
-    const { replyLength, replyStyle, replyTone, replyFormat, systemVersion, temperature, frequency_p, presence_p } = settingsContext.chatSettings.chatSettings;
+    const { replyLength, replyStyle, replyTone, replyFormat, replyCount, systemVersion, temperature, frequency_p, presence_p } = settingsContext.chatSettings.chatSettings;
     const { transcribedText, setTranscribedText } = settingsContext.transcribedTextData;
+
 
     const historyContext = useHistoryContext();
     const history = historyContext.history.chats;
@@ -181,11 +182,11 @@ const TextChat = ({ showNoHistoryIssue, setShowNoHistoryIssue }) => {
         setShowChatSettings(true);
     }
 
-    const addToHistory = async (userRequest, assistantReply) => {
+    const addToHistory = async (userRequest, assistantReply, format) => {
         let requestAndReplyItem =
         {
             user: { content: userRequest },
-            assistant: { content: assistantReply },
+            assistant: { content: assistantReply, format },
         }
 
         if (subscription?.type) {
@@ -242,22 +243,22 @@ const TextChat = ({ showNoHistoryIssue, setShowNoHistoryIssue }) => {
 
                         if (arrayHistory.length > 0) {
                             for (let i = 0; i <= arrayHistory.length - 1; i++) {
-                                arrayDiscussionContext.push({ role: 'assistant', content: arrayHistory[i].assistant.content })
+                                arrayDiscussionContext.push({ role: 'assistant', content: arrayHistory[i].assistant.content[0] })
                             }
                         }
                         break;
                     case 'GPT-3.5':
 
                         if (arrayHistory.length >= 2) {
-                            arrayDiscussionContext.push({ role: 'assistant', content: arrayHistory[arrayHistory.length - 2].assistant.content });
-                            arrayDiscussionContext.push({ role: 'assistant', content: arrayHistory[arrayHistory.length - 1].assistant.content });
+                            arrayDiscussionContext.push({ role: 'assistant', content: arrayHistory[arrayHistory.length - 2].assistant.content[0] });
+                            arrayDiscussionContext.push({ role: 'assistant', content: arrayHistory[arrayHistory.length - 1].assistant.content[0] });
                         }
                         else {
-                            arrayDiscussionContext.push({ role: 'assistant', content: arrayHistory[arrayHistory.length - 1].assistant.content });
+                            arrayDiscussionContext.push({ role: 'assistant', content: arrayHistory[arrayHistory.length - 1].assistant.content[0] });
                         }
 
                     default:
-                        arrayDiscussionContext.push({ role: 'assistant', content: arrayHistory[arrayHistory.length - 1].assistant.content });
+                        arrayDiscussionContext.push({ role: 'assistant', content: arrayHistory[arrayHistory.length - 1].assistant.content[0] });
                         break;
                 }
 
@@ -274,10 +275,19 @@ const TextChat = ({ showNoHistoryIssue, setShowNoHistoryIssue }) => {
                 messagesArray = [systemMessage, { role: 'user', content: data.value }];
             }
 
-            let resp = await getReplyFromAssistant({ messagesArray, tokens: 4000, systemVersion, temperature, frequency_p, presence_p }, 'chat');
+            let resp = await getReplyFromAssistant({ messagesArray, tokens: 4000, systemVersion, temperature, frequency_p, presence_p, n_param: Number(replyCount) }, 'chat');
 
             if (resp) {
-                addToHistory(data.value, resp.content)
+
+                let responseArray = [];
+
+                if (resp.content.length >= 1) {
+                    for (const item of resp.content) {
+                        responseArray.push(item.message.content)
+                    }
+                }
+
+                addToHistory(data.value, responseArray, replyFormat)
             }
 
         } catch (error) {
@@ -287,7 +297,7 @@ const TextChat = ({ showNoHistoryIssue, setShowNoHistoryIssue }) => {
                 position: 'top-right',
                 title: `Error.. the request can not be fulfilled`,
                 status: 'error',
-                duration: 2000,
+                duration: 5000,
                 containerStyle: {
                     maxWidth: '100%',
                     marginTop: '100px'

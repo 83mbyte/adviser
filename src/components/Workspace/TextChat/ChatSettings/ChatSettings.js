@@ -8,7 +8,7 @@ import { MdRule } from "react-icons/md";
 import { RiSpeakLine } from "react-icons/ri";
 import { AiFillEdit } from "react-icons/ai";
 import { BiSolidNetworkChart } from "react-icons/bi";
-import { RxSlider, RxFileText } from "react-icons/rx";
+import { RxSlider, RxFileText, RxLayers } from "react-icons/rx";
 
 import { dbAPI } from '@/src/lib/dbAPI';
 import { useAuthContext } from '@/src/context/AuthContextProvider';
@@ -81,6 +81,11 @@ const settingsArray = [
                 buttons: ['Funny', 'Casual', 'Philosophical', 'Professional'],
                 icon: RiSpeakLine,
             },
+
+        ]
+    }, {
+        title: 'Output adjustment',
+        data: [
             {
                 subTitle: 'Set output format',
                 badge: 'new',
@@ -88,9 +93,23 @@ const settingsArray = [
                 uiElement: 'buttons',
                 buttons: ['Plain text', 'HTML'],
                 icon: RxFileText,
+                descr: {
+                    0: `The output will be provided as plain text, without formatting.`,
+                    1: 'The output will be provided in HTML format.'
+
+                }
+            },
+            {
+                subTitle: 'Set alternative replies number',
+                badge: 'new',
+                blockDescr: `Set this opt to get the alternative replies (variants) on your request. It allows to choose more suitable assistant's reply for your needs.`,
+                key: 'replyCount',
+                uiElement: 'buttons',
+                buttons: ['1', '2', '3'],
+                icon: RxLayers,
             }
         ]
-    },
+    }
 ]
 
 const ChatSettings = ({ themeColor }) => {
@@ -147,48 +166,56 @@ const ChatSettings = ({ themeColor }) => {
                                                         </Text>
                                                     </HStack>
                                                     {
+                                                        el.blockDescr && <Text fontSize='xs'>{el.blockDescr}</Text>
+                                                    }
+                                                    {
                                                         el.uiElement == 'buttons' &&
                                                         <Stack flexWrap={'wrap'} flexDirection={'row'} mb={1}  >
                                                             {
 
                                                                 el.buttons.map((btn, btnIndex) => {
+
                                                                     return (
-                                                                        <Fragment key={btnIndex}>
-                                                                            <Button
+                                                                        <Box key={btnIndex} bg='' mb={1}>
+                                                                            <Box>
+                                                                                <Button
 
-                                                                                leftIcon={
-                                                                                    chatSettings[el.key] === btn ? <CheckIcon color='green' show={true} /> : <CheckIcon color='green' show={false} />
+                                                                                    leftIcon={
+                                                                                        chatSettings[el.key] === btn ? <CheckIcon color='green' show={true} /> : <CheckIcon color='green' show={false} />
 
-                                                                                }
-                                                                                colorScheme={themeColor}
-                                                                                variant={'ghost'}
-                                                                                size={['xs', 'md']}
-                                                                                py={['2', '3']}
-                                                                                isDisabled={subscription?.type && subscription.type !== 'Premium' && btn == 'GPT-4'}
-                                                                                onClick={() => {
+                                                                                    }
+                                                                                    colorScheme={themeColor}
+                                                                                    variant={'ghost'}
+                                                                                    size={['xs', 'md']}
+                                                                                    py={['2', '3']}
+                                                                                    isDisabled={subscription?.type && subscription.type !== 'Premium' && btn == 'GPT-4'}
+                                                                                    onClick={() => {
 
-                                                                                    setChatSettings({
-                                                                                        ...chatSettings,
-                                                                                        [el.key]: btn
-                                                                                    });
-                                                                                    setSettingsUpdated(true);
-                                                                                }}
-                                                                            >{btn}</Button>
-                                                                            {
-                                                                                subscription?.type && subscription.type !== 'Premium' && btn == 'GPT-4' && <Box>
-                                                                                    <Box borderWidth='1px' borderColor={'yellow.400'} p={'1px 3px'} mx={0} borderRadius={'3px'} >
-                                                                                        <Text color='yellow.600' fontSize={['2xs', 'xs']} fontWeight={'semibold'}>Premium plan required</Text>
+                                                                                        setChatSettings({
+                                                                                            ...chatSettings,
+                                                                                            [el.key]: btn
+                                                                                        });
+                                                                                        setSettingsUpdated(true);
+                                                                                    }}
+                                                                                >{btn}</Button>
+                                                                                {
+                                                                                    subscription?.type && subscription.type !== 'Premium' && btn == 'GPT-4' && <Box>
+                                                                                        <Box borderWidth='1px' borderColor={'yellow.400'} p={'1px 3px'} mx={0} borderRadius={'3px'} >
+                                                                                            <Text color='yellow.600' fontSize={['2xs', 'xs']} fontWeight={'semibold'}>Premium plan required</Text>
+                                                                                        </Box>
                                                                                     </Box>
-                                                                                </Box>
-                                                                            }
+                                                                                }
+                                                                            </Box>
+                                                                            <Box>
+                                                                                {
+                                                                                    el.descr &&
+                                                                                    <Box display={'flex'} justifyContent={'center'} mb={[2, 5]}>
+                                                                                        <Text fontSize={['xs', 'xs']}>{el.descr[btnIndex]}</Text>
+                                                                                    </Box>
+                                                                                }
+                                                                            </Box>
 
-                                                                            {
-                                                                                el.descr &&
-                                                                                <Box display={'flex'} justifyContent={'center'} mb={[2, 5]}>
-                                                                                    <Text fontSize={['xs', 'sm']}>{el.descr[btnIndex]}</Text>
-                                                                                </Box>
-                                                                            }
-                                                                        </Fragment>
+                                                                        </Box>
                                                                     )
                                                                 })
                                                             }
