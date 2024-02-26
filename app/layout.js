@@ -4,7 +4,7 @@ import { GoogleTagManager } from '@next/third-parties/google';
 
 export const metadata = {
   title: `${process.env.NEXT_PUBLIC_APP_NAME} - Your AI Assistant | Streamline Tasks`,
-  description: `${process.env.NEXT_PUBLIC_APP_NAME} is an AI-powered assistant that streamlines your tasks effortlessly. Customize your chat experience.`,
+  description: `${process.env.NEXT_PUBLIC_APP_NAME} is an AI-powered assistant that streamlines your tasks effortlessly. Customize your chat experience. Image generator. Summarize video.`,
   manifest: './icons/site.webmanifest',
 }
 
