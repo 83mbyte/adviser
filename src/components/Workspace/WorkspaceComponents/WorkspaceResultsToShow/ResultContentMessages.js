@@ -119,7 +119,7 @@ const ChatItem = ({ data, role, themeColor, setPromptToRepeat }) => {
                 >
                     {role == 'user'
                         ? <Text fontSize={['xs', 'md']} w={'full'} >{data.content}</Text>
-                        : <AssistantReplyBlock data={data.content} format={data.format} themeColor={themeColor} />
+                        : <AssistantReplyBlock data={typeof data.content == 'string' ? [data.content] : data.content} format={data.format} themeColor={themeColor} />
                     }
 
                     {
