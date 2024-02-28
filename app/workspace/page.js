@@ -26,7 +26,7 @@ export default function WorkspacePage() {
             let resp = await dbAPI.getUserFullData(userId);
 
             if (resp.status == 'Success') {
-                setHistoryFromDB({ historyChats: resp.payload.chats, historySummarizeYT: resp.payload.summarizeYT });
+                setHistoryFromDB({ chats: resp.payload.chats, summarizeYT: resp.payload.summarizeYT });
                 setSettingsFromDB(resp.payload.settings);
             }
         }
