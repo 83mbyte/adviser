@@ -665,14 +665,34 @@ exports.userDeleted = functions.auth.user().onDelete((user) => {
 
 const createUserInDB = async (userId, email, isVerified) => {
 
-    // create initial db documents for a new  user //
+    //new
+    const timeStamp = Timestamp.now();
+    const start = timeStamp.toMillis();
+    const period = start + 259200000;
+
+    const usersColl = db.collection(process.env.DB_NAME).doc(process.env.DB_USERS_DOC).collection(userId);
+    const userChatsDoc = usersColl.doc('chats');
+    const userSummYTDoc = usersColl.doc('summarizeYT');
+    const userSettingsDoc = usersColl.doc('settings');
+    await userChatsDoc.set({}, { merge: true });
+    await userSummYTDoc.set({}, { merge: true });
+    await userSettingsDoc.set({
+        userInfo: {
+            subscription: {
+                type: 'Trial',
+                period,
+                trialOffers: { images: 0, youtube: 0 }
+            },
+            isEmailVerified: isVerified || false,
+            email
+        }
+    }, { merge: true });
+
+    // -----old
     const chatsUserDoc = db.collection('chats').doc(userId);
     const usersUserDoc = db.collection('users').doc(userId);
     const summarizeYTUserDoc = db.collection('summarizeYT').doc(userId);
 
-    const timeStamp = Timestamp.now();
-    const start = timeStamp.toMillis();
-    const period = start + 259200000;
     await chatsUserDoc.set({}, { merge: true });
     await summarizeYTUserDoc.set({}, { merge: true });
     await usersUserDoc.set({ theme: 'green', plan: { period, type: 'Trial', imgTrial: 0, trialOffers: { images: 0, youtube: 0 } }, userData: { email, isVerified } }, { merge: true });
@@ -681,7 +701,7 @@ const createUserInDB = async (userId, email, isVerified) => {
 }
 
 const deleteUserInDB = async (userId) => {
-
+    //old
     const chatsUserDoc = db.collection('chats').doc(userId);
     const usersUserDoc = db.collection('users').doc(userId);
     const summarizeYTUserDoc = db.collection('summarizeYT').doc(userId);
@@ -689,6 +709,12 @@ const deleteUserInDB = async (userId) => {
     await chatsUserDoc.delete();
     await usersUserDoc.delete();
     await summarizeYTUserDoc.delete();
+    //
+    const usersColl = db.collection(process.env.DB_NAME).doc(process.env.DB_USERS_DOC).collection(userId);
+
+    await usersColl.doc('chats').delete();
+    await usersColl.doc('summarizeYT').delete();
+    await usersColl.doc('settings').delete();
 
     return `User (${userId}) deleted from DataBase.`
 }
