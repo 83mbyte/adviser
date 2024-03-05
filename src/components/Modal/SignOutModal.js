@@ -1,11 +1,12 @@
 import { Box, Card, CardBody, CardFooter, Button, HStack, Heading, Text, VStack } from "@chakra-ui/react";
 
-import { useSettingsContext } from "@/src/context/SettingsContext";
 import { authAPI } from "@/src/lib/authAPI";
+import { useSettingsContext } from "@/src/context/SettingsContext/SettingsContextProvider";
 
 const SignOutModal = ({ handleClose }) => {
 
-    const { themeColor } = useSettingsContext().userThemeColor;
+    const themeColor = useSettingsContext().settings.UI.themeColor;
+
 
     return (
 

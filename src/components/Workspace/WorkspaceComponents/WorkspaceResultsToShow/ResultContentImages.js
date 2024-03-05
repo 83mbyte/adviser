@@ -1,15 +1,18 @@
+
 import { Box, Text, IconButton, Tooltip, Skeleton, Stack, Card, Image, CardBody, CardFooter, CardHeader, useToast } from "@chakra-ui/react";
 import { useRef, useEffect } from 'react';
 
 import { BsArrowRepeat } from "react-icons/bs";
 import { MdSaveAlt, MdZoomIn } from "react-icons/md";
 
-import { useSettingsContext } from "@/src/context/SettingsContext";
+
+import { useSettingsContext } from "@/src/context/SettingsContext/SettingsContextProvider";
 
 const ResultContentImages = ({ themeColor, currentImages, isLoading, setPromptToRepeat }) => {
     const toast = useToast();
     const chatHistoryRef = useRef(null);
-    const showModalSettings = useSettingsContext().showModalWindow;
+
+    const updateSettings = useSettingsContext().updateSettings;
 
     const save64toFile = async (base64String, fileNameSuffix) => {
         try {
@@ -94,7 +97,7 @@ const ResultContentImages = ({ themeColor, currentImages, isLoading, setPromptTo
                                                 variant={'ghost'}
                                                 fontSize='18px'
                                                 icon={<MdZoomIn />}
-                                                onClick={() => showModalSettings.setShowModal({ isShow: true, type: 'ZoomImgModal', body: chatItem['assistant'].content })}
+                                                onClick={() => updateSettings('UI', 'showModal', { isShow: true, type: 'ZoomImgModal', body: chatItem['assistant'].content })}
                                             />
                                         </Tooltip>
                                         <Tooltip label='Download' hasArrow bg={`${themeColor}.500`}>

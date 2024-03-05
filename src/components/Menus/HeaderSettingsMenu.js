@@ -22,15 +22,17 @@ import { MdMenu, MdChat, MdImage, MdAttachMoney } from "react-icons/md";
 import { RiYoutubeFill } from "react-icons/ri";
 import { dbAPI } from '@/src/lib/dbAPI';
 import { useAuthContext } from '@/src/context/AuthContextProvider';
-import { useSettingsContext } from '@/src/context/SettingsContext';
+import { useSettingsContext } from '@/src/context/SettingsContext/SettingsContextProvider';
+
 
 const colors = ['green', 'teal', 'orange', 'purple', 'pink']
 
-const HeaderSettingsMenu = ({ setThemeColor, themeColor, openNewWindowHandler }) => {
+const HeaderSettingsMenu = ({ openNewWindowHandler }) => {
 
-    const userSettings = useSettingsContext();
-    const showModalSettings = userSettings.showModalWindow;
-    const { subscription } = userSettings.userSubscription;
+    const settingsContext = useSettingsContext();
+
+    const subscription = settingsContext.settings.userInfo.subscription;
+    const themeColor = settingsContext.settings.UI.themeColor;
 
     const user = useAuthContext();
 
@@ -39,14 +41,20 @@ const HeaderSettingsMenu = ({ setThemeColor, themeColor, openNewWindowHandler })
     const themeChangeHandler = (e, color) => {
         e.preventDefault();
         e.stopPropagation();
-        setThemeColor(color);
+        settingsContext.updateSettings('UI', 'themeColor', color)
         setColorChanged(true);
     }
 
     const saveColorScheme = async () => {
         if (colorChanged === true) {
             try {
-                await dbAPI.updateUserData(user.uid, 'theme', themeColor);
+
+                await dbAPI.updateServerData({
+                    userId: user.uid, docName: 'settings', field: 'UI', data: {
+
+                        themeColor
+                    }
+                });
                 setColorChanged(false);
             } catch (error) {
                 console.error(error)
@@ -76,8 +84,6 @@ const HeaderSettingsMenu = ({ setThemeColor, themeColor, openNewWindowHandler })
                                         <Box>
                                             <Text mb={'2'}>Model</Text>
                                             <VStack alignItems={'flex-start'}>
-                                                <Button isDisabled={subscription?.period && subscription.period < Date.now()} leftIcon={<MdChat />} size='sm' variant={'ghost'} colorScheme={themeColor} onClick={() => { openNewWindowHandler('textchat'); onClose(); }}>Chat bot</Button>
-
                                                 <HStack>
                                                     <Button leftIcon={<MdImage />} isDisabled={subscription?.period && subscription.period < Date.now() || subscription?.type && subscription.type == 'Basic'} size='sm' variant={'ghost'} colorScheme={themeColor} onClick={() => { openNewWindowHandler('image'); onClose() }}>Generate image</Button>
                                                     {
@@ -88,6 +94,9 @@ const HeaderSettingsMenu = ({ setThemeColor, themeColor, openNewWindowHandler })
                                                         </Box>
                                                     }
                                                 </HStack>
+
+                                                <Button isDisabled={subscription?.period && subscription.period < Date.now()} leftIcon={<MdChat />} size='sm' variant={'ghost'} colorScheme={themeColor} onClick={() => { openNewWindowHandler('textchat'); onClose(); }}>Chat bot</Button>
+
                                                 <HStack>
                                                     <Button isDisabled={subscription?.period && subscription.period < Date.now() || subscription?.type && subscription.type == 'Basic'} leftIcon={<RiYoutubeFill />} size='sm' variant={'ghost'} colorScheme={themeColor} onClick={() => { openNewWindowHandler('ytsummarize'); onClose(); }}>Summarize video</Button>
                                                     {
@@ -118,10 +127,10 @@ const HeaderSettingsMenu = ({ setThemeColor, themeColor, openNewWindowHandler })
                                                                 as={motion.div}
                                                                 initial={{ scale: 1 }}
                                                                 whileHover={{ scale: 1.2, y: -5 }}
-                                                                whileInView={themeColor === color ? { y: [0, -7, 0], transition: { repeat: Infinity, duration: 0.8, type: 'tween', ease: 'easeInOut' } } : { y: 0 }}
+                                                                whileInView={themeColor === color ? { y: [0, -3, 0], transition: { repeat: Infinity, duration: 0.8, type: 'tween', ease: 'easeInOut' } } : { y: 0 }}
                                                                 key={index}
-                                                                boxSize={color == themeColor ? '33px' : '30px'}
-                                                                borderRadius={'50%'} bg={color}
+                                                                boxSize={color == themeColor ? '30px' : '25px'}
+                                                                borderRadius={'2px'} bg={color}
                                                                 // borderColor={'red.500'}
                                                                 borderWidth={color == themeColor ? '2px' : '0px'}
                                                                 onClick={(e) => themeChangeHandler(e, color)}><Spacer /></Box>
@@ -131,7 +140,7 @@ const HeaderSettingsMenu = ({ setThemeColor, themeColor, openNewWindowHandler })
                                             </HStack>
                                         </Box>
                                         <Button size='sm' variant={'outline'} colorScheme='red'
-                                            onClick={() => showModalSettings.setShowModal({ isShow: true, type: 'SignOut' })}>Sign out</Button>
+                                            onClick={() => settingsContext.updateSettings('UI', 'showModal', { isShow: true, type: 'SignOut' })}>Sign out</Button>
                                     </Stack>
                                 </PopoverBody>
                             </PopoverContent>

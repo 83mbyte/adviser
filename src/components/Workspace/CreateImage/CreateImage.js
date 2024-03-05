@@ -1,16 +1,17 @@
-import { useAuthContext } from "@/src/context/AuthContextProvider";
-import { useSettingsContext } from "@/src/context/SettingsContext";
-import { useToast } from "@chakra-ui/react";
-import { AnimatePresence, motion } from "framer-motion";
 import { useState, useEffect, useRef } from "react";
 
+import { AnimatePresence, motion } from "framer-motion";
 import { animationProps } from "@/src/lib/animationProps";
-
-
 import { HiOutlineLightBulb } from "react-icons/hi";
+
+import { useAuthContext } from "@/src/context/AuthContextProvider";
+import { useSettingsContext } from "@/src/context/SettingsContext/SettingsContextProvider";
+import { useToast } from "@chakra-ui/react";
+
 import WorkspaceCard from "../WorkspaceComponents/WorkspaceCard";
 import IdeasList from "./Ideas/IdeasList";
 import ResultContentImages from "../WorkspaceComponents/WorkspaceResultsToShow/ResultContentImages";
+
 import { getReplyFromAssistant } from "@/src/lib/fetchingData";
 import { dbAPI } from "@/src/lib/dbAPI";
 
@@ -22,15 +23,14 @@ const CreateImage = ({ showNoStoreImagesIssue, setShowNoStoreImagesIssue }) => {
     const user = useAuthContext();
 
     const settingsContext = useSettingsContext();
-    const { themeColor } = settingsContext.userThemeColor;
-    const { subscription, setSubscription } = settingsContext.userSubscription;
+    const themeColor = settingsContext.settings.UI.themeColor;
+    const subscription = settingsContext.settings.userInfo.subscription;
     const subscriptionType = subscription.type;
+    const userInfo = settingsContext.settings.userInfo;
 
-    const { imageSettings } = settingsContext.imageSettings;
-
+    const imageSettings = settingsContext.settings.imageSettings;
 
     //states
-
     const [showHeaderReturnPanel, setShowHeaderReturnPanel] = useState({ state: false, title: '' });  //return panel state
 
     const [promptToRepeat, setPromptToRepeat] = useState(null);
@@ -39,7 +39,7 @@ const CreateImage = ({ showNoStoreImagesIssue, setShowNoStoreImagesIssue }) => {
 
     const [imgHistory, setImgHistory] = useState({});
 
-    const { trialOffers, setTrialOffers } = settingsContext.trialOffers;
+    const trialOffers = settingsContext.settings.userInfo.subscription.trialOffers;
 
     const [showIdeas, setShowIdeas] = useState(false);
     const [selectedIdea, setSelectedIdea] = useState(null);
@@ -111,7 +111,6 @@ const CreateImage = ({ showNoStoreImagesIssue, setShowNoStoreImagesIssue }) => {
 
         try {
 
-            // let resp = { content: 'image_source_must_be_here' }
             let resp = await getReplyFromAssistant({ size: imageSettings.size, request: data.value, quality: imageSettings.quality, style: imageSettings.style }, 'image');
 
             if (resp) {
@@ -140,12 +139,6 @@ const CreateImage = ({ showNoStoreImagesIssue, setShowNoStoreImagesIssue }) => {
                 if (subscriptionType == 'Trial') {
 
                     let newValueTrialImagesCount = trialOffers.images + 1;
-
-                    setTrialOffers({
-                        ...trialOffers,
-                        images: newValueTrialImagesCount
-                    });
-
                     let dataToUpload = {
                         ...subscription,
                         trialOffers: {
@@ -154,7 +147,7 @@ const CreateImage = ({ showNoStoreImagesIssue, setShowNoStoreImagesIssue }) => {
                         }
                     }
 
-                    setSubscription({
+                    settingsContext.updateSettings('userInfo', 'subscription', {
                         ...subscription,
                         trialOffers: {
                             ...subscription.trialOffers,
@@ -162,7 +155,15 @@ const CreateImage = ({ showNoStoreImagesIssue, setShowNoStoreImagesIssue }) => {
                         }
                     });
 
-                    await dbAPI.updateUserData(user.uid, 'plan', dataToUpload);
+                    await dbAPI.updateServerData({
+                        userId: user.uid,
+                        docName: 'settings',
+                        field: 'userInfo',
+                        data: {
+                            ...userInfo,
+                            subscription: dataToUpload
+                        }
+                    })
                 }
             }
 

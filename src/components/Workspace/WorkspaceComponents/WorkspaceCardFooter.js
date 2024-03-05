@@ -5,8 +5,9 @@ import { sanitize } from 'isomorphic-dompurify';
 import { FaMicrophone } from "react-icons/fa";
 
 import AdjustImageMenu from '../../Menus/AdjustImageMenu';
-import { useSettingsContext } from '@/src/context/SettingsContext';
+
 import SummarizeYTMenu from '../../Menus/SummarizeYTMenu';
+import { useSettingsContext } from '@/src/context/SettingsContext/SettingsContextProvider';
 
 const footerVisibilityAnimation = {
     visible: custom => ({
@@ -45,7 +46,11 @@ const textAreaAnimation = {
     multiRows: { height: '70px' }
 }
 
-const WorkspaceCardFooter = forwardRef(function WorkspaceCardFooterRef({ inputValue, showFooter, themeColor, footerVariant, onSubmitHandler, isDisabled, currentChatHistoryId, isLoading, }, ref) {
+const WorkspaceCardFooter = forwardRef(function WorkspaceCardFooterRef({ inputValue, showFooter, footerVariant, onSubmitHandler, isDisabled, currentChatHistoryId, isLoading, }, ref) {
+
+    const settingsContext = useSettingsContext();
+    const themeColor = settingsContext.settings.UI.themeColor;
+    const summarizeSettings = settingsContext.settings.summarizeSettings;
 
     const footerHeightVariant = useBreakpointValue(
         {
@@ -63,14 +68,23 @@ const WorkspaceCardFooter = forwardRef(function WorkspaceCardFooterRef({ inputVa
         ref.current.value = '';
     }
 
+    function updateSummarizeSettings(value) {
+        settingsContext.updateSettings('summarizeSettings', 'operation', value)
+    }
+
+    function updateModalSettings(value) {
+        settingsContext.updateSettings('UI', 'showModal', value)
+
+    }
+
     let footerForm = null;
 
     switch (footerVariant) {
         case 'ytsummarize':
-            footerForm = <FormSummarizeYT ref={ref} defaultValue={inputValue} themeColor={themeColor} onSubmitButtonHandler={onSubmitButtonHandler} isDisabled={isDisabled} isLoading={isLoading} />
+            footerForm = <FormSummarizeYT ref={ref} defaultValue={inputValue} summarizeSettings={summarizeSettings} updateSummarizeSettings={updateSummarizeSettings} themeColor={themeColor} onSubmitButtonHandler={onSubmitButtonHandler} isDisabled={isDisabled} isLoading={isLoading} />
             break;
         case 'textchat':
-            footerForm = <FormTextChat ref={ref} defaultValue={inputValue} themeColor={themeColor} onSubmitButtonHandler={onSubmitButtonHandler} isDisabled={isDisabled} isLoading={isLoading} />
+            footerForm = <FormTextChat ref={ref} defaultValue={inputValue} themeColor={themeColor} onSubmitButtonHandler={onSubmitButtonHandler} isDisabled={isDisabled} isLoading={isLoading} updateModalSettings={updateModalSettings} />
             break;
         case 'image':
             footerForm = <FormImageCreate ref={ref} defaultValue={inputValue} themeColor={themeColor} onSubmitButtonHandler={onSubmitButtonHandler} isDisabled={isDisabled} isLoading={isLoading} />
@@ -127,15 +141,15 @@ const WorkspaceCardFooter = forwardRef(function WorkspaceCardFooterRef({ inputVa
 
 export default WorkspaceCardFooter;
 
-const FormSummarizeYT = forwardRef(function FormSummarizeYTRef({ themeColor, defaultValue, onSubmitButtonHandler, isDisabled, isLoading }, ref) {
-    const summarizeSettings = useSettingsContext().summarizeSettings.summarizeSettings;
+const FormSummarizeYT = forwardRef(function FormSummarizeYTRef({ themeColor, summarizeSettings, updateSummarizeSettings, defaultValue, onSubmitButtonHandler, isDisabled, isLoading }, ref) {
+
 
     return (
 
         <Fragment key={'formYTubeSummarize'}>
             <Input ref={ref} isDisabled={isDisabled} placeholder="https://www.youtube.com/watch?v=Video_ID" defaultValue={defaultValue} spellCheck={false} />
             <Box display={'flex'} flexDirection={'row'} columnGap={2}>
-                <SummarizeYTMenu themeColor={themeColor} isDisabled={isDisabled} />
+                <SummarizeYTMenu themeColor={themeColor} summarizeSettings={summarizeSettings} updateSummarizeSettings={updateSummarizeSettings} isDisabled={isDisabled} />
                 <Button
                     colorScheme={themeColor}
                     isDisabled={isDisabled}
@@ -151,8 +165,7 @@ const FormSummarizeYT = forwardRef(function FormSummarizeYTRef({ themeColor, def
     )
 })
 
-const FormTextChat = forwardRef(function FormTextChatRef({ themeColor, onSubmitButtonHandler, isDisabled, defaultValue, isLoading }, ref) {
-    const showModalSettings = useSettingsContext().showModalWindow;
+const FormTextChat = forwardRef(function FormTextChatRef({ themeColor, onSubmitButtonHandler, isDisabled, defaultValue, isLoading, updateModalSettings }, ref) {
 
     const checkInputHeight = (e) => {
         if (e.target.scrollHeight > 49 && e.target.value !== '') {
@@ -165,7 +178,7 @@ const FormTextChat = forwardRef(function FormTextChatRef({ themeColor, onSubmitB
     const [changeHeight, setChangeHeight] = useState(false);
 
     const toggleMic = () => {
-        showModalSettings.setShowModal({ isShow: true, type: 'VoiceRecording' });
+        updateModalSettings({ isShow: true, type: 'VoiceRecording' });
     }
 
     useEffect(() => {
@@ -212,6 +225,7 @@ const FormTextChat = forwardRef(function FormTextChatRef({ themeColor, onSubmitB
                             aria-label='microphone'
                             icon={<FaMicrophone />}
                             variant={'ghost'}
+                            isDisabled={isDisabled}
                             colorScheme={themeColor}
                             onClick={() => toggleMic()}
                         />

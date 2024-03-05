@@ -1,9 +1,11 @@
-import { useSettingsContext } from '@/src/context/SettingsContext';
-import { Box, Button, Card, CardBody, CardFooter, HStack, VStack, Heading, Text } from '@chakra-ui/react';
 import React from 'react';
+import { useSettingsContext } from '@/src/context/SettingsContext/SettingsContextProvider';
+import { Box, Button, Card, CardBody, CardFooter, HStack, VStack, Heading, Text } from '@chakra-ui/react';
+
 
 const SubscriptionNoticeModal = ({ renewCheckout }) => {
-    const { themeColor } = useSettingsContext().userThemeColor;
+    const themeColor = useSettingsContext().settings.UI.themeColor;
+
 
     return (
         <Box w={['full', 'md']} p={['4', '4']} mt={'-50%'}>

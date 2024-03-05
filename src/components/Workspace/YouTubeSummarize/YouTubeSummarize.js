@@ -3,8 +3,6 @@ import { useState, useEffect, useRef } from "react";
 import { getReplyFromAssistant } from "@/src/lib/fetchingData";
 import { useAuthContext } from "@/src/context/AuthContextProvider";
 import { useToast } from "@chakra-ui/react";
-import { useSettingsContext } from "@/src/context/SettingsContext";
-import { useHistoryContext } from "@/src/context/HistoryContextProvider";
 
 import { animationProps } from "@/src/lib/animationProps";
 
@@ -17,6 +15,8 @@ import { AnimatePresence, motion } from "framer-motion";
 import WorkspaceHistory from "../WorkspaceComponents/WorkspaceHistory/WorkspaceHistory";
 import WorkspaceCard from "../WorkspaceComponents/WorkspaceCard";
 import ResultContentYTSummarize from "../WorkspaceComponents/WorkspaceResultsToShow/ResultContentYTSummarize.js"
+import { useSettingsContext } from "@/src/context/SettingsContext/SettingsContextProvider";
+import { useHistoryContext } from "@/src/context/HistoryContext/HistoryContextProvider";
 
 
 const headerLeftButtons = null;
@@ -39,10 +39,12 @@ const YouTubeSummarize = ({ showNoHistoryVideoIssue, setShowNoHistoryVideoIssue 
     const accessToken = user.accessToken;
 
     const settingsContext = useSettingsContext();
-    const { subscription, setSubscription } = settingsContext.userSubscription;
-    const { trialOffers, setTrialOffers } = settingsContext.trialOffers;
-    const { themeColor } = settingsContext.userThemeColor;
-    const { summarizeSettings } = settingsContext.summarizeSettings;
+
+    const subscription = settingsContext.settings.userInfo.subscription;
+    const trialOffers = subscription.trialOffers;
+    const themeColor = settingsContext.settings.UI.themeColor;
+
+    const summarizeSettings = settingsContext.settings.summarizeSettings;
 
     const historyContext = useHistoryContext();
 
@@ -92,7 +94,7 @@ const YouTubeSummarize = ({ showNoHistoryVideoIssue, setShowNoHistoryVideoIssue 
 
     const clearItemFromHistory = async (historyId) => {
         console.log('deleting..')
-        let res = await dbAPI.deleteDocument('summarizeYT', user.uid, historyId);
+        let res = await dbAPI.deleteDocument({ userId: user.uid, docName: 'summarizeYT', field: historyId });
         if (res && res.status == 'Success') {
 
             historyContext.deleteFromHistory('summarizeYT', historyId)
@@ -100,7 +102,6 @@ const YouTubeSummarize = ({ showNoHistoryVideoIssue, setShowNoHistoryVideoIssue 
         else {
             console.error(res.message)
         }
-
         return 'done'
     }
 
@@ -312,7 +313,12 @@ const YouTubeSummarize = ({ showNoHistoryVideoIssue, setShowNoHistoryVideoIssue 
                         ]
                     }
 
-                    let updateRes = await dbAPI.updateData('summarizeYT', user.uid, historyId, dataToUpload);
+                    let updateRes = await dbAPI.updateServerData({
+                        userId: user.uid,
+                        docName: 'summarizeYT',
+                        field: historyId,
+                        data: dataToUpload
+                    })
 
                 }
             }
@@ -333,36 +339,39 @@ const YouTubeSummarize = ({ showNoHistoryVideoIssue, setShowNoHistoryVideoIssue 
 
             setProgressValue(77);
 
-            if (subscription.type == 'Trial') {
 
-                let newValueTrialImagesCount = trialOffers.youtube + 1;
-
-                setTrialOffers({
-                    ...trialOffers,
-                    youtube: newValueTrialImagesCount
-                });
-
-                let dataToUpload = {
-                    ...subscription,
-                    trialOffers: {
-                        ...subscription.trialOffers,
-                        youtube: newValueTrialImagesCount
-                    }
-                }
-
-                setSubscription({
-                    ...subscription,
-                    trialOffers: {
-                        ...subscription.trialOffers,
-                        youtube: newValueTrialImagesCount
-                    }
-                });
-
-                await dbAPI.updateUserData(user.uid, 'plan', dataToUpload);
-            }
 
             if (summarizeSettings.operation == 'summarize') {
                 let summarizedText = await getSummarizedText(textFromAudioObject.textArray, parser);
+                if (subscription.type == 'Trial') {
+
+                    let newValueTrialImagesCount = trialOffers.youtube + 1;
+                    let dataToUpload = {
+                        ...subscription,
+                        trialOffers: {
+                            ...subscription.trialOffers,
+                            youtube: newValueTrialImagesCount
+                        }
+                    }
+                    settingsContext.updateSettings('userInfo', 'subscription', {
+                        ...subscription,
+                        trialOffers: {
+                            ...subscription.trialOffers,
+                            youtube: newValueTrialImagesCount
+                        }
+                    });
+
+                    await dbAPI.updateServerData({
+                        userId: user.uid,
+                        docName: 'settings',
+                        field: 'userInfo',
+                        data: {
+                            ...settingsContext.settings.userInfo,
+                            subscription: dataToUpload
+                        }
+                    });
+
+                }
 
                 if (summarizedText) {
                     setProgressValue(96);
@@ -373,8 +382,6 @@ const YouTubeSummarize = ({ showNoHistoryVideoIssue, setShowNoHistoryVideoIssue 
                 // TODO create extract text with timecodes
                 // TODO create extract text with timecodes
                 // TODO create extract text with timecodes    
-                // TODO create extract text with timecodes
-                // TODO create extract text with timecodes
             }
 
         } catch (error) {

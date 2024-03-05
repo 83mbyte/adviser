@@ -12,7 +12,8 @@ import { RxSlider, RxFileText, RxLayers } from "react-icons/rx";
 
 import { dbAPI } from '@/src/lib/dbAPI';
 import { useAuthContext } from '@/src/context/AuthContextProvider';
-import { useSettingsContext } from '@/src/context/SettingsContext';
+import { useSettingsContext } from '@/src/context/SettingsContext/SettingsContextProvider';
+
 import SliderTemplate from '@/src/components/Slider/SliderTemplate';
 
 const settingsArray = [
@@ -114,25 +115,36 @@ const settingsArray = [
 
 const ChatSettings = ({ themeColor }) => {
     const settingsContext = useSettingsContext();
-    const { chatSettings, setChatSettings } = settingsContext.chatSettings;
-    const { subscription } = settingsContext.userSubscription;
+
+    const chatSettings = settingsContext.settings.chatSettings;
+
+    const subscription = settingsContext.settings.userInfo.subscription;
     const [settingsUpdated, setSettingsUpdated] = useState(false);
     const user = useAuthContext();
 
-    const updateSliderValue = (val, el) => {
 
-        setChatSettings({
-            ...chatSettings,
-            [el.key]: val
-        });
+    const updateSettings = (value, el) => {
+
+        settingsContext.updateSettings('chatSettings', el, value)
         setSettingsUpdated(true);
-
     }
     useEffect(() => {
         const onExitSave = async () => {
             if (settingsUpdated === true) {
-                let resp = await dbAPI.updateUserData(user.uid, 'chatSettings', chatSettings);
-                setSettingsUpdated(false);
+
+                let resp = await dbAPI.updateServerData({
+                    userId: user.uid,
+                    docName: 'settings',
+                    field: 'chatSettings',
+                    data: chatSettings
+                });
+                if (resp.status == 'Success') {
+                    setSettingsUpdated(false);
+                }
+                if (resp.status == 'Error') {
+                    console.error(resp.message)
+                }
+
             }
         }
         return () => onExitSave();
@@ -189,14 +201,7 @@ const ChatSettings = ({ themeColor }) => {
                                                                                     size={['xs', 'md']}
                                                                                     py={['2', '3']}
                                                                                     isDisabled={subscription?.type && subscription.type !== 'Premium' && btn == 'GPT-4'}
-                                                                                    onClick={() => {
-
-                                                                                        setChatSettings({
-                                                                                            ...chatSettings,
-                                                                                            [el.key]: btn
-                                                                                        });
-                                                                                        setSettingsUpdated(true);
-                                                                                    }}
+                                                                                    onClick={() => { updateSettings(btn, el.key) }}
                                                                                 >{btn}</Button>
                                                                                 {
                                                                                     subscription?.type && subscription.type !== 'Premium' && btn == 'GPT-4' && <Box>
@@ -227,15 +232,15 @@ const ChatSettings = ({ themeColor }) => {
                                                         <Box w='100%' px={4} mt={0} mb={4} bg='' h={'45px'} overflowY={'visible'}>
                                                             {
                                                                 el.key == 'temperature' &&
-                                                                <SliderTemplate themeColor={themeColor} value={chatSettings.temperature} callback={(val) => updateSliderValue(val, el)} labels={['Strict', 'Default', 'Creative']} valuesSettings={{ min: 0, max: 2, step: 0.1 }} defaultTooltipValue={1} arialLabel='temperature' />
+                                                                <SliderTemplate themeColor={themeColor} value={chatSettings.temperature} callback={(val) => updateSettings(val, el.key)} labels={['Strict', 'Default', 'Creative']} valuesSettings={{ min: 0, max: 2, step: 0.1 }} defaultTooltipValue={1} arialLabel='temperature' />
                                                             }
                                                             {
                                                                 el.key == 'frequency_p' &&
-                                                                <SliderTemplate themeColor={themeColor} value={chatSettings.frequency_p} callback={(val) => updateSliderValue(val, el)} labels={['Low', 'Default', 'High']} valuesSettings={{ min: -1.6, max: 1.6, step: 0.1 }} defaultTooltipValue={0} arialLabel='frequency' />
+                                                                <SliderTemplate themeColor={themeColor} value={chatSettings.frequency_p} callback={(val) => updateSettings(val, el.key)} labels={['Low', 'Default', 'High']} valuesSettings={{ min: -1.6, max: 1.6, step: 0.1 }} defaultTooltipValue={0} arialLabel='frequency' />
                                                             }
                                                             {
                                                                 el.key == 'presence_p' &&
-                                                                <SliderTemplate themeColor={themeColor} value={chatSettings.presence_p} callback={(val) => updateSliderValue(val, el)} labels={['Limited', 'Default', 'Wide']} valuesSettings={{ min: -1.6, max: 1.6, step: 0.1 }} defaultTooltipValue={0} arialLabel='presence' />
+                                                                <SliderTemplate themeColor={themeColor} value={chatSettings.presence_p} callback={(val) => updateSettings(val, el.key)} labels={['Limited', 'Default', 'Wide']} valuesSettings={{ min: -1.6, max: 1.6, step: 0.1 }} defaultTooltipValue={0} arialLabel='presence' />
                                                             }
                                                         </Box>
                                                     }

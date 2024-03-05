@@ -1,11 +1,12 @@
+import { useSettingsContext } from '@/src/context/SettingsContext/SettingsContextProvider';
 import {
     Image, Button, Box, Card, CardBody, CardFooter, HStack, Text, VStack
 } from '@chakra-ui/react'
 import { motion } from 'framer-motion';
-import { useSettingsContext } from '@/src/context/SettingsContext';
-
 const ZoomImgModal = ({ handleClose, image }) => {
-    const { themeColor } = useSettingsContext().userThemeColor;
+
+    const themeColor = useSettingsContext().settings.UI.themeColor;
+
     return (
         <Box w='100%' maxW={['full', 'xl', '2xl']} p={['4', '4']} h='100%' m={'0 auto'}>
             <Card h='100%' w='100%' >

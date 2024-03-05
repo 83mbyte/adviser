@@ -22,9 +22,8 @@ export default function WorkspacePage() {
     const [settingsFromDB, setSettingsFromDB] = useState(null);
 
     useEffect(() => {
-        const getUserData = async (userId) => {
-            let resp = await dbAPI.getUserFullData(userId);
-
+        const getUserData = async () => {
+            let resp = await dbAPI.getUserFullData(user.uid);
             if (resp.status == 'Success') {
                 setHistoryFromDB({ chats: resp.payload.chats, summarizeYT: resp.payload.summarizeYT });
                 setSettingsFromDB(resp.payload.settings);
@@ -32,24 +31,22 @@ export default function WorkspacePage() {
         }
 
         const getPredefinedData = async () => {
-            let resp = await dbAPI.getPredefinedData_new('prompts');
-
+            let resp = await dbAPI.getPredefinedData('prompts');
             if (resp.status == 'Success') {
                 setPredefinedDataFromDB(resp.payload);
             }
         }
 
-        if (user === null || user === undefined) {
-            router.push('/')
-        } {
+        if (user) {
             getPredefinedData();
-            getUserData(user.uid);
+            getUserData();
+        } else {
+            router.push('/')
         }
-    }, [user]);
+    }, [user])
 
     return (
         <>
-
             {
                 !user
                     ? <WarningMessage message={'Access denied!'} />
@@ -66,10 +63,7 @@ export default function WorkspacePage() {
                     </>
             }
         </>
-
     )
-
-
 }
 
 
@@ -87,7 +81,7 @@ const WarningMessage = ({ message }) => {
             }
         }
         >
-            <div style={{ border: '1px solid rgb(225,180,180)', fontSize: '26px', padding: '20px', }}>{message}</div>
+            <div style={{ border: '1px solid rgb(225,180,180)', fontSize: '32px', padding: '20px', }}>{message}</div>
         </div>
     )
 }

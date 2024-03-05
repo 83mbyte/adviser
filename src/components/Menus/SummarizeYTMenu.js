@@ -1,3 +1,5 @@
+
+import { useSettingsContext } from '@/src/context/SettingsContext/SettingsContextProvider';
 import {
     IconButton,
     Menu,
@@ -7,21 +9,11 @@ import {
     MenuOptionGroup,
 } from '@chakra-ui/react'
 import { MdSettings } from "react-icons/md";
-import { useSettingsContext } from '@/src/context/SettingsContext';
-const SummarizeYTMenu = ({ themeColor, isDisabled }) => {
+
+
+const SummarizeYTMenu = ({ themeColor, isDisabled, summarizeSettings, updateSummarizeSettings }) => {
 
     const settingsContext = useSettingsContext();
-
-    const { summarizeSettings, setSummarizeSettings } = settingsContext.summarizeSettings;
-
-    const updateSettings = (value, type) => {
-
-        setSummarizeSettings({
-            ...summarizeSettings,
-            [type]: value
-        })
-    }
-
 
     return (
         <Menu placement={'auto-start'} autoSelect={false}>
@@ -37,7 +29,7 @@ const SummarizeYTMenu = ({ themeColor, isDisabled }) => {
             // isDisabled={isDisabled}
             />
             <MenuList zIndex={1011} >
-                <MenuOptionGroup defaultValue={summarizeSettings.operation} title='Operation type' type='radio' onChange={(value) => updateSettings(value, 'operation')} >
+                <MenuOptionGroup defaultValue={summarizeSettings.operation} title='Operation type' type='radio' onChange={(value) => updateSummarizeSettings(value)} >
                     <MenuItemOption value='summarize' fontSize={['xs', 'sm']} _hover={{ backgroundColor: `${themeColor}.50` }}>Get a summary</MenuItemOption>
                     <MenuItemOption value='fullText' fontSize={['xs', 'sm']} _hover={{ backgroundColor: `${themeColor}.50` }}>Get a full text</MenuItemOption>
                 </MenuOptionGroup>

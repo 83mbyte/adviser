@@ -2,9 +2,6 @@
 import { useState, useEffect, useRef } from "react";
 
 import { useAuthContext } from "@/src/context/AuthContextProvider";
-import { useSettingsContext } from "@/src/context/SettingsContext";
-import { usePredefinedDataContext } from "@/src/context/PredefinedDataContextProvider";
-import { useHistoryContext } from "@/src/context/HistoryContextProvider";
 
 import { useToast } from "@chakra-ui/react";
 import { AnimatePresence, motion } from "framer-motion";
@@ -23,6 +20,9 @@ import SelectQuestions from "./TopicsAndQuestions/SelectQuestions";
 import ResultContentMessages from "../WorkspaceComponents/WorkspaceResultsToShow/ResultContentMessages";
 import WorkspaceHistory from "../WorkspaceComponents/WorkspaceHistory/WorkspaceHistory";
 import ChatSettings from "./ChatSettings/ChatSettings";
+import { useSettingsContext } from "@/src/context/SettingsContext/SettingsContextProvider";
+import { useHistoryContext } from "@/src/context/HistoryContext/HistoryContextProvider";
+import { usePredefinedDataContext } from "@/src/context/PredefinedDataContext/PredefinedDataContextProvider";
 
 
 const TextChat = ({ showNoHistoryIssue, setShowNoHistoryIssue }) => {
@@ -30,17 +30,18 @@ const TextChat = ({ showNoHistoryIssue, setShowNoHistoryIssue }) => {
     const toast = useToast();
     const user = useAuthContext();
 
-    const predefinedData = usePredefinedDataContext();
+    const predefinedData = usePredefinedDataContext().predefinedData.textchat;
 
     const settingsContext = useSettingsContext();
-    const { themeColor } = settingsContext.userThemeColor;
-    const { subscription } = settingsContext.userSubscription;
-    const { replyLength, replyStyle, replyTone, replyFormat, replyCount, systemVersion, temperature, frequency_p, presence_p } = settingsContext.chatSettings.chatSettings;
-    const { transcribedText, setTranscribedText } = settingsContext.transcribedTextData;
+    const themeColor = settingsContext.settings.UI.themeColor;
+    const subscription = settingsContext.settings.userInfo.subscription;
+    const { replyLength, replyStyle, replyTone, replyFormat, replyCount, systemVersion, temperature, frequency_p, presence_p } = settingsContext.settings.chatSettings;
 
-
+    const transcribedText = settingsContext.settings.transcribedText.text;
     const historyContext = useHistoryContext();
+
     const history = historyContext.history.chats;
+
     const [historyId, setHistoryId] = useState(null);
 
     const [showChatMessages, setShowChatMessages] = useState(true); //show chat conversation
@@ -152,7 +153,7 @@ const TextChat = ({ showNoHistoryIssue, setShowNoHistoryIssue }) => {
 
     const clearItemFromHistory = async (historyId) => {
 
-        let res = await dbAPI.deleteDocument('chats', user.uid, historyId);
+        let res = await dbAPI.deleteDocument({ docName: 'chats', userId: user.uid, field: historyId });
         if (res && res.status == 'Success') {
 
             historyContext.deleteFromHistory('chats', historyId)
@@ -205,7 +206,7 @@ const TextChat = ({ showNoHistoryIssue, setShowNoHistoryIssue }) => {
                     ]
                 }
 
-                await dbAPI.updateData('chats', user.uid, historyId, dataToUpload);
+                await dbAPI.updateServerData({ docName: 'chats', userId: user.uid, field: historyId, data: dataToUpload });
                 setIsLoading(false);
             }
         }
@@ -278,7 +279,6 @@ const TextChat = ({ showNoHistoryIssue, setShowNoHistoryIssue }) => {
             let resp = await getReplyFromAssistant({ messagesArray, tokens: 4000, systemVersion, temperature, frequency_p, presence_p, n_param: Number(replyCount) }, 'chat');
 
             if (resp) {
-
                 let responseArray = [];
 
                 if (resp.content.length >= 1) {
@@ -359,6 +359,7 @@ const TextChat = ({ showNoHistoryIssue, setShowNoHistoryIssue }) => {
     }, []);
 
     useEffect(() => {
+
         if (transcribedText && transcribedText !== undefined && transcribedText.length > 0) {
             try {
                 setInputValue(transcribedText);
@@ -366,7 +367,7 @@ const TextChat = ({ showNoHistoryIssue, setShowNoHistoryIssue }) => {
             } catch (error) {
                 console.error(error)
             } finally {
-                setTranscribedText(null);
+                settingsContext.updateSettings('transcribedText', 'text', null)
             }
         }
     }, [transcribedText])
@@ -418,7 +419,7 @@ const TextChat = ({ showNoHistoryIssue, setShowNoHistoryIssue }) => {
                             animate={'show'}
                             exit={'exit'}
                         >
-                            <SelectQuestions predefinedData={predefinedData ? predefinedData.prompts[currentTopic] : null} themeColor={themeColor} selectQuestionHandler={selectQuestionHandler} />
+                            <SelectQuestions predefinedData={predefinedData ? predefinedData[currentTopic] : null} themeColor={themeColor} selectQuestionHandler={selectQuestionHandler} />
                         </motion.section>
                     }
 

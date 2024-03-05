@@ -1,9 +1,9 @@
-import { useSettingsContext } from '@/src/context/SettingsContext';
+import { useSettingsContext } from '@/src/context/SettingsContext/SettingsContextProvider';
 import { Box, Card, CardBody, CardFooter, Button, HStack, Heading, Text, VStack } from '@chakra-ui/react';
 import { sendGTMEvent } from '@next/third-parties/google';
 
 const CheckoutResultModal = ({ handleClose, result, renewCheckout }) => {
-    const { themeColor } = useSettingsContext().userThemeColor;
+    const themeColor = useSettingsContext().settings.UI.themeColor;
     const isSuccess = result === 'complete';
 
     return (

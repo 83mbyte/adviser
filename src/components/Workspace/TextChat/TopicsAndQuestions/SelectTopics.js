@@ -8,7 +8,7 @@ import { forwardRef } from 'react';
 const SelectTopics = forwardRef(function SelectTopicsRef({ predefinedData, selectIdeaHandler, themeColor }, ref) {
     const predefinedDataExtended = {
         Blank: [],
-        ...predefinedData.prompts,
+        ...predefinedData,
     }
     return (
 
@@ -21,6 +21,7 @@ const SelectTopics = forwardRef(function SelectTopicsRef({ predefinedData, selec
         >
             {
                 Object.keys(predefinedDataExtended).map((topic, index) => {
+                    let topicNameToShow = topic.replaceAll('_', ' ');
                     return (
                         <Box m={0} key={index}
                             height={{ base: '150px', md: '140px' }}
@@ -43,12 +44,12 @@ const SelectTopics = forwardRef(function SelectTopicsRef({ predefinedData, selec
                             <Flex bg='' flex={1} alignItems={'center'}>
                                 {topic !== 'Blank' &&
                                     <Box key={'iconWrapper'} borderWidth='0px' borderColor={themeColor} p={3} borderRadius={'50%'} as={motion.div} whileInView={{ scale: [0.2, 0.75, 1.1, 1] }} bg={'RGBA(0, 0, 0, 0.04)'}>
-                                        <TopicIcon iconSize={['24px', '38px']} topicName={topic} />
+                                        <TopicIcon iconSize={['24px', '38px']} topicName={topicNameToShow} />
                                     </Box>}
                             </Flex>
                             <Flex bg='' flex={2}>
                                 <Text textAlign={'center'} fontSize={['xs', 'sm']} wordBreak={'break-word'} py={2}>
-                                    {topic.length > 20 ? `${topic.slice(0, 20)}...` : topic}
+                                    {topicNameToShow.length > 20 ? `${topicNameToShow.slice(0, 20)}...` : topicNameToShow}
                                 </Text>
                             </Flex>
                         </Box >

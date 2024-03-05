@@ -3,37 +3,18 @@ import { animationProps } from '@/src/lib/animationProps';
 import { Box, Icon } from '@chakra-ui/react';
 
 import { MdChevronRight } from 'react-icons/md';
+import { usePredefinedDataContext } from '@/src/context/PredefinedDataContext/PredefinedDataContextProvider';
 
-const predefinedData = [
-    'Vintage car in front of the Eiffel Tower.',
-    'Spaceship flying above planet Earth.',
-    'Ruby necklace on a chocolate background.',
-    'Milk chocolate cake with berries on top',
-    'Space landscape with two moons and green clouds.',
-    'Faucet with a purple and blue design for the bathroom.',
-    'Cocktail dress with sparkles and feathers on the main fashion runway.',
-    'Vase with artificial pink flowers on a window overlooking the mountains.',
-    'Abstract painting in shades of blue and purple on a white canvas.',
-    'Romantic sunset on an island with a sandy beach and palm trees.',
-    'Football field in a round hall with purple and green lighting.',
-    'Exotic bird species with vibrant colors perched on a tree branch.',
-    'Two-story castle in pastel hues with white towers and a roof made of antique tiles.',
-    'Parachutists soaring over the setting sun against a backdrop of mountains.',
-    'Futuristic city of high-rise buildings and flying cars.',
-    'Flying dragon amidst fiery summer clouds.',
-    'Majestic waterfall in a dense forest with blooming trees',
-    'Arctic Northern Lights with bright green and purple rays.',
-    'Grizzly bear against a backdrop of mountains and a pine forest. ',
-    'Pink evening shoes on a bedspread with a leopard print.'
-]
 
 const IdeasList = ({ themeColor, selectIdeaHandler }) => {
+    const predefinedData = usePredefinedDataContext().predefinedData.createImage;
+
     return (
 
         <motion.ul style={{ listStyle: 'none' }}>
             {
-                predefinedData &&
-                predefinedData.map((item, index) => {
+                (predefinedData.ideas && (predefinedData.ideas).length > 0) &&
+                (predefinedData.ideas).map((item, index) => {
                     return (
                         <motion.li key={index}
                             whileInView={animationProps.listLikeItems.listItem}

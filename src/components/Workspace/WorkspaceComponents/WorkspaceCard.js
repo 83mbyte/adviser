@@ -1,21 +1,19 @@
 import { useEffect, forwardRef } from "react";
 import { Card, CardBody, VStack, Box } from "@chakra-ui/react";
-
-import { useSettingsContext } from "@/src/context/SettingsContext";
-
 import WorkspaceCardHeader from "./WorkspaceCardHeader";
 import WorkspaceCardFooter from "./WorkspaceCardFooter";
 import IssuesNotices from "./IssuesNotices";
+import { useSettingsContext } from "@/src/context/SettingsContext/SettingsContextProvider";
 
 const WorkspaceCard = forwardRef(function WorkspaceCardRef({ cardTitle = 'default title', showFooter = true, headerLeftButtons = null, headerRightButtons = null, showHeaderReturnPanel, headerReturnButtonHandler, currentChatHistoryId, inputValue, callback, isLoading, promptToRepeat, setPromptToRepeat, showIssueNotice, closeIssueNotice, children }, ref) {
 
     //common settings for all cards..
     const settingsContext = useSettingsContext();
-    const { themeColor } = settingsContext.userThemeColor;
-    const { workspaceType, setWorkspaceType } = settingsContext.userWorkspaceType;
-    const { subscription } = settingsContext.userSubscription;
+    const themeColor = settingsContext.settings.UI.themeColor;
+    const workspaceType = settingsContext.settings.UI.workspaceType;
+    const subscription = settingsContext.settings.userInfo.subscription;
     const subscriptionType = subscription.type;
-    const { trialOffers } = settingsContext.trialOffers;
+    const trialOffers = subscription.trialOffers;
 
     let inputFormRef = ref;
 
@@ -69,8 +67,8 @@ const WorkspaceCard = forwardRef(function WorkspaceCardRef({ cardTitle = 'defaul
                             {
                                 showIssueNotice &&
                                 <IssuesNotices themeColor={themeColor}
-                                    subscriptionType={subscription.type}
-                                    setWorkspaceType={setWorkspaceType}
+                                    subscriptionType={subscriptionType}
+                                    setWorkspaceType={settingsContext.updateSettings}
                                     workspaceType={workspaceType}
                                     trialLimit={subscriptionType == 'Trial' && ((workspaceType == 'ytsummarize' && trialOffers.youtube >= process.env.NEXT_PUBLIC_TRIAL_LIMIT_YT) || (workspaceType == 'image' && trialOffers.images >= process.env.NEXT_PUBLIC_TRIAL_LIMIT_IMAGE))}
                                     closeIssueNotice={closeIssueNotice}
@@ -100,9 +98,9 @@ const WorkspaceCard = forwardRef(function WorkspaceCardRef({ cardTitle = 'defaul
                         </VStack>
                     </CardBody>
 
-                    <WorkspaceCardFooter inputValue={inputValue} showFooter={showFooter} themeColor={themeColor} footerVariant={workspaceType} onSubmitHandler={callback} ref={inputFormRef}
+                    <WorkspaceCardFooter inputValue={inputValue} showFooter={showFooter} footerVariant={workspaceType} onSubmitHandler={callback} ref={inputFormRef}
                         isLoading={isLoading}
-                        isDisabled={subscriptionType == 'Trial' && ((workspaceType == 'ytsummarize' && trialOffers.youtube >= process.env.NEXT_PUBLIC_TRIAL_LIMIT_YT) || (workspaceType == 'image' && trialOffers.images >= process.env.NEXT_PUBLIC_TRIAL_LIMIT_IMAGE))
+                        isDisabled={subscriptionType == 'Trial' && ((workspaceType == 'ytsummarize' && trialOffers.youtube >= process.env.NEXT_PUBLIC_TRIAL_LIMIT_YT) || (workspaceType == 'image' && trialOffers.images >= process.env.NEXT_PUBLIC_TRIAL_LIMIT_IMAGE)) || isLoading
                         }
                         currentChatHistoryId={currentChatHistoryId}
                     />

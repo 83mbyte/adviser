@@ -5,13 +5,14 @@ import { useRouter } from 'next/navigation';
 import { useAuthContext } from '@/src/context/AuthContextProvider';
 
 import { MdOutlineShoppingCart, MdChevronRight, MdOutlineKeyboardDoubleArrowUp } from "react-icons/md";
-import { useSettingsContext } from '@/src/context/SettingsContext';
+
 import { AnimatePresence, motion } from 'framer-motion';
 import { FaCheckCircle, FaRegTimesCircle } from 'react-icons/fa'
 
 import { animationProps } from '@/src/lib/animationProps';
 
 import { useEffect, useState } from 'react';
+import { useSettingsContext } from '@/src/context/SettingsContext/SettingsContextProvider';
 
 
 const ManageSubscription = () => {
@@ -23,10 +24,11 @@ const ManageSubscription = () => {
     const router = useRouter();
     const user = useAuthContext();
     const settingsContext = useSettingsContext();
-    const { themeColor } = settingsContext.userThemeColor;
-    const originalPlans = settingsContext.paidPlans;
+    const themeColor = settingsContext.settings.UI.themeColor;
+    const subscription = settingsContext.settings.userInfo.subscription;
+    const originalPlans = settingsContext.settings.plansPrices;
     const [paidPlans, setPaidPlans] = useState(originalPlans);
-    const { subscription } = settingsContext.userSubscription;
+
 
     const submitUpgradeHandler = async (period, price, planName, upgradePeriod) => {
         setIsLoading({ status: true, plan: planName });

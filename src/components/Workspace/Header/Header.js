@@ -1,23 +1,21 @@
 "use client";
-import { useSettingsContext } from "@/src/context/SettingsContext";
+
 import {
   Box,
   useColorModeValue,
   Heading,
-  IconButton,
   HStack,
   Button,
   Text,
-  useBreakpointValue,
   Tooltip,
 } from "@chakra-ui/react";
 import { AnimatePresence, motion } from "framer-motion";
 
 import { FaCrown } from "react-icons/fa";
-import { HiMenu } from "react-icons/hi";
 
 import MainWrapper from "../../Wrappers/MainWrapper";
 import HeaderSettingsMenu from "../../Menus/HeaderSettingsMenu";
+import { useSettingsContext } from "@/src/context/SettingsContext/SettingsContextProvider";
 
 
 const APP_NAME = process.env.NEXT_PUBLIC_APP_NAME;
@@ -69,17 +67,13 @@ const buttonsAnimation = {
 }
 
 const Header = () => {
-  const userSettings = useSettingsContext();
-  const userWorkspaceType = userSettings.userWorkspaceType;
-  const { subscription } = userSettings.userSubscription;
+  const settingsContext = useSettingsContext();
+
+  const subscription = settingsContext.settings.userInfo.subscription;
 
 
-  const { themeColor, setThemeColor } = userSettings.userThemeColor;
+  const themeColor = settingsContext.settings.UI.themeColor;
 
-  const navVisibility = useBreakpointValue({
-    base: false,
-    sm: true,
-  });
 
   return (
     <section as={"header"} style={{ width: "100%" }}>
@@ -136,8 +130,7 @@ const Header = () => {
               display="flex"
               alignItems={"center"}
             >
-              <NavigationButtons show={true} themeColor={themeColor} setThemeColor={setThemeColor} userWorkspaceType={userWorkspaceType} subscription={subscription} />
-              {/* <MenuBtn show={navVisibility} themeColor={themeColor} /> */}
+              <NavigationButtons show={true} themeColor={themeColor} subscription={subscription} updateSettings={settingsContext.updateSettings} />
             </Box>
           </MainWrapper>
         </Box>
@@ -149,12 +142,12 @@ const Header = () => {
 export default Header;
 
 
-const NavigationButtons = ({ show, themeColor, setThemeColor, userWorkspaceType, subscription }) => {
-
+const NavigationButtons = ({ show, themeColor, subscription, updateSettings }) => {
 
   const openNewWindowHandler = (type) => {
-    userWorkspaceType.setWorkspaceType(type);
+    updateSettings('UI', 'workspaceType', type);
   }
+
   return (
     <>
       <AnimatePresence mode='wait'>
@@ -186,7 +179,7 @@ const NavigationButtons = ({ show, themeColor, setThemeColor, userWorkspaceType,
               variants={buttonsAnimation}
             >
 
-              <HeaderSettingsMenu setThemeColor={setThemeColor} themeColor={themeColor} openNewWindowHandler={openNewWindowHandler} />
+              <HeaderSettingsMenu openNewWindowHandler={openNewWindowHandler} />
             </motion.div>
           </HStack>
         }
@@ -195,29 +188,4 @@ const NavigationButtons = ({ show, themeColor, setThemeColor, userWorkspaceType,
   );
 };
 
-const MenuBtn = ({ show, themeColor }) => {
-
-  return (
-    <>
-      <AnimatePresence mode='wait'>
-        {
-          show === false &&
-          <Box as={motion.div}
-            variants={buttonsAnimation}
-            initial={'hidden'}
-            animate={'visible'}
-            exit={'exit'}
-          >
-            <IconButton
-              size={"sm"}
-              colorScheme={themeColor}
-              variant={"outline"}
-              icon={<HiMenu size={'22px'} />}
-            />
-          </Box>
-        }
-      </AnimatePresence>
-    </>
-  )
-}
 

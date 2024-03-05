@@ -8,8 +8,8 @@ import NoStoreImagesNotice from "./IssuesNotices/NoStoreImagesNotice";
 
 
 const animationVariants = {
-    initial: { y: -40, opacity: 0, height: 0 },
-    animate: custom => ({
+    initial: { opacity: 0, height: 0, y: -40, },
+    animate: (custom) => ({
         y: 0,
         opacity: 1,
         height: 'auto',
@@ -29,7 +29,7 @@ const animationVariants = {
         transition: {
             opacity: { duration: 0.5 },
             y: { delay: 0.1, duration: 0.5 },
-            height: { delay: 0.1, duration: 0.3 },
+            height: { delay: 0.2, duration: 0.3 },
         },
     }
 }
@@ -37,7 +37,7 @@ const animationVariants = {
 const IssuesNotices = ({ themeColor, subscriptionType, setWorkspaceType, trialOffers, trialLimit, noStoreImages, historyWarning, closeIssueNotice }) => {
     // subscriptionType
     const gotoCheckout = () => {
-        setWorkspaceType('subscription');
+        setWorkspaceType('UI', 'workspaceType', 'subscription');
     }
     const buttonVariant = useBreakpointValue(
         {
@@ -47,13 +47,12 @@ const IssuesNotices = ({ themeColor, subscriptionType, setWorkspaceType, trialOf
 
     const showLimitWarning = trialLimit;
 
-
     return (
         <>
             <AnimatePresence mode='wait'>
 
                 {
-                    historyWarning &&
+                    (historyWarning && !showLimitWarning) &&
                     <MotionNoHistoryNotice
                         themeColor={themeColor}
                         key={'noHistoryNotification'}
@@ -95,7 +94,7 @@ const IssuesNotices = ({ themeColor, subscriptionType, setWorkspaceType, trialOf
                         animate='animate'
                         exit='exit'
                         trialOffers={trialOffers}
-                        custom={(showHistoryWarning == true) && 0.5}
+                        custom={(historyWarning == true) && 0.5}
                         gotoCheckout={gotoCheckout}
                     />
                 }
