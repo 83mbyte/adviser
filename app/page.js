@@ -3,7 +3,7 @@ import { NecessaryProviders } from "@/src/context/providers";
 import { dbAPI } from "@/src/lib/dbAPI";
 
 const getData = async (sectionName) => {
-  const resp = await dbAPI.getSectionData(sectionName);
+  const resp = await dbAPI.getSectionDataOnIndexPage(sectionName);
   if (!resp) {
     throw new Error('Failed to fetch data')
   }
