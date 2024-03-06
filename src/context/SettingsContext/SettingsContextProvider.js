@@ -74,7 +74,7 @@ const SettingsContextProvider = ({ data, children }) => {
         // }
     }, [data])
 
-    const context = createSettingsContext(settings, setSettings);
+    const context = useCreateSettingsContext(settings, setSettings);
 
 
     return (
@@ -96,7 +96,7 @@ export const useSettingsContext = () => {
     return useContext(SettingsContext)
 }
 
-function createSettingsContext(settings, setSettings) {
+function useCreateSettingsContext(settings, setSettings) {
     const updateSettings = useCallback((settingsPath, key, value) => {
 
         setSettings({
