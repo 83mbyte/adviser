@@ -7,7 +7,7 @@ const HistoryContext = createContext();
 
 const HistoryContextProvider = ({ data, children }) => {
     const [history, setHistory] = useState(null);
-    const context = createHistoryContext(history, setHistory);
+    const context = useCreateHistoryContext(history, setHistory);
 
     useEffect(() => {
         if (data) {
@@ -35,7 +35,7 @@ export const useHistoryContext = () => {
 export default HistoryContextProvider;
 
 
-function createHistoryContext(history, setHistory) {
+function useCreateHistoryContext(history, setHistory) {
     const addToHistory = useCallback((path, historyId, data) => {
         if (history[path][historyId]) {
             setHistory({
