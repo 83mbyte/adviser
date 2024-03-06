@@ -30,19 +30,6 @@ const getDocAllData = async (pathToDoc) => {
 }
 
 export const dbAPI = {
-    temp_update: async (docName, subCollName, subCollDocName, value) => {
-
-        const docRef = doc(entryCollectionRef, docName);
-        const subCollRef = collection(docRef, subCollName);
-        const subCollDocRef = doc(subCollRef, subCollDocName);
-        try {
-            await updateDoc(subCollDocRef, value, { merge: true })
-            return ({ status: 'Success', message: 'data uploaded successfully' })
-
-        } catch (error) {
-            return ({ status: 'Error', message: error })
-        }
-    },
 
     getUserFullData: async (userId) => {
 
