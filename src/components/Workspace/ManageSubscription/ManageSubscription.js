@@ -1,4 +1,4 @@
-import { Box, Button, Card, CardBody, CardFooter, CardHeader, Heading, Highlight, Text, VStack, HStack, Stack, Menu, MenuButton, MenuList, MenuOptionGroup, MenuItemOption, Divider, List, ListItem, ListIcon } from '@chakra-ui/react';
+import { Box, Button, Card, CardBody, CardFooter, CardHeader, Heading, Highlight, Text, VStack, HStack, Stack, Menu, MenuButton, MenuList, MenuOptionGroup, MenuItemOption, Divider, List, ListItem, ListIcon, useToast, } from '@chakra-ui/react';
 
 import { createCheckoutSession, getExchangeRates } from '@/src/lib/fetchingData';
 import { useRouter } from 'next/navigation';
@@ -29,6 +29,16 @@ const ManageSubscription = () => {
     const originalPlans = settingsContext.settings.plansPrices;
     const [paidPlans, setPaidPlans] = useState(originalPlans);
 
+    const toast = useToast({
+        position: 'top-right',
+        duration: 8000,
+        isClosable: true,
+        containerStyle: {
+            maxWidth: '100%',
+            marginTop: '100px'
+        }
+    });
+
 
     const submitUpgradeHandler = async (period, price, planName, upgradePeriod) => {
         setIsLoading({ status: true, plan: planName });
@@ -41,10 +51,27 @@ const ManageSubscription = () => {
 
     const submitHandler = async (period, price, planName) => {
         setIsLoading({ status: true, plan: planName })
-        let data = await createCheckoutSession(user.email, user.uid, currency.toLocaleLowerCase(), period, price);
-        if (data?.url) {
+        try {
+            let data = await createCheckoutSession(user.email, user.uid, currency.toLocaleLowerCase(), period, price);
+
+            if (data.status == 'Error') {
+                throw new Error(`${data.message} `)
+            }
+            if (data?.url) {
+                setIsLoading({ status: false, plan: null });
+                router.push(data.url);
+            }
+        } catch (error) {
+            console.error(error.message ? error.message : 'Error arries while checkout session creation.');
+            toast({
+                title: error ? `${error.message.slice(0, 45)}...` : `Error: while checkout session creation`,
+                description: 'Currently disabled. Please try again later.',
+                // description: error.message,
+                status: 'error',
+            });
+        }
+        finally {
             setIsLoading({ status: false, plan: null });
-            router.push(data.url);
         }
     };
 
