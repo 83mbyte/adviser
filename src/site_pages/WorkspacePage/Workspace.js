@@ -43,7 +43,6 @@ const Workspace = () => {
 
     const gotoCheckout = () => {
         settingsContext.updateSettings('UI', 'workspaceType', 'subscription');
-        closeModal();
     }
 
     useEffect(() => {
@@ -72,9 +71,18 @@ const Workspace = () => {
         if (subscription && subscription.period) {
             if (subscription.period < Date.now()) {
                 settingsContext.updateSettings('UI', 'showModal', { isShow: true, type: 'SubscriptionNotice', body: null });
+            } else if (subscription.type == 'Basic') {
+                settingsContext.updateSettings('UI', 'workspaceType', 'textchat');
             }
         }
     }, [subscription])
+
+    useEffect(() => {
+        if (settingsContext.settings.UI.showModal.isShow == true) {
+            closeModal();
+        }
+
+    }, [userWorkspaceType])
 
     return (
         <>
