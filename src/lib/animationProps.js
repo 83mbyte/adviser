@@ -82,7 +82,8 @@ export const animationProps = {
                 }
             },
             exit: {
-                opacity: 0, y: '50vh',
+                opacity: 0,
+                y: '50vh',
                 transition: {
                     y: {
                         type: 'spring',
@@ -197,7 +198,17 @@ export const animationProps = {
             //     stiffness: 100
             // }
         }),
-        exit: { opacity: 0, y: '10vh', transition: { duration: 0.5, delay: 0.1 } },
+        exit: {
+            opacity: 0,
+            // opacity: [0.95, 0.65, 0.35, 0.05, 0],
+            // scale: [0.95, 0.8, 0.75, 0.4],
+            scale: 0.65,
+            // y: '10vh', 
+            transition: {
+                opacity: { duration: 0.2, delay: 0.1 },
+                scale: { duration: 0.4, delay: 0 }
+            }
+        },
     },
     scaleFromMinToMax: {
         hidden: { opacity: 0, scale: 0.5 },
