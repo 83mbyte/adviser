@@ -409,11 +409,30 @@ exports.webhookStrp = onRequest(
                 }
 
                 try {
-                    const usersUserDoc = db.collection('users').doc(event.data.object.metadata.uid);
-                    await usersUserDoc.set({ plan: { type, period: subscriptionPeriod } }, { merge: true });
+                    const usersColl = db.collection(process.env.DB_NAME).doc(process.env.DB_USERS_DOC).collection(event.data.object.metadata.uid);
+                    const userSettingsDoc = usersColl.doc('settings');
+
+                    await userSettingsDoc.set({
+                        userInfo: {
+                            subscription: {
+                                type,
+                                period: subscriptionPeriod,
+
+                            },
+                        }
+                    }, { merge: true });
+
+                    //const usersUserDoc = db.collection('users').doc(event.data.object.metadata.uid);
+                    //await usersUserDoc.set({ plan: { type, period: subscriptionPeriod } }, { merge: true });
                 } catch (err) {
                     return resp.status(400).send(`DB Error: ${err.message}`);
                 }
+                // try {
+                //     const usersUserDoc = db.collection('users').doc(event.data.object.metadata.uid);
+                //     await usersUserDoc.set({ plan: { type, period: subscriptionPeriod } }, { merge: true });
+                // } catch (err) {
+                //     return resp.status(400).send(`DB Error: ${err.message}`);
+                // }
             }
         }
 
@@ -450,6 +469,10 @@ exports.createSubscription = onRequest(
 
             const customer_email = userEmail;
             const mode = 'payment';
+            //DEV
+            // const success_url = `http://127.0.0.0:5000/workspace?checkout=complete`;
+            // const cancel_url = `http://127.0.0.0:5000/workspace?checkout=cancel`;
+            //PROD
             const success_url = `${APP_DOMAIN_CUSTOM}/workspace?checkout=complete`;
             const cancel_url = `${APP_DOMAIN_CUSTOM}/workspace?checkout=cancel`;
             const automatic_tax = { enabled: true };
@@ -490,20 +513,25 @@ exports.createSubscription = onRequest(
                 })
             }
 
-            if (upgradePeriod != null || upgradePeriod != undefined) {
-                // upgrade a plan
-                session = await stripe.checkout.sessions.create(objectToCreateSession(true))
+            try {
+                if (upgradePeriod != null || upgradePeriod != undefined) {
+                    // upgrade a plan
+                    session = await stripe.checkout.sessions.create(objectToCreateSession(true))
 
-            } else {
-                // crete a new subscription
-                session = await stripe.checkout.sessions.create(objectToCreateSession(false))
+                } else {
+                    // crete a new subscription 
+                    session = await stripe.checkout.sessions.create(objectToCreateSession(false))
+                }
+            } catch (error) {
+
+                return resp.status(500).json({ status: 'Error', message: error.raw.message ? error.raw.message : 'unable to create stripe session', error: 'Internal Server Error.' })
             }
 
             //stripe-hosted page
             if (session?.url) {
-                resp.status(200).json({ url: session.url })
+                resp.status(200).json({ url: session.url, status: 'Success' })
             } else {
-                resp.status(500).json({ error: 'Internal Server Error.' });
+                resp.status(500).json({ error: 'Internal Server Error.', status: 'Error' });
             }
         }
     }
