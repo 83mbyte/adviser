@@ -47,9 +47,9 @@ const initialSettingsState = {
         operation: 'summarize',
     },
 
-    plansPrices: {  //TODO move this data to server
-        Basic: { currency: 'usd', price: 50, period: '6 months', options: { excl: ['Image Generator'], incl: ['GPT-3.5', 'History', 'Fast Support'] } },
-        Premium: { currency: 'usd', price: 80, period: '1 year', options: { incl: ['GPT-3.5 & GPT-4', 'History', 'Fast Support', 'Image Generator'] } }
+    plansPrices: {  //TODO move this data to server  
+        Basic: { currency: 'usd', price: 50, period: '6 months', options: { excl: ['Image Generator', 'Summarize video'], incl: ['GPT-3.5', 'History', 'Fast support'] } },
+        Premium: { currency: 'usd', price: 80, period: '1 year', options: { incl: ['GPT-3.5 & GPT-4', 'History', 'Fast support', 'Image generator', 'Summarize video'] } }
 
     },
 }
