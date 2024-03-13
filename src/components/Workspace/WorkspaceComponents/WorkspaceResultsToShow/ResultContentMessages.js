@@ -31,7 +31,8 @@ const ResultContentMessages = forwardRef(function ResultContentMessagesRef({ cur
             bg=''
             py={2}
             display={'block'}
-            overflow={'scroll'}
+            overflowY={'scroll'}
+            overflowX={'hidden'}
         >
 
             <AnimatePresence mode='wait'>

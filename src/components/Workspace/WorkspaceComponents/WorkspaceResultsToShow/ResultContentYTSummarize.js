@@ -39,7 +39,8 @@ const ResultContentYTSummarize = ({ currentSummarize, showSummarize, isLoading, 
             bg=''
             py={2}
             display={'block'}
-            overflow={'scroll'}
+            overflowY={'scroll'}
+            overflowX={'hidden'}
         >
             <AnimatePresence mode='wait'>
                 {
@@ -99,7 +100,7 @@ const ResultContentYTSummarize = ({ currentSummarize, showSummarize, isLoading, 
                         {
                             isLoading &&
                             <AnimatePresence mode='wait'>
-                                <Box ref={loaderRef} px={0} py={[2, 2]} w={'full'} display={'block'} position={'relative'}
+                                <Box ref={loaderRef} px={0} py={[2, 2]} w={'auto'} display={'block'} position={'relative'}
                                     as={motion.div}
                                     key={'progressWarning'}
                                     variants={animationProps.chatWindowScreens.slideFromLeft}
