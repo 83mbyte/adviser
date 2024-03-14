@@ -8,7 +8,7 @@ const SettingsContext = createContext();
 const initialSettingsState = {
     UI: {
         themeColor: 'green',
-        workspaceType: 'image',
+        workspaceType: null,
         loading: { userUi: true, plans: true },
         showModal: { isShow: false, type: '' },
 

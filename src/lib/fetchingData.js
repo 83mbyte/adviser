@@ -47,11 +47,11 @@ export const transcribeToText = async (url) => {
         })
 }
 
-export const createCheckoutSession = async (email, userId, currency, period, price, upgradePeriod = null, accessToken = null) => {
+export const createCheckoutSession = async (dataObject) => {
     let resp;
     let options = {
         method: 'POST',
-        body: JSON.stringify({ email: email, uid: userId, currency, period, price, upgradePeriod, accessToken })
+        body: JSON.stringify({ ...dataObject })
     }
     //DEV
     // resp = await fetch(process.env.NEXT_PUBLIC_FUNC_SUBSCRIPTION_DEV_URL, options);
