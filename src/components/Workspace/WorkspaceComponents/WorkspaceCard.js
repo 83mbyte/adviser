@@ -100,7 +100,7 @@ const WorkspaceCard = forwardRef(function WorkspaceCardRef({ cardTitle = 'defaul
 
                     <WorkspaceCardFooter inputValue={inputValue} showFooter={showFooter} footerVariant={workspaceType} onSubmitHandler={callback} ref={inputFormRef}
                         isLoading={isLoading}
-                        isDisabled={subscriptionType == 'Trial' && ((workspaceType == 'ytsummarize' && trialOffers.youtube >= process.env.NEXT_PUBLIC_TRIAL_LIMIT_YT) || (workspaceType == 'image' && trialOffers.images >= process.env.NEXT_PUBLIC_TRIAL_LIMIT_IMAGE)) || isLoading
+                        isDisabled={subscriptionType == 'Trial' && ((workspaceType == 'ytsummarize' && trialOffers.youtube >= process.env.NEXT_PUBLIC_TRIAL_LIMIT_YT) || (workspaceType == 'image' && trialOffers.images >= process.env.NEXT_PUBLIC_TRIAL_LIMIT_IMAGE)) || isLoading || subscription.period < Date.now()
                         }
                         currentChatHistoryId={currentChatHistoryId}
                     />
