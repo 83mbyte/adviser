@@ -3,7 +3,7 @@ const functions = require("firebase-functions");
 const { Storage, getDownloadURL } = require("firebase-admin/storage");
 const { onRequest } = require("firebase-functions/v2/https");
 const { setGlobalOptions } = require("firebase-functions/v2/options");
-// const { defineSecret } = require('firebase-functions/params');
+const { defineSecret } = require('firebase-functions/params');
 
 const { initializeApp } = require("firebase-admin/app");
 const { getFirestore, Timestamp } = require("firebase-admin/firestore");
@@ -17,16 +17,11 @@ const ffprobe = require('ffprobe-static');
 ffmpeg.setFfmpegPath(ffmpegPath);
 ffmpeg.setFfprobePath(ffprobe.path);
 
-//my import
 const summarize = require('./summarize');
+const stripeActions = require('./stripe_lib');
 
-// DEV stripe key 
-// const DEV_SECRET = process.env.STRIPE_API_KEY_DEV;
-// const stripe = require('stripe')(DEV_SECRET);
 
-// PROD stripe
-// const STRIPE_SECRET = defineSecret('SECRET_KEY_STRIPE_API');
-const stripe = require('stripe')(process.env.SECRET_KEY_STRIPE_API);
+
 
 setGlobalOptions({ maxInstances: 5 });
 
@@ -35,14 +30,36 @@ let app = initializeApp();
 const db = getFirestore();
 const storage = new Storage(app);
 
+const STRIPE_SECRET = defineSecret('SECRET_KEY_STRIPE_API');
+const STRIPE_WHSEC = defineSecret('STRIPE_WHSEC')
+
+
+const verifyToken = async (userToken) => {
+    return await getAuth(app)
+        .verifyIdToken(userToken)
+        .then((decodedToken) => {
+            const uid = decodedToken.uid;
+            return ({ status: true, uid, message: 'Token verified successfully' })
+        })
+        .catch((error) => {
+            return ({ status: false, uid: null, message: 'Unauthorized request' })
+        });
+
+    // if (isUserTokenValid.status == false) {
+    //     return resp.status(401).json({ status: 'Error', message: isUserTokenValid.message });
+    // }
+}
+
+
+
 exports.summarizeData = onRequest({
     // DEV
     // cors: true,
     //PROD
     cors: [process.env.APP_DOMAIN_MAIN, process.env.APP_DOMAIN_SECOND, process.env.APP_DOMAIN_CUSTOM],
     secrets: ['SECRET_KEY_OPENAI'],
-    timeoutSeconds: 360,
-    cpu: 1,
+    timeoutSeconds: 480,
+    cpu: 2,
     enforceAppCheck: true, // Reject requests with missing or invalid App Check tokens.
 }, async (req, resp) => {
     if (req.method !== 'POST') {
@@ -52,21 +69,14 @@ exports.summarizeData = onRequest({
         const request_data = JSON.parse(req.body);
         const DEFAULT_BUCKET = process.env.DEFAULT_BUCKET;
 
-        let isUserTokenValid = await getAuth(app)
-            .verifyIdToken(request_data.accessToken)
-            .then((decodedToken) => {
-                const uid = decodedToken.uid;
-                return ({ status: true, uid, message: 'Token verified successfully' })
-            })
-            .catch((error) => {
-                return ({ status: false, uid: null, message: 'Unauthorized request' })
-            });
+        const isTokenVerified = await verifyToken(request_data.accessToken);
 
-        if (isUserTokenValid.status == false) {
-            return resp.status(401).json({ status: 'Error', message: isUserTokenValid.message });
+
+        if (!isTokenVerified || isTokenVerified.status == false) {
+            return resp.status(401).json({ status: 'Error', message: isTokenVerified.message });
         }
 
-        const userId = isUserTokenValid.uid;
+        const userId = isTokenVerified.uid;
         const bucket = storage.bucket(DEFAULT_BUCKET);
 
         const openai = new OpenAI({
@@ -341,12 +351,21 @@ exports.getExchangeRates = onRequest(
         if (req.method !== 'POST') {
             return resp.status(400).json({ error: 'Bad request.' });
         };
-        const ratesData = await fetch(`https://api.currencyfreaks.com/v2.0/rates/latest?apikey=${process.env.SECRET_KEY_CURRENCY_RATES}&symbols=EUR,BGN,GBP,CHF,JPY,ZAR,CNY`);
-        if (!ratesData) {
-            resp.status(500).json({ error: 'Internal Server Error.' });
+        if (req.body) {
+            let data = JSON.parse(req.body);
+
+            const isTokenVerified = await verifyToken(data.accessToken);
+            if (!isTokenVerified || isTokenVerified.status == false) {
+                return resp.status(200).json({ status: 'Error', message: isTokenVerified.message, code: 401 });
+            }
+
+            const ratesData = await fetch(`https://api.currencyfreaks.com/v2.0/rates/latest?apikey=${process.env.SECRET_KEY_CURRENCY_RATES}&symbols=EUR,BGN,GBP,CHF,JPY,ZAR,CNY`);
+            if (!ratesData) {
+                return resp.status(500).json({ message: 'Internal Server Error.', status: 'Error', code: 500 });
+            }
+            rates = await ratesData.json();
+            return resp.status(200).json({ rates: rates.rates, status: 'Success', code: 200 });
         }
-        rates = await ratesData.json();
-        resp.status(200).json({ rates: rates.rates });
     }
 )
 
@@ -354,85 +373,45 @@ exports.webhookStrp = onRequest(
     {
         // cors: true,
         cors: ['/stripe\.com$/'],
-        secrets: ['STRIPE_WHSEC'] //uncomment to production
+        secrets: [STRIPE_WHSEC, STRIPE_SECRET] //uncomment to production
     },
 
     async (req, resp) => {
-        // DEV mode key
-        // const endpointSecret = process.env.STRIPE_WHSEC_DEV;
-
-        // PRODuction key
-        const endpointSecret = process.env.STRIPE_WHSEC;
 
         if (req.method !== 'POST') {
             return resp.status(400).json({ error: 'Bad request.' });
         };
 
-        const payload = req.rawBody;
+        const payloadBody = req.rawBody;
         const sig = req.headers['stripe-signature'];
-        let event;
 
-        try {
-            event = stripe.webhooks.constructEvent(payload, sig, endpointSecret);
-        } catch (err) {
-            // console.log('ERROR for event: ', err.message)
-            return resp.status(400).send(`Event.object Error: ${err.message}`);
+        const timeStamp = Timestamp.now();
+        const start = timeStamp.toMillis();
+
+        let respWebhookStr = await stripeActions.webhookStr(STRIPE_SECRET.value(), STRIPE_WHSEC.value(), sig, payloadBody, start);
+
+        if (respWebhookStr && respWebhookStr.status !== 'Success') {
+
+            return resp.code(respWebhookStr.code).json({ status: 'Error', message: respWebhookStr.message })
         }
-        if (!event) {
-            return resp.status(400).send(`Event.object Error: Event is Null`);
-        }
-        if (!event.type) {
-            return resp.status(400).send(`Event.object Error: no Event.type`);
-        }
-        if (event.type === 'checkout.session.completed') {
+        else {
+            const { type, subscriptionPeriod, id } = respWebhookStr.payload;
 
+            try {
+                const usersColl = db.collection(process.env.DB_NAME).doc(process.env.DB_USERS_DOC).collection(id);
+                const userSettingsDoc = usersColl.doc('settings');
 
-            if (event.data.object.metadata.uid && event.data.object.metadata.uid !== undefined && event.data.object.metadata.period && event.data.object.metadata.period != undefined) {
-                let subscriptionPeriod;
-                let type;
-                if (event.data.object.metadata.upgradePeriod != null || event.data.object.metadata.upgradePeriod != undefined) {
-                    type = 'Premium';
-                    subscriptionPeriod = Number(event.data.object.metadata.upgradePeriod);
-                } else {
-                    const timeStamp = Timestamp.now();
-                    const start = timeStamp.toMillis();
-                    const year = 31536000000;
-                    const halfYear = 15768000000;
-
-                    if (event.data.object.metadata.period === '1 year') {
-                        subscriptionPeriod = start + year;
-                        type = 'Premium';
-                    } else {
-                        type = 'Basic';
-                        subscriptionPeriod = start + halfYear;
+                await userSettingsDoc.set({
+                    userInfo: {
+                        subscription: {
+                            type,
+                            period: subscriptionPeriod,
+                        },
                     }
-                }
-
-                try {
-                    const usersColl = db.collection(process.env.DB_NAME).doc(process.env.DB_USERS_DOC).collection(event.data.object.metadata.uid);
-                    const userSettingsDoc = usersColl.doc('settings');
-
-                    await userSettingsDoc.set({
-                        userInfo: {
-                            subscription: {
-                                type,
-                                period: subscriptionPeriod,
-
-                            },
-                        }
-                    }, { merge: true });
-
-                    //const usersUserDoc = db.collection('users').doc(event.data.object.metadata.uid);
-                    //await usersUserDoc.set({ plan: { type, period: subscriptionPeriod } }, { merge: true });
-                } catch (err) {
-                    return resp.status(400).send(`DB Error: ${err.message}`);
-                }
-                // try {
-                //     const usersUserDoc = db.collection('users').doc(event.data.object.metadata.uid);
-                //     await usersUserDoc.set({ plan: { type, period: subscriptionPeriod } }, { merge: true });
-                // } catch (err) {
-                //     return resp.status(400).send(`DB Error: ${err.message}`);
-                // }
+                }, { merge: true });
+            }
+            catch (err) {
+                return resp.status(400).send(`DB Error: ${err.message}`);
             }
         }
 
@@ -442,97 +421,46 @@ exports.webhookStrp = onRequest(
 exports.createSubscription = onRequest(
     {
         // cors: true //dev
+        secrets: [STRIPE_SECRET],
         cors: [process.env.APP_DOMAIN_MAIN, process.env.APP_DOMAIN_CUSTOM, process.env.APP_DOMAIN_SECOND,], //prod
         enforceAppCheck: true, // Reject requests with missing or invalid App Check tokens.
     },
     async (req, resp) => {
-        //DEV domain
-        // const APP_DOMAIN_CUSTOM = 'http://127.0.0.1:5000';
-        //PROD domain
-        // const APP_DOMAIN = process.env.APP_DOMAIN_MAIN;
-        const APP_DOMAIN_CUSTOM = process.env.APP_DOMAIN_CUSTOM;
-        const APP_NAME = process.env.APP_NAME;
+
 
         if (req.method !== 'POST') {
-            return resp.status(400).json({ error: 'Bad request.' });
+            return resp.status(400).json({ error: 'Bad request.', status: 'Error' });
         }
         else {
+            //DEV domain
+            // const APP_DOMAIN_CUSTOM = 'http://127.0.0.1:5000';
+
+            //PROD domain
+            // const APP_DOMAIN = process.env.APP_DOMAIN_MAIN;
+            const APP_DOMAIN_CUSTOM = process.env.APP_DOMAIN_CUSTOM;
+            const APP_NAME = process.env.APP_NAME;
+
             const payloadReceived = JSON.parse(req.body);
 
-            const userEmail = payloadReceived.email;
-            const userId = payloadReceived.uid;
-            const currency = payloadReceived.currency;
-            const price = payloadReceived.price;
-
-            const period = payloadReceived.period;
-            const upgradePeriod = payloadReceived.upgradePeriod;
-
-            const customer_email = userEmail;
-            const mode = 'payment';
-            //DEV
-            // const success_url = `http://127.0.0.0:5000/workspace?checkout=complete`;
-            // const cancel_url = `http://127.0.0.0:5000/workspace?checkout=cancel`;
-            //PROD
-            const success_url = `${APP_DOMAIN_CUSTOM}/workspace?checkout=complete`;
-            const cancel_url = `${APP_DOMAIN_CUSTOM}/workspace?checkout=cancel`;
-            const automatic_tax = { enabled: true };
-
-            if (!period || !currency) {
-                resp.status(500).json({ error: 'Internal Server Error.' })
-            };
-
-            let session = null;
-
-            let objectToCreateSession = (isUpgrade) => {
-                let DESCRIPTION_STRING = `${APP_NAME} subscription for ${period}.`;
-                let METADATA_TO_ADD = { uid: userId, period };
-
-                if (isUpgrade == true) {
-                    DESCRIPTION_STRING = `${APP_NAME} subscription upgrade to Premium.`;
-                    METADATA_TO_ADD = { uid: userId, period, upgradePeriod }
-                }
-                return ({
-                    line_items: [
-                        {
-                            price_data: {
-                                currency: currency,
-                                product_data: {
-                                    name: DESCRIPTION_STRING,
-                                },
-                                unit_amount: Math.trunc(price * 100),
-                            },
-                            quantity: 1,
-                        },
-                    ],
-                    metadata: { ...METADATA_TO_ADD },
-                    customer_email,
-                    mode,
-                    success_url,
-                    cancel_url,
-                    automatic_tax
-                })
+            const isTokenVerified = await verifyToken(payloadReceived.accessToken);
+            if (!isTokenVerified || isTokenVerified.status == false) {
+                return resp.status(401).json({ status: 'Error', message: isTokenVerified.message });
             }
+
+            let result = null;
 
             try {
-                if (upgradePeriod != null || upgradePeriod != undefined) {
-                    // upgrade a plan
-                    session = await stripe.checkout.sessions.create(objectToCreateSession(true))
-
+                result = await stripeActions.createStripeSubscription(payloadReceived, STRIPE_SECRET.value(), APP_DOMAIN_CUSTOM, APP_NAME);
+                if (result.status == 'Success' && result.code == 200) {
+                    return resp.status(200).json({ url: result.payload, status: 'Success' })
                 } else {
-                    // crete a new subscription 
-                    session = await stripe.checkout.sessions.create(objectToCreateSession(false))
+                    return resp.status(500).json({ error: 'Internal Server Error.', status: 'Error' });
                 }
             } catch (error) {
-
-                return resp.status(500).json({ status: 'Error', message: error.raw.message ? error.raw.message : 'unable to create stripe session', error: 'Internal Server Error.' })
+                return resp.status(500).json({ error: 'Internal Server Error.', status: 'Error' });
             }
 
-            //stripe-hosted page
-            if (session?.url) {
-                resp.status(200).json({ url: session.url, status: 'Success' })
-            } else {
-                resp.status(500).json({ error: 'Internal Server Error.', status: 'Error' });
-            }
+
         }
     }
 )
@@ -547,31 +475,36 @@ exports.requestToAssistant = onRequest(
     },
     async (req, resp) => {
         if (req.method !== 'POST') {
-            return resp.status(400).json({ error: 'Bad request.' });
+            return resp.status(400).json({ error: 'Bad request.', code: 400, status: 'Error' });
         }
         else {
 
             if (req.body) {
 
-                let data = req.body;
+                let data = JSON.parse(req.body);
+                const isTokenVerified = await verifyToken(data.accessToken);
+                if (!isTokenVerified || isTokenVerified.status == false) {
+                    return resp.status(401).json({ status: 'Error', message: isTokenVerified.message });
+                }
+
                 let assistReply = await createCompletions(data);
                 if (assistReply) {
-                    return resp.status(200).json({ content: assistReply })
+                    return resp.status(200).json({ content: assistReply, status: 'Success', code: 200 })
                 } else {
-                    return resp.status(500).json({ error: 'Internal Server Error.' });
+                    return resp.status(500).json({ message: 'Internal Server Error.', status: 'Error', code: 500 });
                 }
             }
             else {
-                return resp.status(400).json({ error: 'Bad request.' });
+                return resp.status(400).json({ message: 'Bad request.', status: 'Error', code: 400 });
             }
         }
     }
 
 );
 
-const createCompletions = async (dataJSON) => {
+const createCompletions = async (data) => {
 
-    let data = await JSON.parse(dataJSON);
+
     const openai = new OpenAI({
         apiKey: process.env.SECRET_KEY_OPENAI,
     });
@@ -594,21 +527,21 @@ const createCompletions = async (dataJSON) => {
         }
     }
 
-    const completion = await openai.chat.completions.create({
-        model,
-        temperature,
-        presence_penalty: presence_p,
-        frequency_penalty: frequency_p,
-        max_tokens: data.tokens,
-        n: n_param,
-        messages: data.messagesArray,
-    });
+    try {
+        const completion = await openai.chat.completions.create({
+            model,
+            temperature,
+            presence_penalty: presence_p,
+            frequency_penalty: frequency_p,
+            max_tokens: data.tokens,
+            n: n_param,
+            messages: data.messagesArray,
+        });
+        return completion.choices
+    } catch (error) {
+        return null
+    }
 
-    // console.log('-------------------')
-    // console.log(completion)
-    // console.log('--=====================-')
-    return completion.choices
-    // return completion.choices[0].message.content
 }
 
 // Dall-e
@@ -657,22 +590,28 @@ exports.requestToAssistantWithImage = onRequest(
 
             if (req.body) {
 
-                const { request, size, quality, style } = { ...JSON.parse(req.body) };
+                const { request, size, quality, style, accessToken } = { ...JSON.parse(req.body) };
                 const imgSize = {
                     A: '1024x1024',
                     B: '1792x1024',
                     C: '1024x1792',
                 }
+
+                const isTokenVerified = await verifyToken(accessToken);
+                if (!isTokenVerified || isTokenVerified.status == false) {
+                    return resp.status(401).json({ status: 'Error', message: isTokenVerified.message, code: 401 });
+                }
+
                 let imageData64 = await generateImage_dall_e_3_64(request, `${imgSize[size]}`, style, quality); //return base64
 
                 if (imageData64) {
-                    return resp.status(200).json({ content: imageData64 })
+                    return resp.status(200).json({ content: imageData64, status: 'Success', code: 200 })
                 } else {
-                    return resp.status(500).json({ error: 'Internal Server Error.' });
+                    return resp.status(500).json({ message: 'Internal Server Error.', status: 'Error', code: 500 });
                 }
             }
             else {
-                return resp.status(400).json({ error: 'Bad request.' });
+                return resp.status(400).json({ message: 'Bad request.', status: 'Error', code: 40 });
             }
         }
     }
