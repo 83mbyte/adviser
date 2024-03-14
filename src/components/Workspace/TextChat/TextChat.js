@@ -29,6 +29,7 @@ const TextChat = ({ showNoHistoryIssue, setShowNoHistoryIssue }) => {
     const inputFormRef = useRef(null);
     const toast = useToast();
     const user = useAuthContext();
+    const accessToken = user.accessToken;
 
     const predefinedData = usePredefinedDataContext().predefinedData.textchat;
 
@@ -276,9 +277,9 @@ const TextChat = ({ showNoHistoryIssue, setShowNoHistoryIssue }) => {
                 messagesArray = [systemMessage, { role: 'user', content: data.value }];
             }
 
-            let resp = await getReplyFromAssistant({ messagesArray, tokens: 4000, systemVersion, temperature, frequency_p, presence_p, n_param: Number(replyCount) }, 'chat');
+            let resp = await getReplyFromAssistant({ messagesArray, tokens: 4000, systemVersion, temperature, frequency_p, presence_p, n_param: Number(replyCount), accessToken }, 'chat');
 
-            if (resp) {
+            if (resp && resp.status == 'Success') {
                 let responseArray = [];
 
                 if (resp.content.length >= 1) {
@@ -288,14 +289,15 @@ const TextChat = ({ showNoHistoryIssue, setShowNoHistoryIssue }) => {
                 }
 
                 addToHistory(data.value, responseArray, replyFormat)
+            } else {
+                throw new Error(resp.message)
             }
 
         } catch (error) {
-
             console.error(error);
             toast({
                 position: 'top-right',
-                title: `Error.. the request can not be fulfilled`,
+                title: error.message ? error.message : `Error.. the request can not be fulfilled`,
                 status: 'error',
                 duration: 5000,
                 containerStyle: {

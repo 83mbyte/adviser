@@ -23,6 +23,7 @@ const ManageSubscription = () => {
 
     const router = useRouter();
     const user = useAuthContext();
+    const accessToken = user.accessToken;
     const settingsContext = useSettingsContext();
     const themeColor = settingsContext.settings.UI.themeColor;
     const subscription = settingsContext.settings.userInfo.subscription;
@@ -42,7 +43,7 @@ const ManageSubscription = () => {
 
     const submitUpgradeHandler = async (period, price, planName, upgradePeriod) => {
         setIsLoading({ status: true, plan: planName });
-        let data = await createCheckoutSession(user.email, user.uid, currency.toLocaleLowerCase(), period, price, upgradePeriod);
+        let data = await createCheckoutSession(user.email, user.uid, currency.toLocaleLowerCase(), period, price, upgradePeriod, accessToken);
         if (data?.url) {
             setIsLoading({ status: false, plan: null });
             router.push(data.url);
@@ -52,7 +53,7 @@ const ManageSubscription = () => {
     const submitHandler = async (period, price, planName) => {
         setIsLoading({ status: true, plan: planName })
         try {
-            let data = await createCheckoutSession(user.email, user.uid, currency.toLocaleLowerCase(), period, price);
+            let data = await createCheckoutSession(user.email, user.uid, currency.toLocaleLowerCase(), period, price, accessToken);
 
             if (data.status == 'Error') {
                 throw new Error(`${data.message} `)
@@ -96,16 +97,24 @@ const ManageSubscription = () => {
 
     useEffect(() => {
         const getCurrencyRates = async () => {
-            const resp = await getExchangeRates();
-            if (resp) {
-                let ratesObj = { USD: 1.0 };
-                ['BGN', 'EUR', 'GBP', 'CHF', 'CNY', 'JPY', 'ZAR'].forEach((item, index) => {
-                    ratesObj = {
-                        ...ratesObj,
-                        [item]: Number(resp.rates[item]).toFixed(3),
-                    }
-                });
-                setExchangeRates(ratesObj);
+            try {
+                const resp = await getExchangeRates(accessToken);
+
+                if (resp && resp.status == 'Success') {
+                    let ratesObj = { USD: 1.0 };
+                    ['BGN', 'EUR', 'GBP', 'CHF', 'CNY', 'JPY', 'ZAR'].forEach((item, index) => {
+                        ratesObj = {
+                            ...ratesObj,
+                            [item]: Number(resp.rates[item]).toFixed(3),
+                        }
+                    });
+                    setExchangeRates(ratesObj);
+                }
+                else {
+                    throw new Error(resp.message)
+                }
+            } catch (error) {
+                console.error(error.message ? error.message : 'Unable to get currencies rates..');
             }
         }
         getCurrencyRates();

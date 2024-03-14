@@ -21,6 +21,7 @@ const CreateImage = ({ showNoStoreImagesIssue, setShowNoStoreImagesIssue }) => {
     const inputFormRef = useRef(null);
     const toast = useToast();
     const user = useAuthContext();
+    const accessToken = user.accessToken;
 
     const settingsContext = useSettingsContext();
     const themeColor = settingsContext.settings.UI.themeColor;
@@ -111,9 +112,9 @@ const CreateImage = ({ showNoStoreImagesIssue, setShowNoStoreImagesIssue }) => {
 
         try {
 
-            let resp = await getReplyFromAssistant({ size: imageSettings.size, request: data.value, quality: imageSettings.quality, style: imageSettings.style }, 'image');
+            let resp = await getReplyFromAssistant({ size: imageSettings.size, request: data.value, quality: imageSettings.quality, style: imageSettings.style, accessToken }, 'image');
 
-            if (resp) {
+            if (resp && resp.status == 'Success') {
 
                 let imgRequestAndReplyItem = {
                     user: { content: data.value },
@@ -165,13 +166,15 @@ const CreateImage = ({ showNoStoreImagesIssue, setShowNoStoreImagesIssue }) => {
                         }
                     })
                 }
+            } else {
+                throw new Error(resp.message)
             }
 
         } catch (error) {
             console.error(error);
             toast({
                 position: 'top-right',
-                title: `Error.. the request can not be fulfilled`,
+                title: error.message ? error.message : `Error.. the request can not be fulfilled`,
                 status: 'error',
                 duration: 5000,
                 isClosable: true,

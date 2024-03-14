@@ -47,11 +47,11 @@ export const transcribeToText = async (url) => {
         })
 }
 
-export const createCheckoutSession = async (email, userId, currency, period, price, upgradePeriod = null) => {
+export const createCheckoutSession = async (email, userId, currency, period, price, upgradePeriod = null, accessToken = null) => {
     let resp;
     let options = {
         method: 'POST',
-        body: JSON.stringify({ email: email, uid: userId, currency, period, price, upgradePeriod })
+        body: JSON.stringify({ email: email, uid: userId, currency, period, price, upgradePeriod, accessToken })
     }
     //DEV
     // resp = await fetch(process.env.NEXT_PUBLIC_FUNC_SUBSCRIPTION_DEV_URL, options);
@@ -66,11 +66,15 @@ export const createCheckoutSession = async (email, userId, currency, period, pri
 
 }
 
-export const getExchangeRates = async () => {
+export const getExchangeRates = async (accessToken = null) => {
+    let options = {
+        method: 'POST',
+        body: JSON.stringify({ accessToken: accessToken })
+    }
     // DEV
-    // const resp = await fetch(process.env.NEXT_PUBLIC_FUNC_GETEXCHANGERATES_DEV_URL, { method: 'POST' });
+    // const resp = await fetch(process.env.NEXT_PUBLIC_FUNC_GETEXCHANGERATES_DEV_URL, { method: 'POST', body: JSON.stringify({ accessToken: accessToken }) });
     // PROD
-    const resp = await fetch(process.env.NEXT_PUBLIC_FUNC_GETEXCHANGERATES_PROD_URL, { method: 'POST' });
+    const resp = await fetch(process.env.NEXT_PUBLIC_FUNC_GETEXCHANGERATES_PROD_URL, options);
 
     if (resp && resp.status == 200) {
         return await resp.json()
