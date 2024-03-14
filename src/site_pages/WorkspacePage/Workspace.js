@@ -1,25 +1,31 @@
 import { useSearchParams } from 'next/navigation';
-import { useEffect } from 'react';
+import dynamic from 'next/dynamic';
+import { useEffect, useMemo } from 'react';
 import { Box, Portal } from '@chakra-ui/react';
 import { sanitize } from "isomorphic-dompurify";
 
 import styles from './WorkspaceStyles.module.css';
+import { animationProps } from '@/src/lib/animationProps';
+
+import { useSettingsContext } from '@/src/context/SettingsContext/SettingsContextProvider';
+import { AnimatePresence, motion } from 'framer-motion';
+import { useAuthContext } from '@/src/context/AuthContextProvider';
+
 import Header from '../../components/Workspace/Header/Header';
 import MainArea from '../../components/Workspace/MainArea/MainArea';
 import Footer from '../../components/PagesFooter/Footer';
-import { useSettingsContext } from '@/src/context/SettingsContext/SettingsContextProvider';
-import { AnimatePresence, motion } from 'framer-motion';
-import { animationProps } from '@/src/lib/animationProps';
-import SignOutModal from '@/src/components/Modal/SignOutModal';
-import ZoomImgModal from '@/src/components/Modal/ZoomImgModal';
 
-import CheckoutResultModal from '@/src/components/Modal/CheckoutResultModal';
-import SubscriptionNoticeModal from '@/src/components/Modal/SubscriptionNoticeModal';
-import VoiceRecordingModal from '@/src/components/Modal/VoiceRecordingModal';
-import { useAuthContext } from '@/src/context/AuthContextProvider';
 import { dbAPI } from '@/src/lib/dbAPI';
 
+const SignOutModal = dynamic(() => import('@/src/components/Modal/SignOutModal'), { ssr: false })
+const ZoomImgModal = dynamic(() => import('@/src/components/Modal/ZoomImgModal'), { ssr: false })
+const CheckoutResultModal = dynamic(() => import('@/src/components/Modal/CheckoutResultModal'), { ssr: false })
+const SubscriptionNoticeModal = dynamic(() => import('@/src/components/Modal/SubscriptionNoticeModal'), { ssr: false })
+const VoiceRecordingModal = dynamic(() => import('@/src/components/Modal/VoiceRecordingModal'), { ssr: false })
+
+
 const Workspace = () => {
+
     const user = useAuthContext();
     const settingsContext = useSettingsContext();
 
@@ -29,15 +35,22 @@ const Workspace = () => {
 
     const subscription = settingsContext.settings.userInfo.subscription;
 
-    const params = useSearchParams();
+    const paramsOriginal = useSearchParams();
+    const params = useMemo(() => {
+        return new URLSearchParams(paramsOriginal.toString())
+    }, []);
 
     const sanitizeString = (dirtyString) => {
         return sanitize(dirtyString);
     }
 
     const closeModal = () => {
+
         settingsContext.updateSettings('UI', 'showModal', { isShow: false, type: null, body: null })
         history.pushState(null, "", "workspace");
+        if (params.has('checkout')) {
+            params.delete('checkout');
+        }
         return null
     }
 
@@ -61,28 +74,25 @@ const Workspace = () => {
     }, [isEmailVerifiedSavedOnDB]);
 
     useEffect(() => {
+
         if (params.has('checkout')) {
             let bodyString = sanitizeString(params.get('checkout'));
             settingsContext.updateSettings('UI', 'showModal', { isShow: true, type: 'CheckoutResult', body: bodyString })
         }
-    }, [])
-
-    useEffect(() => {
-        if (subscription && subscription.period) {
+        else if ((subscription && subscription.period) && userWorkspaceType != 'subscription') {
             if (subscription.period < Date.now()) {
                 settingsContext.updateSettings('UI', 'showModal', { isShow: true, type: 'SubscriptionNotice', body: null });
-            } else if (subscription.type == 'Basic') {
-                settingsContext.updateSettings('UI', 'workspaceType', 'textchat');
+            }
+            else if (settingsContext.settings.UI.showModal.isShow == false) {
+                if (subscription.type !== 'Basic') {
+                    settingsContext.updateSettings('UI', 'workspaceType', userWorkspaceType || 'image');
+                } else {
+                    settingsContext.updateSettings('UI', 'workspaceType', 'textchat');
+                }
             }
         }
-    }, [subscription])
+    }, [params, subscription, settingsContext.settings.UI.showModal.isShow])
 
-    useEffect(() => {
-        if (settingsContext.settings.UI.showModal.isShow == true) {
-            closeModal();
-        }
-
-    }, [userWorkspaceType])
 
     return (
         <>
@@ -142,7 +152,8 @@ const Workspace = () => {
                                     showModalSettings.type === 'SignOut' &&
                                     <SignOutModal handleClose={closeModal} />
                                 }
-                                {showModalSettings.type === 'ZoomImgModal' &&
+                                {
+                                    showModalSettings.type === 'ZoomImgModal' &&
                                     <ZoomImgModal handleClose={closeModal} image={showModalSettings.body && showModalSettings.body !== undefined ? showModalSettings.body : null} />
                                 }
                                 {
