@@ -43,7 +43,15 @@ const ManageSubscription = () => {
 
     const submitUpgradeHandler = async (period, price, planName, upgradePeriod) => {
         setIsLoading({ status: true, plan: planName });
-        let data = await createCheckoutSession(user.email, user.uid, currency.toLocaleLowerCase(), period, price, upgradePeriod, accessToken);
+        let data = await createCheckoutSession({
+            email: user.email,
+            userId: user.uid,
+            currency: currency.toLocaleLowerCase(),
+            period: period,
+            price,
+            upgradePeriod,
+            accessToken
+        });
         if (data?.url) {
             setIsLoading({ status: false, plan: null });
             router.push(data.url);
@@ -51,9 +59,18 @@ const ManageSubscription = () => {
     }
 
     const submitHandler = async (period, price, planName) => {
-        setIsLoading({ status: true, plan: planName })
+        setIsLoading({ status: true, plan: planName });
+
         try {
-            let data = await createCheckoutSession(user.email, user.uid, currency.toLocaleLowerCase(), period, price, accessToken);
+
+            let data = await createCheckoutSession({
+                email: user.email,
+                userId: user.uid,
+                currency: currency.toLocaleLowerCase(),
+                period,
+                price,
+                accessToken
+            });
 
             if (data.status == 'Error') {
                 throw new Error(`${data.message} `)
