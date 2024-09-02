@@ -308,6 +308,7 @@ exports.requestToTranscribe = onRequest(
                         method: 'POST',
                         headers: {
                             "Authorization": `Bearer ${process.env.SECRET_KEY_OPENAI}`,
+                            // "Content-Type": "application/json"
                             // "Content-Type": "multipart/form-data"
                         },
                         body: formData
