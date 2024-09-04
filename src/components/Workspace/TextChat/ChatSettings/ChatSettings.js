@@ -24,11 +24,13 @@ const settingsArray = [
                 subTitle: 'Select version',
                 key: 'systemVersion',
                 uiElement: 'buttons',
-                buttons: ['GPT-3.5', 'GPT-4'],
+                buttons: ['GPT-4o-mini', 'GPT-4o'],
                 icon: BiSolidNetworkChart,
                 descr: {
-                    0: 'GPT-3.5 model can understand and generate natural language or code. The GPT-3.5 model has been optimized for chat using.',
-                    1: 'GPT-4 is a large multimodal model that can solve difficult problems with greater accuracy, thanks to its broader general knowledge and advanced reasoning capabilities.',
+                    0: 'GPT-4o mini (“o” for “omni”) model. It is multimodal (accepting text or image inputs and outputting text), has higher intelligence than gpt-3.5-turbo. It is meant to be used for smaller tasks, including vision tasks.',
+                    // 0: 'GPT-3.5 model can understand and generate natural language or code. The GPT-3.5 model has been optimized for chat using.',
+                    1: `GPT-4o (“o” for “omni”) is high-intelligence flagship model for complex, multi-step tasks. It is faster than GPT-4.`,
+                    // 1: 'GPT-4 is a large multimodal model that can solve difficult problems with greater accuracy, thanks to its broader general knowledge and advanced reasoning capabilities.',
                 }
             }
         ]
@@ -200,11 +202,11 @@ const ChatSettings = ({ themeColor }) => {
                                                                                     variant={'ghost'}
                                                                                     size={['xs', 'md']}
                                                                                     py={['2', '3']}
-                                                                                    isDisabled={subscription?.type && subscription.type !== 'Premium' && btn == 'GPT-4'}
+                                                                                    isDisabled={subscription?.type && subscription.type !== 'Premium' && btn == 'GPT-4o'}
                                                                                     onClick={() => { updateSettings(btn, el.key) }}
                                                                                 >{btn}</Button>
                                                                                 {
-                                                                                    subscription?.type && subscription.type !== 'Premium' && btn == 'GPT-4' && <Box>
+                                                                                    subscription?.type && subscription.type !== 'Premium' && btn == 'GPT-4o' && <Box>
                                                                                         <Box borderWidth='1px' borderColor={'yellow.400'} p={'1px 3px'} mx={0} borderRadius={'3px'} >
                                                                                             <Text color='yellow.600' fontSize={['2xs', 'xs']} fontWeight={'semibold'}>Premium plan required</Text>
                                                                                         </Box>

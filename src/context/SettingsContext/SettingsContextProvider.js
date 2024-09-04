@@ -28,7 +28,7 @@ const initialSettingsState = {
         replyTone: 'Casual',
         replyFormat: 'Plain text',
         replyCount: '1',
-        systemVersion: 'GPT-3.5',
+        systemVersion: 'GPT-4o-mini',
         temperature: 1,
         frequency_p: 0,
         presence_p: 0
@@ -48,8 +48,8 @@ const initialSettingsState = {
     },
 
     plansPrices: {  //TODO move this data to server  
-        Basic: { currency: 'usd', price: 50, period: '6 months', options: { excl: ['Image Generator', 'Summarize video'], incl: ['GPT-3.5', 'History', 'Fast support'] } },
-        Premium: { currency: 'usd', price: 80, period: '1 year', options: { incl: ['GPT-3.5 & GPT-4', 'History', 'Fast support', 'Image generator', 'Summarize video'] } }
+        Basic: { currency: 'usd', price: 50, period: '6 months', options: { excl: ['Image Generator', 'Summarize video'], incl: ['GPT-4o-mini', 'History', 'Fast support'] } },
+        Premium: { currency: 'usd', price: 80, period: '1 year', options: { incl: ['GPT-4o-mini & GPT-4o', 'History', 'Fast support', 'Image generator', 'Summarize video'] } }
 
     },
 }

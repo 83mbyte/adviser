@@ -241,6 +241,16 @@ const TextChat = ({ showNoHistoryIssue, setShowNoHistoryIssue }) => {
                 let arrayDiscussionContext = [{ role: 'user', content: arrayHistory[0].user.content }];
 
                 switch (systemVersion) {
+
+                    case 'GPT-3.5':
+                        if (arrayHistory.length >= 2) {
+                            arrayDiscussionContext.push({ role: 'assistant', content: arrayHistory[arrayHistory.length - 2].assistant.content[0] });
+                            arrayDiscussionContext.push({ role: 'assistant', content: arrayHistory[arrayHistory.length - 1].assistant.content[0] });
+                        }
+                        else {
+                            arrayDiscussionContext.push({ role: 'assistant', content: arrayHistory[arrayHistory.length - 1].assistant.content[0] });
+                        }
+                        break;
                     case 'GPT-4':
 
                         if (arrayHistory.length > 0) {
@@ -249,16 +259,22 @@ const TextChat = ({ showNoHistoryIssue, setShowNoHistoryIssue }) => {
                             }
                         }
                         break;
-                    case 'GPT-3.5':
+                    case 'GPT-4o':
 
-                        if (arrayHistory.length >= 2) {
-                            arrayDiscussionContext.push({ role: 'assistant', content: arrayHistory[arrayHistory.length - 2].assistant.content[0] });
-                            arrayDiscussionContext.push({ role: 'assistant', content: arrayHistory[arrayHistory.length - 1].assistant.content[0] });
+                        if (arrayHistory.length > 0) {
+                            for (let i = 0; i <= arrayHistory.length - 1; i++) {
+                                arrayDiscussionContext.push({ role: 'assistant', content: arrayHistory[i].assistant.content[0] })
+                            }
                         }
-                        else {
-                            arrayDiscussionContext.push({ role: 'assistant', content: arrayHistory[arrayHistory.length - 1].assistant.content[0] });
-                        }
+                        break;
+                    case 'GPT-4o-mini':
 
+                        if (arrayHistory.length > 0) {
+                            for (let i = 0; i <= arrayHistory.length - 1; i++) {
+                                arrayDiscussionContext.push({ role: 'assistant', content: arrayHistory[i].assistant.content[0] })
+                            }
+                        }
+                        break;
                     default:
                         arrayDiscussionContext.push({ role: 'assistant', content: arrayHistory[arrayHistory.length - 1].assistant.content[0] });
                         break;

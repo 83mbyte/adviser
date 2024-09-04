@@ -509,7 +509,7 @@ const createCompletions = async (data) => {
     const openai = new OpenAI({
         apiKey: process.env.SECRET_KEY_OPENAI,
     });
-    let model = 'gpt-3.5-turbo';
+    let model = 'gpt-4o-mini';
     let presence_p = data.presence_p || 0;
     let frequency_p = data.frequency_p || 0;
     let temperature = data.temperature || 1;
@@ -521,10 +521,17 @@ const createCompletions = async (data) => {
                 model = 'gpt-3.5-turbo';
                 break;
             case 'GPT-4':
-                model = 'gpt-4-turbo-preview'
+                model = 'gpt-4-turbo';
+                break;
+            case 'GPT-4o':
+                model = 'gpt-4o';
+                break;
+
+            case 'GPT-4o-mini':
+                model = 'gpt-4o-mini';
                 break;
             default:
-                model = 'gpt-3.5-turbo';
+                model = 'gpt-4o-mini';
         }
     }
 

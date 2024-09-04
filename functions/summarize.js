@@ -132,25 +132,12 @@ module.exports = {
 
     summarizeText: async (openai, messagesArrayToSummarize) => {
 
-        let model = 'gpt-4-turbo-preview';
+        let model = 'gpt-4o-mini';
         // let model = 'gpt-3.5-turbo';
         let presence_p = 0;
         let frequency_p = 0;
         let temperature = 1;
         let tokens = 4090;
-
-        // if (data.systemVersion) {
-        //     switch (data.systemVersion) {
-        //         case 'GPT-3.5':
-        //             model = 'gpt-3.5-turbo';
-        //             break;
-        //         case 'GPT-4':
-        //             model = 'gpt-4'
-        //             break;
-        //         default:
-        //             model = 'gpt-3.5-turbo';
-        //     }
-        // }
 
         const completion = await openai.chat.completions.create({
             model,
