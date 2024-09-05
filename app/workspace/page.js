@@ -12,6 +12,7 @@ import PredefinedDataContextProvider from "@/src/context/PredefinedDataContext/P
 import SettingsContextProvider from "@/src/context/SettingsContext/SettingsContextProvider";
 
 import Workspace from "@/src/site_pages/WorkspacePage/Workspace";
+import { Spinner } from "@chakra-ui/react";
 
 export default function WorkspacePage() {
     const user = useAuthContext();
@@ -41,7 +42,8 @@ export default function WorkspacePage() {
             getPredefinedData();
             getUserData();
         } else {
-            router.push('/')
+            router.push('/login');
+            // router.push('/')
         }
     }, [user])
 
@@ -81,7 +83,14 @@ const WarningMessage = ({ message }) => {
             }
         }
         >
-            <div style={{ border: '1px solid rgb(225,180,180)', fontSize: '32px', padding: '20px', }}>{message}</div>
+            <Spinner
+                thickness='4px'
+                speed='1.95s'
+                emptyColor='gray.200'
+                color='red.500'
+                size='xl'
+            />
+            {/* <div style={{ border: '1px solid rgb(225,180,180)', fontSize: '32px', padding: '20px', }}>{message}</div> */}
         </div>
     )
 }
