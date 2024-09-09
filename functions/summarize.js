@@ -1,5 +1,5 @@
-
-const ytdl = require('ytdl-core');
+// const ytdl = require('ytdl-core');  //   403error while downloading 
+const ytdl = require('@distube/ytdl-core');  // use this fork to fix '403 error' bug of ytdl-core.
 
 module.exports = {
     validateYoutubeURL: (url) => {
