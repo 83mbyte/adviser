@@ -4,19 +4,20 @@ import { getReplyFromAssistant } from "@/src/lib/fetchingData";
 import { useAuthContext } from "@/src/context/AuthContextProvider";
 import { useToast } from "@chakra-ui/react";
 
-import { animationProps } from "@/src/lib/animationProps";
+// import { animationProps } from "@/src/lib/animationProps";
 
 import { dbAPI } from "@/src/lib/dbAPI";
 import { promptTemplatesAPI } from "@/src/lib/promptsAPI";
 
 import { MdHistory, } from 'react-icons/md';
-import { AnimatePresence, motion } from "framer-motion";
+// import { AnimatePresence, motion } from "framer-motion";
 
-import WorkspaceHistory from "../WorkspaceComponents/WorkspaceHistory/WorkspaceHistory";
-import WorkspaceCard from "../WorkspaceComponents/WorkspaceCard";
-import ResultContentYTSummarize from "../WorkspaceComponents/WorkspaceResultsToShow/ResultContentYTSummarize.js"
+// import WorkspaceHistory from "../WorkspaceComponents/WorkspaceHistory/WorkspaceHistory";
+// import WorkspaceCard from "../WorkspaceComponents/WorkspaceCard";
+// import ResultContentYTSummarize from "../WorkspaceComponents/WorkspaceResultsToShow/ResultContentYTSummarize.js"
 import { useSettingsContext } from "@/src/context/SettingsContext/SettingsContextProvider";
 import { useHistoryContext } from "@/src/context/HistoryContext/HistoryContextProvider";
+import UnavailableResource from "../../Modal/UnavailableResource";
 
 
 const headerLeftButtons = null;
@@ -431,7 +432,9 @@ const YouTubeSummarize = ({ showNoHistoryVideoIssue, setShowNoHistoryVideoIssue 
 
     return (
         <>
-            <WorkspaceCard
+
+            <UnavailableResource />
+            {/* <WorkspaceCard
                 cardTitle={'Summarize YouTube video'}
                 showIssueNotice={showSummarize && showNoHistoryVideoIssue}
                 closeIssueNotice={setShowNoHistoryVideoIssue}
@@ -470,7 +473,7 @@ const YouTubeSummarize = ({ showNoHistoryVideoIssue, setShowNoHistoryVideoIssue 
                         <ResultContentYTSummarize progressValue={progressValue} isLoading={isLoading} themeColor={themeColor} showSummarize={showSummarize} currentSummarize={history ? history[historyId] : []} />
                     </>
                 }
-            </WorkspaceCard>
+            </WorkspaceCard> */}
         </>
     )
 }

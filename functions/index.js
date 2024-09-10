@@ -118,7 +118,7 @@ exports.summarizeData = onRequest({
                 let res = await summarize.downloadAudioFile(url = request_data.payload.url, info = request_data.payload.info, fileToSave = filePath, userId);
 
                 if (res && res.status !== 'Success') {
-                    return resp.status(200).json(res);
+                    return resp.status(200).json({ status: 'Error', payload: res });
                 } else {
 
                     let fileUrl = await getDownloadURL(filePath);
