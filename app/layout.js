@@ -58,7 +58,9 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <GoogleTagManager gtmId={process.env.NEXT_PUBLIC_GOOGLE_GTM} />
+      {
+        process.env.NODE_ENV !== "development" && <GoogleTagManager gtmId={process.env.NEXT_PUBLIC_GOOGLE_GTM} />
+      }
       <body>
         {children}
       </body>

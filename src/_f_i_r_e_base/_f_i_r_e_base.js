@@ -27,10 +27,13 @@ export const app = initializeApp(firebaseConfig);
 // Initialize Analytics
 if (typeof window !== "undefined") {
 
-    const appCheck = initializeAppCheck(app, {
-        provider: new ReCaptchaEnterpriseProvider(process.env.NEXT_PUBLIC_FIREBASE_APP_CHECK),
-        isTokenAutoRefreshEnabled: true // Set to true to allow auto-refresh.
-    });
+    if (process.env.NODE_ENV !== "development") {
+
+        const appCheck = initializeAppCheck(app, {
+            provider: new ReCaptchaEnterpriseProvider(process.env.NEXT_PUBLIC_FIREBASE_APP_CHECK),
+            isTokenAutoRefreshEnabled: true // Set to true to allow auto-refresh.
+        });
+    }
 
     const analytics = getAnalytics(app);
 }

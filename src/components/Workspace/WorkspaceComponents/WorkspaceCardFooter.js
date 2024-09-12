@@ -198,7 +198,7 @@ const FormTextChat = forwardRef(function FormTextChatRef({ themeColor, onSubmitB
                 display={'flex'}
                 alignItems={'center'}
                 marginBottom={{ base: '10px', sm: '0px' }}>
-                <Textarea
+                {/* <Textarea
                     isDisabled={isDisabled}
                     ref={ref}
                     resize={'none'}
@@ -217,6 +217,53 @@ const FormTextChat = forwardRef(function FormTextChatRef({ themeColor, onSubmitB
                     animate={changeHeight ? 'multiRows' : 'oneRow'}
                     layout
                     spellCheck={false}
+                /> */}
+                {/* ====== */}
+                {/* <Textarea
+                    ref={ref}
+                    resize={'none'}
+                    rows={1}
+                    isDisabled={isDisabled}
+                    marginBottom={{ base: '0', sm: '0px' }}
+                    borderColor={`${themeColor}.200`}
+                    // border={'none'}
+                    _hover={{ borderColor: `${themeColor}.600` }}
+                    _focusVisible={{ borderColor: `${themeColor}.600` }}
+                    placeholder={showMic ? 'type text message or use a microphone!' : '!type text message'}
+                    onChange={(e) => checkInputHeight(e)}
+                    onFocus={(e) => { checkInputHeight(e); e.target.setSelectionRange(e.target.value.length, e.target.value.length) }}
+                    defaultValue={defaultValue}
+                    fontSize={{ base: 'xs', sm: 'md' }}
+                    as={motion.textarea}
+                    variants={textAreaAnimation}
+                    initial={'oneRow'}
+                    animate={changeHeight ? 'multiRows' : 'oneRow'}
+                    layout
+                    spellCheck={false}
+                /> */}
+
+                <Textarea
+                    ref={ref}
+                    resize={'none'}
+                    rows={1}
+                    isDisabled={isDisabled}
+                    marginBottom={{ base: '0', sm: '0px' }}
+                    borderColor={'transparent'}
+                    // borderColor={`${themeColor}.200`} 
+                    // _hover={{ borderColor: `${themeColor}.600` }}
+                    _focusVisible={{ borderColor: `${themeColor}.600`, borderRight: 'none' }}
+                    // _focusVisible={{ borderColor: `${themeColor}.600` }}
+                    // placeholder={'A sunflower seeds..'}
+                    placeholder={showMic ? 'type message or use a microphone' : 'type text message'}
+                    onChange={(e) => checkInputHeight(e)}
+                    onFocus={(e) => { checkInputHeight(e); e.target.setSelectionRange(e.target.value.length, e.target.value.length) }}
+                    defaultValue={defaultValue}
+                    as={motion.textarea}
+                    variants={textAreaAnimation}
+                    initial={'oneRow'}
+                    animate={changeHeight ? 'multiRows' : 'oneRow'}
+                    layout
+                    spellCheck={false}
                 />
                 {
                     showMic &&
@@ -229,7 +276,8 @@ const FormTextChat = forwardRef(function FormTextChatRef({ themeColor, onSubmitB
                             colorScheme={themeColor}
                             onClick={() => toggleMic()}
                         />
-                    </Tooltip>}
+                    </Tooltip>
+                }
             </Box>
             <Button
                 colorScheme={themeColor}
@@ -255,7 +303,7 @@ const FormImageCreate = forwardRef(function FormImageCreateRef({ themeColor, onS
 
 
     return (
-        <Fragment key={'formTextChat'}>
+        <Fragment key={'formImageCreate'}>
             <Textarea
                 ref={ref}
                 resize={'none'}

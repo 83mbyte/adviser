@@ -11,6 +11,8 @@ const nextConfig = {
 
 const withPWA = require("@ducanh2912/next-pwa").default({
     dest: "public",
+    scope: "/app",
+    disable: process.env.NODE_ENV === "development",
     register: true,         // register the PWA service worker
     skipWaiting: true,      // skip waiting for service worker activation
 });

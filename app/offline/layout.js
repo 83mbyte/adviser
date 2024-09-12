@@ -1,0 +1,20 @@
+import { NecessaryProviders } from "@/src/context/providers"
+
+export const metadata = {
+  title: `${process.env.NEXT_PUBLIC_APP_NAME} - offline resource..`,
+  description: `${process.env.NEXT_PUBLIC_APP_NAME} - Your personal AI-based assistant. Generate images. Summarize video.`,
+  manifest: './icons/site.webmanifest',
+}
+
+export default function OfflineLayout({ children }) {
+  return (
+
+    <>
+      <NecessaryProviders>
+        {children}
+      </NecessaryProviders>
+
+    </>
+
+  )
+}
