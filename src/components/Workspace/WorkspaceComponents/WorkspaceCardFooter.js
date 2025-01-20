@@ -189,104 +189,56 @@ const FormTextChat = forwardRef(function FormTextChatRef({ themeColor, onSubmitB
 
     return (
         <Fragment key={'formTextChat'}>
-            <Box
-                borderWidth={'1px'}
-                borderRadius={'8px'}
-                borderColor={`${themeColor}.200`}
-                w='full'
-                px={0}
-                display={'flex'}
-                alignItems={'center'}
-                marginBottom={{ base: '10px', sm: '0px' }}>
-                {/* <Textarea
-                    isDisabled={isDisabled}
-                    ref={ref}
-                    resize={'none'}
-                    rows={1}
-                    border={'none'}
-                    _focusVisible={{ borderColor: `${themeColor}.900` }}
-                    placeholder={showMic ? 'type text message or use a microphone' : 'type text message'}
-                    onChange={(e) => { checkInputHeight(e) }}
-                    // onBlur={(e) => setInputTextData(e.target.value)}
-                    // onFocus={(e) => { checkInputHeight(e); e.target.setSelectionRange(e.target.value.length, e.target.value.length) }}
-                    defaultValue={defaultValue}
-                    as={motion.textarea}
-                    variants={textAreaAnimation}
-                    initial={'oneRow'}
-                    fontSize={{ base: 'xs', sm: 'md' }}
-                    animate={changeHeight ? 'multiRows' : 'oneRow'}
-                    layout
-                    spellCheck={false}
-                /> */}
-                {/* ====== */}
-                {/* <Textarea
-                    ref={ref}
-                    resize={'none'}
-                    rows={1}
-                    isDisabled={isDisabled}
-                    marginBottom={{ base: '0', sm: '0px' }}
-                    borderColor={`${themeColor}.200`}
-                    // border={'none'}
-                    _hover={{ borderColor: `${themeColor}.600` }}
-                    _focusVisible={{ borderColor: `${themeColor}.600` }}
-                    placeholder={showMic ? 'type text message or use a microphone!' : '!type text message'}
-                    onChange={(e) => checkInputHeight(e)}
-                    onFocus={(e) => { checkInputHeight(e); e.target.setSelectionRange(e.target.value.length, e.target.value.length) }}
-                    defaultValue={defaultValue}
-                    fontSize={{ base: 'xs', sm: 'md' }}
-                    as={motion.textarea}
-                    variants={textAreaAnimation}
-                    initial={'oneRow'}
-                    animate={changeHeight ? 'multiRows' : 'oneRow'}
-                    layout
-                    spellCheck={false}
-                /> */}
 
-                <Textarea
-                    ref={ref}
-                    resize={'none'}
-                    rows={1}
-                    isDisabled={isDisabled}
-                    marginBottom={{ base: '0', sm: '0px' }}
-                    borderColor={'transparent'}
-                    // borderColor={`${themeColor}.200`} 
-                    // _hover={{ borderColor: `${themeColor}.600` }}
-                    _focusVisible={{ borderColor: `${themeColor}.600`, borderRight: 'none' }}
-                    // _focusVisible={{ borderColor: `${themeColor}.600` }}
-                    // placeholder={'A sunflower seeds..'}
-                    placeholder={showMic ? 'type message or use a microphone' : 'type text message'}
-                    onChange={(e) => checkInputHeight(e)}
-                    onFocus={(e) => { checkInputHeight(e); e.target.setSelectionRange(e.target.value.length, e.target.value.length) }}
-                    defaultValue={defaultValue}
-                    as={motion.textarea}
-                    variants={textAreaAnimation}
-                    initial={'oneRow'}
-                    animate={changeHeight ? 'multiRows' : 'oneRow'}
-                    layout
-                    spellCheck={false}
-                />
+            <Textarea
+                ref={ref}
+                resize={'none'}
+                rows={1}
+                isDisabled={isDisabled}
+                marginBottom={{ base: '0', sm: '0px' }}
+                borderColor={`${themeColor}.200`}
+                _hover={{ borderColor: `${themeColor}.600` }}
+                _focusVisible={{ borderColor: `${themeColor}.600` }}
+                placeholder={showMic ? 'type message or use a microphone' : 'type text message'}
+                onChange={(e) => checkInputHeight(e)}
+                onFocus={(e) => { checkInputHeight(e); e.target.setSelectionRange(e.target.value.length, e.target.value.length) }}
+                defaultValue={defaultValue}
+                as={motion.textarea}
+                variants={textAreaAnimation}
+                initial={'oneRow'}
+                animate={changeHeight ? 'multiRows' : 'oneRow'}
+                layout
+                spellCheck={false}
+
+            />
+            <Box display={'flex'} flexDirection={'row'} columnGap={2}>
                 {
                     showMic &&
                     <Tooltip label='Use your voice' hasArrow bg={`${themeColor}.500`} placement='auto'>
                         <IconButton
                             aria-label='microphone'
                             icon={<FaMicrophone />}
-                            variant={'ghost'}
+                            variant={'outline'}
                             isDisabled={isDisabled}
                             colorScheme={themeColor}
                             onClick={() => toggleMic()}
+                            size={['sm', 'md']}
                         />
                     </Tooltip>
                 }
+
+                <Button
+                    w={['full', 'min']}
+                    colorScheme={themeColor}
+                    isDisabled={isDisabled}
+                    isLoading={isLoading}
+                    size={{ base: 'sm', sm: 'md' }}
+                    onClick={() => onSubmitButtonHandler(ref.current.value)}
+                >
+                    Send
+                </Button>
             </Box>
-            <Button
-                colorScheme={themeColor}
-                isDisabled={isDisabled}
-                isLoading={isLoading}
-                onClick={() => onSubmitButtonHandler(ref.current.value)}
-            >
-                Send
-            </Button>
+
         </Fragment>
     )
 })
