@@ -23,13 +23,13 @@ export const authAPI = {
 
     signInGoogle: async () => {
         const provider = new GoogleAuthProvider();
-        const auth = getAuth();
+        const auth = getAuth(app);
         auth.useDeviceLanguage();
         await signInWithRedirect(auth, provider);
     },
 
     signInAfterRedirect: async () => {
-        const auth = getAuth();
+        const auth = getAuth(app);
         return await getRedirectResult(auth)
             .then((result) => {
                 // This gives you a Google Access Token. You can use it to access Google APIs.
