@@ -85,7 +85,8 @@ const Workspace = () => {
             }
             else if (settingsContext.settings.UI.showModal.isShow == false) {
                 if (subscription.type !== 'Basic') {
-                    settingsContext.updateSettings('UI', 'workspaceType', userWorkspaceType || 'image');
+                    settingsContext.updateSettings('UI', 'workspaceType', userWorkspaceType || 'textchat');
+                    // settingsContext.updateSettings('UI', 'workspaceType', userWorkspaceType || 'image');
                 } else {
                     settingsContext.updateSettings('UI', 'workspaceType', 'textchat');
                 }

@@ -101,7 +101,9 @@ export default function Login() {
 
     const signInWithGoogleHandler = async () => {
         console.log('signInWithGoogle');
+        setIsLoadingGoogle(true);
         await authAPI.signInGoogle();
+        setIsLoadingGoogle(false);
     }
 
     React.useEffect(() => {
