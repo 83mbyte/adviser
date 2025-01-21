@@ -15,6 +15,7 @@ import {
     Text,
     Portal,
     VStack,
+    Badge,
 } from '@chakra-ui/react';
 
 import { motion } from 'framer-motion';
@@ -99,6 +100,7 @@ const HeaderSettingsMenu = ({ openNewWindowHandler }) => {
 
                                                 <HStack>
                                                     <Button isDisabled={subscription?.period && subscription.period < Date.now() || subscription?.type && subscription.type == 'Basic'} leftIcon={<RiYoutubeFill />} size='sm' variant={'ghost'} colorScheme={themeColor} onClick={() => { openNewWindowHandler('ytsummarize'); onClose(); }}>Summarize video</Button>
+                                                    <Badge zIndex={'tooltip'} ml='-4' mt='-1.5' colorScheme='orange' variant={'subtle'} fontSize={'7px'}>new</Badge>
                                                     {
                                                         subscription?.type && subscription.type == 'Basic' && <Box>
                                                             <Box borderWidth='1px' borderColor={'yellow.400'} p={'1px 3px'} mx={0} borderRadius={'3px'} >

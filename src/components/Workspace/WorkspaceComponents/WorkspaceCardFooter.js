@@ -147,7 +147,11 @@ const FormSummarizeYT = forwardRef(function FormSummarizeYTRef({ themeColor, sum
     return (
 
         <Fragment key={'formYTubeSummarize'}>
-            <Input ref={ref} isDisabled={isDisabled} placeholder="https://www.youtube.com/watch?v=Video_ID" defaultValue={defaultValue} spellCheck={false} />
+            <Input ref={ref} isDisabled={isDisabled} placeholder="https://www.youtube.com/watch?v=Video_ID" defaultValue={defaultValue} spellCheck={false}
+                borderColor={`${themeColor}.200`}
+                _hover={{ borderColor: `${themeColor}.600` }}
+                _focusVisible={{ borderColor: `${themeColor}.600` }}
+            />
             <Box display={'flex'} flexDirection={'row'} columnGap={2}>
                 <SummarizeYTMenu themeColor={themeColor} summarizeSettings={summarizeSettings} updateSummarizeSettings={updateSummarizeSettings} isDisabled={isDisabled} />
                 <Button
