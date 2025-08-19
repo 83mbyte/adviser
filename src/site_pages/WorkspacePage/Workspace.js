@@ -79,6 +79,9 @@ const Workspace = () => {
             let bodyString = sanitizeString(params.get('checkout'));
             settingsContext.updateSettings('UI', 'showModal', { isShow: true, type: 'CheckoutResult', body: bodyString })
         }
+        else if (userWorkspaceType == 'subscription') {
+            settingsContext.updateSettings('UI', 'showModal', { isShow: false, type: null, body: null });
+        }
         else if ((subscription && subscription.period) && userWorkspaceType != 'subscription') {
             if (subscription.period < Date.now()) {
                 settingsContext.updateSettings('UI', 'showModal', { isShow: true, type: 'SubscriptionNotice', body: null });
@@ -92,7 +95,7 @@ const Workspace = () => {
                 }
             }
         }
-    }, [params, subscription, settingsContext.settings.UI.showModal.isShow])
+    }, [params, userWorkspaceType, subscription, settingsContext.settings.UI.showModal.isShow])
 
 
     return (
