@@ -24,14 +24,14 @@ const settingsArray = [
                 subTitle: 'Select version',
                 key: 'systemVersion',
                 uiElement: 'buttons',
-                buttons: ['GPT-4o-mini', 'GPT-4o'],
+                buttons: ['GPT-5-mini', 'GPT-5'],
                 icon: BiSolidNetworkChart,
                 descr: {
-                    0: 'GPT-4o mini (“o” for “omni”) model. It is multimodal (accepting text or image inputs and outputting text), has higher intelligence than gpt-3.5-turbo. It is meant to be used for smaller tasks, including vision tasks.',
-                    // 0: 'GPT-3.5 model can understand and generate natural language or code. The GPT-3.5 model has been optimized for chat using.',
-                    1: `GPT-4o (“o” for “omni”) is high-intelligence flagship model for complex, multi-step tasks. It is faster than GPT-4.`,
-                    // 1: 'GPT-4 is a large multimodal model that can solve difficult problems with greater accuracy, thanks to its broader general knowledge and advanced reasoning capabilities.',
+                    0: `GPT-5 mini is a faster, more cost-efficient version of GPT-5. It's great for well-defined tasks and precise prompts.`,
+
+                    1: `GPT-5 is the newest flagship model for coding, reasoning, and agentic tasks across domains.`
                 }
+
             }
         ]
     },
@@ -67,7 +67,7 @@ const settingsArray = [
                 subTitle: 'Set reply length (as max)',
                 key: 'replyLength',
                 uiElement: 'buttons',
-                buttons: ['100 words', '300 words', '500 words', '800 words'],
+                buttons: ['500 words', '1000 words', '2000 words', '4000 words'],
                 icon: AiFillEdit,
             },
             {
@@ -202,11 +202,11 @@ const ChatSettings = ({ themeColor }) => {
                                                                                     variant={'ghost'}
                                                                                     size={['xs', 'md']}
                                                                                     py={['2', '3']}
-                                                                                    isDisabled={subscription?.type && subscription.type !== 'Premium' && btn == 'GPT-4o'}
+                                                                                    isDisabled={subscription?.type && subscription.type !== 'Premium' && btn == 'GPT-5'}
                                                                                     onClick={() => { updateSettings(btn, el.key) }}
                                                                                 >{btn}</Button>
                                                                                 {
-                                                                                    subscription?.type && subscription.type !== 'Premium' && btn == 'GPT-4o' && <Box>
+                                                                                    subscription?.type && subscription.type !== 'Premium' && btn == 'GPT-5' && <Box>
                                                                                         <Box borderWidth='1px' borderColor={'yellow.400'} p={'1px 3px'} mx={0} borderRadius={'3px'} >
                                                                                             <Text color='yellow.600' fontSize={['2xs', 'xs']} fontWeight={'semibold'}>Premium plan required</Text>
                                                                                         </Box>

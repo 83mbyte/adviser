@@ -509,7 +509,7 @@ const createCompletions = async (data) => {
     const openai = new OpenAI({
         apiKey: process.env.SECRET_KEY_OPENAI,
     });
-    let model = 'gpt-4o-mini';
+    let model = 'gpt-5-mini';
     let presence_p = data.presence_p || 0;
     let frequency_p = data.frequency_p || 0;
     let temperature = data.temperature || 1;
@@ -517,21 +517,15 @@ const createCompletions = async (data) => {
 
     if (data.systemVersion) {
         switch (data.systemVersion) {
-            case 'GPT-3.5':
-                model = 'gpt-3.5-turbo';
+            case 'GPT-5-mini':
+                model = 'gpt-5-mini';
                 break;
-            case 'GPT-4':
-                model = 'gpt-4-turbo';
-                break;
-            case 'GPT-4o':
-                model = 'gpt-4o';
+            case 'GPT-5':
+                model = 'gpt-5';
                 break;
 
-            case 'GPT-4o-mini':
-                model = 'gpt-4o-mini';
-                break;
             default:
-                model = 'gpt-4o-mini';
+                model = 'gpt-5-mini';
         }
     }
 
@@ -541,7 +535,7 @@ const createCompletions = async (data) => {
             temperature,
             presence_penalty: presence_p,
             frequency_penalty: frequency_p,
-            max_tokens: data.tokens,
+            // max_tokens: data.tokens,
             n: n_param,
             messages: data.messagesArray,
         });

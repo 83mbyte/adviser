@@ -251,7 +251,7 @@ const TextChat = ({ showNoHistoryIssue, setShowNoHistoryIssue }) => {
                             arrayDiscussionContext.push({ role: 'assistant', content: arrayHistory[arrayHistory.length - 1].assistant.content[0] });
                         }
                         break;
-                    case 'GPT-4':
+                    case 'GPT-5-mini':
 
                         if (arrayHistory.length > 0) {
                             for (let i = 0; i <= arrayHistory.length - 1; i++) {
@@ -259,15 +259,7 @@ const TextChat = ({ showNoHistoryIssue, setShowNoHistoryIssue }) => {
                             }
                         }
                         break;
-                    case 'GPT-4o':
-
-                        if (arrayHistory.length > 0) {
-                            for (let i = 0; i <= arrayHistory.length - 1; i++) {
-                                arrayDiscussionContext.push({ role: 'assistant', content: arrayHistory[i].assistant.content[0] })
-                            }
-                        }
-                        break;
-                    case 'GPT-4o-mini':
+                    case 'GPT-5':
 
                         if (arrayHistory.length > 0) {
                             for (let i = 0; i <= arrayHistory.length - 1; i++) {
@@ -293,7 +285,7 @@ const TextChat = ({ showNoHistoryIssue, setShowNoHistoryIssue }) => {
                 messagesArray = [systemMessage, { role: 'user', content: data.value }];
             }
 
-            let resp = await getReplyFromAssistant({ messagesArray, tokens: 4000, systemVersion, temperature, frequency_p, presence_p, n_param: Number(replyCount), accessToken }, 'chat');
+            let resp = await getReplyFromAssistant({ messagesArray, tokens: 8000, systemVersion, temperature, frequency_p, presence_p, n_param: Number(replyCount), accessToken }, 'chat');
 
             if (resp && resp.status == 'Success') {
                 let responseArray = [];
