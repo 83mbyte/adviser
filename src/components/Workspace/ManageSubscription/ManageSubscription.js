@@ -255,8 +255,7 @@ const ManageSubscription = () => {
                                         {
                                             Object.keys(paidPlans).sort().map((planName, index) => {
                                                 let price = Math.ceil(paidPlans[planName].price);
-                                                if (subscription.type == 'Basic' && planName == 'Premium') {
-
+                                                if ((subscription.type == 'Basic' && subscription.period > Date.now()) && planName == 'Premium') {
                                                     let upgradePrice = Math.ceil(paidPlans[planName].price - paidPlans.Basic.price);
                                                     let upgradePeriod = subscription.period + 15768000000;
 
@@ -267,7 +266,7 @@ const ManageSubscription = () => {
                                                 }
 
                                                 return (
-                                                    <PlanCardOriginal key={`pl_${index}`} isLoading={isLoading} currentSubscription={subscription.type} title={planName} themeColor={themeColor} period={paidPlans[planName].period} price={price} currency={paidPlans[planName].currency} planOptions={paidPlans[planName].options} submitHandler={() => submitHandler(paidPlans[planName].period, price, planName)} />
+                                                    <PlanCardOriginal key={`pl_${index}`} isLoading={isLoading} currentSubscription={subscription} title={planName} themeColor={themeColor} period={paidPlans[planName].period} price={price} currency={paidPlans[planName].currency} planOptions={paidPlans[planName].options} submitHandler={() => submitHandler(paidPlans[planName].period, price, planName)} />
                                                 )
                                             })
                                         }
@@ -301,9 +300,13 @@ export default ManageSubscription;
 
 const PlanCardOriginal = ({ themeColor, currentSubscription, title, price, period, currency, isLoading, planOptions, submitHandler }) => {
     let cardOpacity = '1';
-    if (currentSubscription == 'Basic' && title !== 'Premium' || currentSubscription == 'Premium') {
+
+    if ((currentSubscription.type == 'Basic' && title !== 'Premium' && currentSubscription.period > Date.now()) || (currentSubscription.type == 'Premium' && currentSubscription.period > Date.now())) {
         cardOpacity = '0.45';
     }
+    // if (currentSubscription == 'Basic' && title !== 'Premium' || currentSubscription == 'Premium') {
+    //     cardOpacity = '0.45';
+    // }
 
     return (
         <Card w={['85%', '45%']} variant={'elevated'} >
@@ -346,7 +349,7 @@ const PlanCardOriginal = ({ themeColor, currentSubscription, title, price, perio
             <CardFooter justifyContent={'center'}>
                 <Button
                     isLoading={isLoading.status === true && isLoading.plan === title}
-                    isDisabled={isLoading.status === true && isLoading.plan !== title || currentSubscription !== 'Trial'}
+                    isDisabled={(isLoading.plan !== title) && currentSubscription.period > Date.now()}
                     colorScheme={themeColor}
                     leftIcon={<MdOutlineShoppingCart />}
                     onClick={submitHandler}
