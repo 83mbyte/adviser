@@ -171,12 +171,7 @@ const ChatSettings = ({ themeColor }) => {
                                                         {el.icon && <Icon as={el.icon} color={`${themeColor}.600`} boxSize={'1em'} />}
                                                         <Text fontSize={['xs', 'md']} color={`${themeColor}.700`}>
 
-                                                            {el.subTitle} {
-                                                                el.badge &&
-                                                                <Badge mr='1' mb='3' colorScheme='orange' variant={'solid'} fontSize={'8px'} >
-                                                                    {el.badge}
-                                                                </Badge>
-                                                            }:
+                                                            {el.subTitle}:
                                                         </Text>
                                                     </HStack>
                                                     {
@@ -191,7 +186,7 @@ const ChatSettings = ({ themeColor }) => {
 
                                                                     return (
                                                                         <Box key={btnIndex} bg='' mb={1}>
-                                                                            <Box>
+                                                                            <Box display={'flex'} flexDirection={'row'} alignItems={'center'}  >
                                                                                 <Button
 
                                                                                     leftIcon={
@@ -206,8 +201,8 @@ const ChatSettings = ({ themeColor }) => {
                                                                                     onClick={() => { updateSettings(btn, el.key) }}
                                                                                 >{btn}</Button>
                                                                                 {
-                                                                                    subscription?.type && subscription.type !== 'Premium' && btn == 'GPT-5' && <Box>
-                                                                                        <Box borderWidth='1px' borderColor={'yellow.400'} p={'1px 3px'} mx={0} borderRadius={'3px'} >
+                                                                                    subscription?.type && subscription.type !== 'Premium' && btn == 'GPT-5' && <Box display={'flex'} as={motion.div} initial={{ opacity: 0 }} animate={{ opacity: 1, transition: { delay: 2, duration: 1 } }}>
+                                                                                        <Box borderWidth='1px' borderColor={'yellow.400'} p={'1px 3px'} mx={0} borderRadius={'3px'}>
                                                                                             <Text color='yellow.600' fontSize={['2xs', 'xs']} fontWeight={'semibold'}>Premium plan required</Text>
                                                                                         </Box>
                                                                                     </Box>
