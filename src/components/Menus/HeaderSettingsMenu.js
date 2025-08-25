@@ -98,15 +98,21 @@ const HeaderSettingsMenu = ({ openNewWindowHandler }) => {
                                                 <Button isDisabled={subscription?.period && subscription.period < Date.now()} leftIcon={<MdChat />} size='sm' variant={'ghost'} colorScheme={themeColor} onClick={() => { openNewWindowHandler('textchat'); onClose(); }}>Chat bot</Button>
 
                                                 <HStack>
-                                                    <Button isDisabled={subscription?.period && subscription.period < Date.now() || subscription?.type && subscription.type == 'Basic'} leftIcon={<RiYoutubeFill />} size='sm' variant={'ghost'} colorScheme={themeColor} onClick={() => { openNewWindowHandler('ytsummarize'); onClose(); }}>Summarize video</Button>
+                                                    <Button isDisabled={true} leftIcon={<RiYoutubeFill />} size='sm' variant={'ghost'} colorScheme={themeColor} onClick={() => { openNewWindowHandler('ytsummarize'); onClose(); }}>Summarize video</Button>
 
-                                                    {
+                                                    <Box>
+                                                        <Box borderWidth='1px' borderColor={'gray.400'} p={'1px 3px'} mx={0} borderRadius={'3px'} >
+                                                            <Text color='gray.400' fontSize={['8px']} fontWeight={'semibold'}>Unavailable</Text>
+                                                        </Box>
+                                                    </Box>
+
+                                                    {/* {
                                                         subscription?.type && subscription.type == 'Basic' && <Box>
                                                             <Box borderWidth='1px' borderColor={'yellow.400'} p={'1px 3px'} mx={0} borderRadius={'3px'} >
                                                                 <Text color='yellow.600' fontSize={['2xs', 'xs']} fontWeight={'semibold'}>Premium plan required</Text>
                                                             </Box>
-                                                        </Box>
-                                                    }
+                                                        </Box> 
+                                                    }*/}
                                                 </HStack>
                                             </VStack>
 
