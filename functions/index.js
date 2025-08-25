@@ -1,5 +1,5 @@
 
-const functions = require("firebase-functions");
+const functions = require("firebase-functions/v1");
 const { Storage, getDownloadURL } = require("firebase-admin/storage");
 const { onRequest } = require("firebase-functions/v2/https");
 const { setGlobalOptions } = require("firebase-functions/v2/options");
@@ -621,12 +621,12 @@ exports.requestToAssistantWithImage = onRequest(
 
 
 
-exports.userAdded = functions.auth.user().onCreate((user) => {
+exports.userAdded = functions.auth.user().onCreate(async () => {
     createUserInDB(user.uid, user.email, user.emailVerified);
     return Promise.resolve();
 })
 
-exports.userDeleted = functions.auth.user().onDelete((user) => {
+exports.userDeleted = functions.auth.user().onDelete(async (user) => {
     deleteUserInDB(user.uid);
     return Promise.resolve();
 })
